@@ -13,6 +13,9 @@ import Services from "./pages/Services";
 import Invoices from "./pages/Invoices";
 import Reports from "./pages/Reports";
 import Branches from "./pages/Branches";
+import Shops from "./pages/Shops";
+import SettingsPage from "./pages/Settings";
+import Branches from "./pages/Branches";
 import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
