@@ -19,6 +19,7 @@ const items = [
   { title: "الفواتير", url: "/invoices", icon: FileText },
   { title: "التقارير", url: "/reports", icon: BarChart3 },
   { title: "الفروع", url: "/branches", icon: Building2 },
+  { title: "المحلات", url: "/shops", icon: Store },
   { title: "الإعدادات", url: "/settings", icon: Settings },
 ];
 
