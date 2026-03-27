@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, ClipboardList, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Car,
+  FileText, BarChart3, Building2, Settings, Car, Store,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
