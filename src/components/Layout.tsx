@@ -16,7 +16,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <SidebarTrigger className="mr-2" />
             {branches.length > 1 && currentBranch && (
               <Select
-                value={currentBranch.id}
+                value={currentBranch?.id || ""}
                 onValueChange={(v) => {
                   const b = branches.find((br) => br.id === v);
                   if (b) setCurrentBranch(b);

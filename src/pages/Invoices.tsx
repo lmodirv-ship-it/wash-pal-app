@@ -7,7 +7,7 @@ import { Printer } from "lucide-react";
 
 export default function Invoices() {
   const { invoices, currentBranch } = useApp();
-  const branchInvoices = invoices.filter((i) => i.branchId === currentBranch.id);
+  const branchInvoices = invoices.filter((i) => i.branchId === (currentBranch?.id || ""));
 
   const handlePrint = (inv: typeof branchInvoices[0]) => {
     const w = window.open("", "_blank");
