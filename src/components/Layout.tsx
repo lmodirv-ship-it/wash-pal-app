@@ -14,7 +14,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 flex items-center justify-between border-b bg-card px-4 gap-4">
             <SidebarTrigger className="mr-2" />
-            {branches.length > 1 && (
+            {branches.length > 1 && currentBranch && (
               <Select
                 value={currentBranch.id}
                 onValueChange={(v) => {
