@@ -25,7 +25,7 @@ export default function Employees() {
       await updateEmployee(editing.id, form);
       toast.success("تم تعديل بيانات الموظف");
     } else {
-      await addEmployee({ ...form, branchId, isActive: true });
+      await addEmployee({ ...form, branchId, isActive: true, roleType: 'employee' });
       toast.success("تم إضافة الموظف");
     }
     resetForm();

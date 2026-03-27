@@ -24,7 +24,7 @@ export default function Customers() {
       await updateCustomer(editing.id, form);
       toast.success("تم تعديل بيانات العميل");
     } else {
-      await addCustomer(form);
+      await addCustomer({ ...form, role: 'customer' });
       toast.success("تم إضافة العميل بنجاح");
     }
     resetForm();
