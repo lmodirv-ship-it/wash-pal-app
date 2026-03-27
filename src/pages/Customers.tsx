@@ -10,7 +10,7 @@ import { Plus, Search, Trash2, Edit } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Customers() {
-  const { customers, setCustomers } = useApp();
+  const { customers, addCustomer, updateCustomer, deleteCustomer } = useApp();
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Customer | null>(null);
@@ -18,34 +18,23 @@ export default function Customers() {
 
   const filtered = customers.filter((c) => c.name.includes(search) || c.phone.includes(search) || c.carPlate.includes(search));
 
-  const handleSubmit = () => {
-    if (!form.name || !form.phone || !form.carType || !form.carPlate) {
-      toast.error("يرجى ملء جميع الحقول المطلوبة");
-      return;
-    }
+  const handleSubmit = async () => {
+    if (!form.name || !form.phone || !form.carType || !form.carPlate) { toast.error("يرجى ملء جميع الحقول المطلوبة"); return; }
     if (editing) {
-      setCustomers((prev) => prev.map((c) => c.id === editing.id ? { ...c, ...form } : c));
+      await updateCustomer(editing.id, form);
       toast.success("تم تعديل بيانات العميل");
     } else {
-      const newCustomer: Customer = {
-        id: Date.now().toString(), ...form, totalVisits: 0, createdAt: new Date().toISOString(),
-      };
-      setCustomers((prev) => [newCustomer, ...prev]);
+      await addCustomer(form);
       toast.success("تم إضافة العميل بنجاح");
     }
     resetForm();
   };
 
-  const resetForm = () => {
-    setForm({ name: "", phone: "", email: "", carType: "", carPlate: "" });
-    setEditing(null);
-    setDialogOpen(false);
-  };
+  const resetForm = () => { setForm({ name: "", phone: "", email: "", carType: "", carPlate: "" }); setEditing(null); setDialogOpen(false); };
 
   const startEdit = (c: Customer) => {
     setForm({ name: c.name, phone: c.phone, email: c.email || "", carType: c.carType, carPlate: c.carPlate });
-    setEditing(c);
-    setDialogOpen(true);
+    setEditing(c); setDialogOpen(true);
   };
 
   return (
@@ -53,9 +42,7 @@ export default function Customers() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">إدارة العملاء</h1>
         <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 ml-2" />عميل جديد</Button>
-          </DialogTrigger>
+          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />عميل جديد</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{editing ? "تعديل العميل" : "إضافة عميل جديد"}</DialogTitle></DialogHeader>
             <div className="space-y-4">
@@ -82,12 +69,8 @@ export default function Customers() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>الاسم</TableHead>
-                <TableHead>الهاتف</TableHead>
-                <TableHead>السيارة</TableHead>
-                <TableHead>اللوحة</TableHead>
-                <TableHead>الزيارات</TableHead>
-                <TableHead>إجراءات</TableHead>
+                <TableHead>الاسم</TableHead><TableHead>الهاتف</TableHead><TableHead>السيارة</TableHead>
+                <TableHead>اللوحة</TableHead><TableHead>الزيارات</TableHead><TableHead>إجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -103,7 +86,7 @@ export default function Customers() {
                   <TableCell>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" onClick={() => startEdit(c)}><Edit className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => { setCustomers((p) => p.filter((x) => x.id !== c.id)); toast.success("تم حذف العميل"); }}>
+                      <Button variant="ghost" size="icon" onClick={async () => { await deleteCustomer(c.id); toast.success("تم حذف العميل"); }}>
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
                     </div>

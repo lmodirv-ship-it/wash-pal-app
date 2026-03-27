@@ -10,26 +10,24 @@ import { Plus, Trash2, Edit, Droplets, Clock, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Services() {
-  const { services, setServices } = useApp();
+  const { services, addService, updateService, deleteService } = useApp();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [form, setForm] = useState({ name: "", price: "", duration: "", description: "" });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name || !form.price || !form.duration) { toast.error("يرجى ملء جميع الحقول"); return; }
     if (editing) {
-      setServices((p) => p.map((s) => s.id === editing.id ? { ...s, name: form.name, price: Number(form.price), duration: Number(form.duration), description: form.description } : s));
+      await updateService(editing.id, { name: form.name, price: Number(form.price), duration: Number(form.duration), description: form.description });
       toast.success("تم تعديل الخدمة");
     } else {
-      const svc: Service = { id: Date.now().toString(), name: form.name, price: Number(form.price), duration: Number(form.duration), description: form.description };
-      setServices((p) => [...p, svc]);
+      await addService({ name: form.name, price: Number(form.price), duration: Number(form.duration), description: form.description });
       toast.success("تم إضافة الخدمة");
     }
     resetForm();
   };
 
   const resetForm = () => { setForm({ name: "", price: "", duration: "", description: "" }); setEditing(null); setDialogOpen(false); };
-
   const startEdit = (s: Service) => {
     setForm({ name: s.name, price: s.price.toString(), duration: s.duration.toString(), description: s.description });
     setEditing(s); setDialogOpen(true);
@@ -68,16 +66,12 @@ export default function Services() {
               </div>
               <p className="text-sm text-muted-foreground mb-4">{s.description}</p>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Clock className="w-4 h-4" />{s.duration} دقيقة
-                </div>
-                <div className="flex items-center gap-1 font-bold text-primary">
-                  <DollarSign className="w-4 h-4" />{s.price} ر.س
-                </div>
+                <div className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="w-4 h-4" />{s.duration} دقيقة</div>
+                <div className="flex items-center gap-1 font-bold text-primary"><DollarSign className="w-4 h-4" />{s.price} ر.س</div>
               </div>
               <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                 <Button variant="ghost" size="icon" onClick={() => startEdit(s)}><Edit className="w-4 h-4" /></Button>
-                <Button variant="ghost" size="icon" onClick={() => { setServices((p) => p.filter((x) => x.id !== s.id)); toast.success("تم حذف الخدمة"); }}>
+                <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success("تم حذف الخدمة"); }}>
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>

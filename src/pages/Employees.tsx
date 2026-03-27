@@ -11,34 +11,31 @@ import { Plus, Trash2, Edit } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Employees() {
-  const { employees, setEmployees, currentBranch } = useApp();
+  const { employees, currentBranch, addEmployee, updateEmployee, deleteEmployee } = useApp();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", role: "" });
 
-  const branchEmployees = employees.filter((e) => e.branchId === currentBranch.id);
+  const branchId = currentBranch?.id || "";
+  const branchEmployees = employees.filter((e) => e.branchId === branchId);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name || !form.phone || !form.role) { toast.error("يرجى ملء جميع الحقول"); return; }
     if (editing) {
-      setEmployees((p) => p.map((e) => e.id === editing.id ? { ...e, ...form } : e));
+      await updateEmployee(editing.id, form);
       toast.success("تم تعديل بيانات الموظف");
     } else {
-      const emp: Employee = {
-        id: Date.now().toString(), ...form, branchId: currentBranch.id, isActive: true, hireDate: new Date().toISOString(),
-      };
-      setEmployees((p) => [emp, ...p]);
+      await addEmployee({ ...form, branchId, isActive: true });
       toast.success("تم إضافة الموظف");
     }
     resetForm();
   };
 
   const resetForm = () => { setForm({ name: "", phone: "", role: "" }); setEditing(null); setDialogOpen(false); };
-
   const startEdit = (e: Employee) => { setForm({ name: e.name, phone: e.phone, role: e.role }); setEditing(e); setDialogOpen(true); };
 
-  const toggleActive = (id: string) => {
-    setEmployees((p) => p.map((e) => e.id === id ? { ...e, isActive: !e.isActive } : e));
+  const toggleActive = async (e: Employee) => {
+    await updateEmployee(e.id, { isActive: !e.isActive });
   };
 
   return (
@@ -64,11 +61,8 @@ export default function Employees() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>الاسم</TableHead>
-                <TableHead>الهاتف</TableHead>
-                <TableHead>الوظيفة</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead>إجراءات</TableHead>
+                <TableHead>الاسم</TableHead><TableHead>الهاتف</TableHead><TableHead>الوظيفة</TableHead>
+                <TableHead>الحالة</TableHead><TableHead>إجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -80,14 +74,14 @@ export default function Employees() {
                   <TableCell>{e.phone}</TableCell>
                   <TableCell>{e.role}</TableCell>
                   <TableCell>
-                    <Badge className={e.isActive ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"} onClick={() => toggleActive(e.id)} style={{ cursor: "pointer" }}>
+                    <Badge className={e.isActive ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"} onClick={() => toggleActive(e)} style={{ cursor: "pointer" }}>
                       {e.isActive ? "نشط" : "غير نشط"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" onClick={() => startEdit(e)}><Edit className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => { setEmployees((p) => p.filter((x) => x.id !== e.id)); toast.success("تم حذف الموظف"); }}>
+                      <Button variant="ghost" size="icon" onClick={async () => { await deleteEmployee(e.id); toast.success("تم حذف الموظف"); }}>
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
                     </div>
