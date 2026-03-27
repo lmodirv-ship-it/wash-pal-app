@@ -1,8 +1,8 @@
 import { useApp } from "@/contexts/AppContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, Users, DollarSign, TrendingUp, Clock, CheckCircle, Car, Droplets } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { ClipboardList, Users, DollarSign, Car, UserCog, Droplets, FileText, Building2 } from "lucide-react";
 
 const statusMap: Record<string, { label: string; color: string }> = {
   waiting: { label: "انتظار", color: "bg-warning text-warning-foreground" },
@@ -11,239 +11,253 @@ const statusMap: Record<string, { label: string; color: string }> = {
   cancelled: { label: "ملغي", color: "bg-destructive text-destructive-foreground" },
 };
 
-const PIE_COLORS = ["hsl(215,80%,35%)", "hsl(160,45%,40%)", "hsl(38,92%,50%)", "hsl(0,72%,51%)"];
-
 export default function Dashboard() {
-  const { orders, customers, employees, services, currentBranch, loading } = useApp();
+  const { orders, customers, employees, services, invoices, branches, currentBranch, loading } = useApp();
   if (loading || !currentBranch) return <div className="flex items-center justify-center h-64"><p className="text-muted-foreground">جاري التحميل...</p></div>;
 
   const branchOrders = orders.filter((o) => o.branchId === currentBranch.id);
+  const branchEmployees = employees.filter((e) => e.branchId === currentBranch.id);
+  const branchInvoices = invoices.filter((i) => i.branchId === currentBranch.id);
   const today = new Date().toISOString().split("T")[0];
   const todayOrders = branchOrders.filter((o) => o.createdAt.startsWith(today));
   const todayRevenue = todayOrders.filter((o) => o.status === "completed").reduce((s, o) => s + o.totalPrice, 0);
   const totalRevenue = branchOrders.filter((o) => o.status === "completed").reduce((s, o) => s + o.totalPrice, 0);
-  const activeOrders = branchOrders.filter((o) => o.status === "in_progress").length;
-  const waitingOrders = branchOrders.filter((o) => o.status === "waiting").length;
-  const completedToday = todayOrders.filter((o) => o.status === "completed").length;
-  const branchEmployees = employees.filter((e) => e.branchId === currentBranch.id);
-
-  // Last 7 days chart
-  const chartData = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const dateStr = d.toISOString().split("T")[0];
-    const dayOrders = branchOrders.filter((o) => o.createdAt.startsWith(dateStr) && o.status === "completed");
-    return {
-      day: d.toLocaleDateString("ar-SA", { weekday: "short" }),
-      revenue: dayOrders.reduce((s, o) => s + o.totalPrice, 0),
-      orders: dayOrders.length,
-    };
-  });
-
-  // Status distribution for pie chart
-  const statusData = [
-    { name: "انتظار", value: branchOrders.filter((o) => o.status === "waiting").length },
-    { name: "جاري", value: branchOrders.filter((o) => o.status === "in_progress").length },
-    { name: "مكتمل", value: branchOrders.filter((o) => o.status === "completed").length },
-    { name: "ملغي", value: branchOrders.filter((o) => o.status === "cancelled").length },
-  ].filter((d) => d.value > 0);
-
-  const recentOrders = [...branchOrders].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 dashboard-dark">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">مرحباً بك في لافاج 👋</h1>
-          <p className="text-muted-foreground mt-1">{currentBranch.name} • {new Date().toLocaleDateString("ar-SA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+          <h1 className="text-3xl font-bold text-white">مرحباً بك في لافاج 👋</h1>
+          <p className="text-gray-400 mt-1">{currentBranch.name} • {new Date().toLocaleDateString("ar-SA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
       </div>
 
-      {/* Main Stats - Big Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-bl from-primary/10 to-primary/5 border-primary/20">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">إيرادات اليوم</p>
-                <p className="text-3xl font-bold text-primary">{todayRevenue}</p>
-                <p className="text-xs text-muted-foreground mt-1">ريال سعودي</p>
-              </div>
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <DollarSign className="w-7 h-7 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-bl from-success/10 to-success/5 border-success/20">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">طلبات اليوم</p>
-                <p className="text-3xl font-bold text-success">{todayOrders.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">{completedToday} مكتمل</p>
-              </div>
-              <div className="w-14 h-14 rounded-2xl bg-success/10 flex items-center justify-center">
-                <ClipboardList className="w-7 h-7 text-success" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-bl from-warning/10 to-warning/5 border-warning/20">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">قيد التنفيذ</p>
-                <p className="text-3xl font-bold text-warning">{activeOrders}</p>
-                <p className="text-xs text-muted-foreground mt-1">{waitingOrders} في الانتظار</p>
-              </div>
-              <div className="w-14 h-14 rounded-2xl bg-warning/10 flex items-center justify-center">
-                <TrendingUp className="w-7 h-7 text-warning" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-bl from-primary/10 to-primary/5 border-primary/20">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">إجمالي العملاء</p>
-                <p className="text-3xl font-bold text-primary">{customers.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">{branchEmployees.length} موظف</p>
-              </div>
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Users className="w-7 h-7 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center backdrop-blur">
+          <DollarSign className="w-6 h-6 mx-auto mb-1 text-emerald-400" />
+          <p className="text-2xl font-bold text-white">{todayRevenue}</p>
+          <p className="text-xs text-gray-400">إيرادات اليوم (ر.س)</p>
+        </div>
+        <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center backdrop-blur">
+          <ClipboardList className="w-6 h-6 mx-auto mb-1 text-blue-400" />
+          <p className="text-2xl font-bold text-white">{todayOrders.length}</p>
+          <p className="text-xs text-gray-400">طلبات اليوم</p>
+        </div>
+        <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center backdrop-blur">
+          <Users className="w-6 h-6 mx-auto mb-1 text-amber-400" />
+          <p className="text-2xl font-bold text-white">{customers.length}</p>
+          <p className="text-xs text-gray-400">إجمالي العملاء</p>
+        </div>
+        <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center backdrop-blur">
+          <DollarSign className="w-6 h-6 mx-auto mb-1 text-emerald-400" />
+          <p className="text-2xl font-bold text-white">{totalRevenue}</p>
+          <p className="text-xs text-gray-400">إجمالي الإيرادات (ر.س)</p>
+        </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {/* Weekly Revenue Chart */}
-        <Card className="md:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">إيرادات آخر 7 أيام</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="day" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip
-                  formatter={(v: number) => [`${v} ر.س`, "الإيرادات"]}
-                  contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
-                />
-                <Bar dataKey="revenue" fill="hsl(215, 80%, 35%)" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Orders Table */}
+      <Card className="bg-white/5 border-white/10 backdrop-blur">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg text-white flex items-center gap-2"><ClipboardList className="w-5 h-5 text-blue-400" />آخر الطلبات</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-white/5">
+                <TableHead className="text-gray-400">المرجع</TableHead>
+                <TableHead className="text-gray-400">العميل</TableHead>
+                <TableHead className="text-gray-400">السيارة</TableHead>
+                <TableHead className="text-gray-400">اللوحة</TableHead>
+                <TableHead className="text-gray-400">المبلغ</TableHead>
+                <TableHead className="text-gray-400">الحالة</TableHead>
+                <TableHead className="text-gray-400">التاريخ</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {branchOrders.length === 0 ? (
+                <TableRow className="border-white/10"><TableCell colSpan={7} className="text-center py-8 text-gray-500">لا توجد طلبات</TableCell></TableRow>
+              ) : branchOrders.slice(0, 10).map((o) => (
+                <TableRow key={o.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell className="font-mono text-xs text-gray-300">{o.reference || "-"}</TableCell>
+                  <TableCell className="font-medium text-white">{o.customerName}</TableCell>
+                  <TableCell className="text-gray-300">{o.carType}</TableCell>
+                  <TableCell className="text-gray-300">{o.carPlate}</TableCell>
+                  <TableCell className="font-semibold text-emerald-400">{o.totalPrice} ر.س</TableCell>
+                  <TableCell><Badge className={statusMap[o.status]?.color}>{statusMap[o.status]?.label}</Badge></TableCell>
+                  <TableCell className="text-xs text-gray-400">{new Date(o.createdAt).toLocaleDateString("ar-SA")}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-        {/* Order Status Pie */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">حالة الطلبات</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {statusData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[280px] text-muted-foreground">
-                <Car className="w-12 h-12 mb-3 opacity-30" />
-                <p>لا توجد طلبات بعد</p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={280}>
-                <PieChart>
-                  <Pie data={statusData} cx="50%" cy="50%" innerRadius={50} outerRadius={90} paddingAngle={4} dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {statusData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* Customers Table */}
+      <Card className="bg-white/5 border-white/10 backdrop-blur">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg text-white flex items-center gap-2"><Users className="w-5 h-5 text-amber-400" />العملاء</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-white/5">
+                <TableHead className="text-gray-400">المرجع</TableHead>
+                <TableHead className="text-gray-400">الاسم</TableHead>
+                <TableHead className="text-gray-400">الصلاحية</TableHead>
+                <TableHead className="text-gray-400">الهاتف</TableHead>
+                <TableHead className="text-gray-400">السيارة</TableHead>
+                <TableHead className="text-gray-400">اللوحة</TableHead>
+                <TableHead className="text-gray-400">الزيارات</TableHead>
+                <TableHead className="text-gray-400">التاريخ</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {customers.length === 0 ? (
+                <TableRow className="border-white/10"><TableCell colSpan={8} className="text-center py-6 text-gray-500">لا يوجد عملاء</TableCell></TableRow>
+              ) : customers.slice(0, 8).map((c) => (
+                <TableRow key={c.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell className="font-mono text-xs text-gray-300">{c.reference || "-"}</TableCell>
+                  <TableCell className="font-medium text-white">{c.name}</TableCell>
+                  <TableCell><Badge variant="secondary" className="bg-white/10 text-gray-300">{c.role === 'customer' ? 'عميل' : c.role}</Badge></TableCell>
+                  <TableCell className="text-gray-300">{c.phone}</TableCell>
+                  <TableCell className="text-gray-300">{c.carType}</TableCell>
+                  <TableCell className="text-gray-300">{c.carPlate}</TableCell>
+                  <TableCell className="text-gray-300">{c.totalVisits}</TableCell>
+                  <TableCell className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleDateString("ar-SA")}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {/* Quick Info Row */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Recent Orders */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="w-5 h-5 text-muted-foreground" />
-              آخر الطلبات
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {recentOrders.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
-                <Droplets className="w-12 h-12 mb-3 opacity-30" />
-                <p>لا توجد طلبات بعد</p>
-                <p className="text-xs mt-1">أضف أول طلب من صفحة الطلبات</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {recentOrders.map((o) => (
-                  <div key={o.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/40 hover:bg-muted/70 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Car className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{o.customerName}</p>
-                        <p className="text-xs text-muted-foreground">{o.carType} • {o.carPlate}</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="text-sm font-bold">{o.totalPrice} ر.س</span>
-                      <Badge className={`${statusMap[o.status]?.color} text-[10px] px-2 py-0`}>{statusMap[o.status]?.label}</Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Employees Table */}
+      <Card className="bg-white/5 border-white/10 backdrop-blur">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg text-white flex items-center gap-2"><UserCog className="w-5 h-5 text-purple-400" />الموظفين</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-white/5">
+                <TableHead className="text-gray-400">المرجع</TableHead>
+                <TableHead className="text-gray-400">الاسم</TableHead>
+                <TableHead className="text-gray-400">الصلاحية</TableHead>
+                <TableHead className="text-gray-400">الوظيفة</TableHead>
+                <TableHead className="text-gray-400">الهاتف</TableHead>
+                <TableHead className="text-gray-400">تاريخ البداية</TableHead>
+                <TableHead className="text-gray-400">الحالة</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {branchEmployees.length === 0 ? (
+                <TableRow className="border-white/10"><TableCell colSpan={7} className="text-center py-6 text-gray-500">لا يوجد موظفين</TableCell></TableRow>
+              ) : branchEmployees.map((e) => (
+                <TableRow key={e.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell className="font-mono text-xs text-gray-300">{e.reference || "-"}</TableCell>
+                  <TableCell className="font-medium text-white">{e.name}</TableCell>
+                  <TableCell><Badge variant="secondary" className="bg-white/10 text-gray-300">{e.roleType === 'admin' ? 'مدير' : 'موظف'}</Badge></TableCell>
+                  <TableCell className="text-gray-300">{e.role}</TableCell>
+                  <TableCell className="text-gray-300">{e.phone}</TableCell>
+                  <TableCell className="text-xs text-gray-400">{new Date(e.hireDate).toLocaleDateString("ar-SA")}</TableCell>
+                  <TableCell><Badge className={e.isActive ? "bg-emerald-500/20 text-emerald-400" : "bg-white/10 text-gray-500"}>{e.isActive ? "نشط" : "غير نشط"}</Badge></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-        {/* Quick Stats Summary */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-muted-foreground" />
-              ملخص سريع
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-primary/5 text-center">
-                <p className="text-2xl font-bold text-primary">{totalRevenue}</p>
-                <p className="text-xs text-muted-foreground mt-1">إجمالي الإيرادات (ر.س)</p>
-              </div>
-              <div className="p-4 rounded-xl bg-success/5 text-center">
-                <p className="text-2xl font-bold text-success">{branchOrders.filter((o) => o.status === "completed").length}</p>
-                <p className="text-xs text-muted-foreground mt-1">طلبات مكتملة</p>
-              </div>
-              <div className="p-4 rounded-xl bg-warning/5 text-center">
-                <p className="text-2xl font-bold text-warning">{services.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">خدمات متاحة</p>
-              </div>
-              <div className="p-4 rounded-xl bg-muted text-center">
-                <p className="text-2xl font-bold">{branchEmployees.filter((e) => e.isActive).length}</p>
-                <p className="text-xs text-muted-foreground mt-1">موظفين نشطين</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Services Table */}
+      <Card className="bg-white/5 border-white/10 backdrop-blur">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg text-white flex items-center gap-2"><Droplets className="w-5 h-5 text-cyan-400" />الخدمات</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-white/5">
+                <TableHead className="text-gray-400">الخدمة</TableHead>
+                <TableHead className="text-gray-400">السعر</TableHead>
+                <TableHead className="text-gray-400">المدة</TableHead>
+                <TableHead className="text-gray-400">الوصف</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {services.map((s) => (
+                <TableRow key={s.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell className="font-medium text-white">{s.name}</TableCell>
+                  <TableCell className="text-emerald-400 font-semibold">{s.price} ر.س</TableCell>
+                  <TableCell className="text-gray-300">{s.duration} دقيقة</TableCell>
+                  <TableCell className="text-gray-400 text-sm">{s.description}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Invoices Table */}
+      <Card className="bg-white/5 border-white/10 backdrop-blur">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg text-white flex items-center gap-2"><FileText className="w-5 h-5 text-orange-400" />الفواتير</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-white/5">
+                <TableHead className="text-gray-400">العميل</TableHead>
+                <TableHead className="text-gray-400">المبلغ</TableHead>
+                <TableHead className="text-gray-400">الحالة</TableHead>
+                <TableHead className="text-gray-400">التاريخ</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {branchInvoices.length === 0 ? (
+                <TableRow className="border-white/10"><TableCell colSpan={4} className="text-center py-6 text-gray-500">لا توجد فواتير</TableCell></TableRow>
+              ) : branchInvoices.slice(0, 8).map((inv) => (
+                <TableRow key={inv.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell className="font-medium text-white">{inv.customerName}</TableCell>
+                  <TableCell className="text-emerald-400 font-semibold">{inv.totalAmount} ر.س</TableCell>
+                  <TableCell><Badge className={inv.isPaid ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}>{inv.isPaid ? "مدفوعة" : "غير مدفوعة"}</Badge></TableCell>
+                  <TableCell className="text-xs text-gray-400">{new Date(inv.createdAt).toLocaleDateString("ar-SA")}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Branches Table */}
+      <Card className="bg-white/5 border-white/10 backdrop-blur">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg text-white flex items-center gap-2"><Building2 className="w-5 h-5 text-indigo-400" />الفروع</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-white/5">
+                <TableHead className="text-gray-400">الفرع</TableHead>
+                <TableHead className="text-gray-400">العنوان</TableHead>
+                <TableHead className="text-gray-400">الهاتف</TableHead>
+                <TableHead className="text-gray-400">الحالة</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {branches.map((b) => (
+                <TableRow key={b.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell className="font-medium text-white">{b.name} {b.id === currentBranch.id && <Badge className="bg-blue-500/20 text-blue-400 text-[10px] mr-1">حالي</Badge>}</TableCell>
+                  <TableCell className="text-gray-300">{b.address}</TableCell>
+                  <TableCell className="text-gray-300">{b.phone}</TableCell>
+                  <TableCell><Badge className={b.isActive ? "bg-emerald-500/20 text-emerald-400" : "bg-white/10 text-gray-500"}>{b.isActive ? "نشط" : "غير نشط"}</Badge></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
