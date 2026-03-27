@@ -40,7 +40,7 @@ export function AppSidebar() {
             {!collapsed && (
               <div>
                 <h1 className="text-lg font-bold text-sidebar-foreground">لافاج</h1>
-                <p className="text-xs text-sidebar-foreground/60">{currentBranch.name}</p>
+                <p className="text-xs text-sidebar-foreground/60">{currentBranch?.name || "..."}</p>
               </div>
             )}
           </div>

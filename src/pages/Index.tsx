@@ -12,7 +12,8 @@ const statusMap: Record<string, { label: string; color: string }> = {
 };
 
 export default function Dashboard() {
-  const { orders, customers, currentBranch } = useApp();
+  const { orders, customers, currentBranch, loading } = useApp();
+  if (loading || !currentBranch) return <div className="flex items-center justify-center h-64"><p className="text-muted-foreground">جاري التحميل...</p></div>;
   const branchOrders = orders.filter((o) => o.branchId === currentBranch.id);
   const today = new Date().toISOString().split("T")[0];
   const todayOrders = branchOrders.filter((o) => o.createdAt.startsWith(today));

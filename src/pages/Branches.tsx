@@ -10,20 +10,19 @@ import { Plus, Trash2, Edit, Building2, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Branches() {
-  const { branches, setBranches, currentBranch, setCurrentBranch } = useApp();
+  const { branches, currentBranch, setCurrentBranch, addBranch, updateBranch, deleteBranch } = useApp();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Branch | null>(null);
   const [form, setForm] = useState({ name: "", address: "", phone: "" });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.name || !form.address || !form.phone) { toast.error("يرجى ملء جميع الحقول"); return; }
     if (editing) {
-      setBranches((p) => p.map((b) => b.id === editing.id ? { ...b, ...form } : b));
-      if (currentBranch.id === editing.id) setCurrentBranch({ ...currentBranch, ...form });
+      await updateBranch(editing.id, form);
+      if (currentBranch?.id === editing.id) setCurrentBranch({ ...currentBranch, ...form });
       toast.success("تم تعديل الفرع");
     } else {
-      const b: Branch = { id: Date.now().toString(), ...form, isActive: true };
-      setBranches((p) => [...p, b]);
+      await addBranch({ ...form, isActive: true });
       toast.success("تم إضافة الفرع");
     }
     resetForm();
@@ -52,7 +51,7 @@ export default function Branches() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {branches.map((b) => (
-          <Card key={b.id} className={`relative ${b.id === currentBranch.id ? "ring-2 ring-primary" : ""}`}>
+          <Card key={b.id} className={`relative ${b.id === currentBranch?.id ? "ring-2 ring-primary" : ""}`}>
             <CardContent className="p-5">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -60,7 +59,7 @@ export default function Branches() {
                 </div>
                 <div>
                   <h3 className="font-bold">{b.name}</h3>
-                  {b.id === currentBranch.id && <Badge className="bg-primary text-primary-foreground text-xs">الفرع الحالي</Badge>}
+                  {b.id === currentBranch?.id && <Badge className="bg-primary text-primary-foreground text-xs">الفرع الحالي</Badge>}
                 </div>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
@@ -68,12 +67,12 @@ export default function Branches() {
                 <div className="flex items-center gap-2"><Phone className="w-4 h-4" />{b.phone}</div>
               </div>
               <div className="flex gap-2 mt-4">
-                {b.id !== currentBranch.id && (
+                {b.id !== currentBranch?.id && (
                   <Button variant="outline" size="sm" onClick={() => { setCurrentBranch(b); toast.success(`تم التبديل إلى ${b.name}`); }}>تبديل</Button>
                 )}
                 <Button variant="ghost" size="icon" onClick={() => startEdit(b)}><Edit className="w-4 h-4" /></Button>
-                {branches.length > 1 && b.id !== currentBranch.id && (
-                  <Button variant="ghost" size="icon" onClick={() => { setBranches((p) => p.filter((x) => x.id !== b.id)); toast.success("تم حذف الفرع"); }}>
+                {branches.length > 1 && b.id !== currentBranch?.id && (
+                  <Button variant="ghost" size="icon" onClick={async () => { await deleteBranch(b.id); toast.success("تم حذف الفرع"); }}>
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                 )}

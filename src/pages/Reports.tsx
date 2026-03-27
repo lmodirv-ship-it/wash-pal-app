@@ -6,7 +6,7 @@ const COLORS = ["hsl(215,80%,35%)", "hsl(160,45%,40%)", "hsl(38,92%,50%)", "hsl(
 
 export default function Reports() {
   const { orders, services, currentBranch } = useApp();
-  const branchOrders = orders.filter((o) => o.branchId === currentBranch.id && o.status === "completed");
+  const branchOrders = orders.filter((o) => o.branchId === (currentBranch?.id || "") && o.status === "completed");
 
   // Monthly revenue
   const monthlyData: Record<string, number> = {};

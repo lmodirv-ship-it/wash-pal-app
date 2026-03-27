@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { Order, OrderStatus } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OrderStatus } from "@/types";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,7 +20,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 };
 
 export default function Orders() {
-  const { orders, setOrders, customers, services, employees, currentBranch, invoices, setInvoices } = useApp();
+  const { orders, customers, services, employees, currentBranch, addOrder, updateOrder, deleteOrder, addInvoice } = useApp();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -29,8 +29,9 @@ export default function Orders() {
     employeeId: "", notes: "",
   });
 
+  const branchId = currentBranch?.id || "";
   const branchOrders = orders
-    .filter((o) => o.branchId === currentBranch.id)
+    .filter((o) => o.branchId === branchId)
     .filter((o) => statusFilter === "all" || o.status === statusFilter)
     .filter((o) => o.customerName.includes(search) || o.carPlate.includes(search));
 
@@ -48,74 +49,52 @@ export default function Orders() {
     return s + (svc?.price || 0);
   }, 0);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.customerName || !form.carType || !form.carPlate || form.selectedServices.length === 0) {
-      toast.error("يرجى ملء جميع الحقول المطلوبة");
-      return;
+      toast.error("يرجى ملء جميع الحقول المطلوبة"); return;
     }
     const emp = employees.find((e) => e.id === form.employeeId);
-    const newOrder: Order = {
-      id: Date.now().toString(),
-      customerId: "",
-      customerName: form.customerName,
-      carType: form.carType,
-      carPlate: form.carPlate,
-      services: form.selectedServices,
-      totalPrice,
-      status: "waiting",
-      employeeId: form.employeeId || undefined,
-      employeeName: emp?.name,
-      branchId: currentBranch.id,
-      notes: form.notes || undefined,
-      createdAt: new Date().toISOString(),
-    };
-    setOrders((prev) => [newOrder, ...prev]);
+    await addOrder({
+      customerId: "", customerName: form.customerName, carType: form.carType, carPlate: form.carPlate,
+      services: form.selectedServices, totalPrice, status: "waiting",
+      employeeId: form.employeeId || undefined, employeeName: emp?.name,
+      branchId, notes: form.notes || undefined,
+    });
     setForm({ customerName: "", carType: "", carPlate: "", selectedServices: [], employeeId: "", notes: "" });
     setDialogOpen(false);
     toast.success("تم إضافة الطلب بنجاح");
   };
 
-  const updateStatus = (id: string, status: OrderStatus) => {
-    setOrders((prev) => prev.map((o) => {
-      if (o.id !== id) return o;
-      const updated = { ...o, status, completedAt: status === "completed" ? new Date().toISOString() : o.completedAt };
-      if (status === "completed") {
-        const inv = {
-          id: Date.now().toString(),
-          orderId: o.id,
-          customerName: o.customerName,
-          services: o.services.map((sid) => {
-            const svc = services.find((s) => s.id === sid);
-            return { name: svc?.name || "", price: svc?.price || 0 };
-          }),
-          totalAmount: o.totalPrice,
-          paidAmount: o.totalPrice,
-          isPaid: true,
-          createdAt: new Date().toISOString(),
-          branchId: o.branchId,
-        };
-        setInvoices((p) => [inv, ...p]);
-      }
-      return updated;
-    }));
+  const handleUpdateStatus = async (id: string, status: OrderStatus) => {
+    const order = orders.find((o) => o.id === id);
+    await updateOrder(id, { status, completedAt: status === "completed" ? new Date().toISOString() : undefined });
+    if (status === "completed" && order) {
+      await addInvoice({
+        orderId: order.id, customerName: order.customerName,
+        services: order.services.map((sid) => {
+          const svc = services.find((s) => s.id === sid);
+          return { name: svc?.name || "", price: svc?.price || 0 };
+        }),
+        totalAmount: order.totalPrice, paidAmount: order.totalPrice, isPaid: true,
+        createdAt: new Date().toISOString(), branchId: order.branchId,
+      });
+    }
     toast.success("تم تحديث حالة الطلب");
   };
 
-  const deleteOrder = (id: string) => {
-    setOrders((prev) => prev.filter((o) => o.id !== id));
+  const handleDelete = async (id: string) => {
+    await deleteOrder(id);
     toast.success("تم حذف الطلب");
   };
 
-  const branchEmployees = employees.filter((e) => e.branchId === currentBranch.id && e.isActive);
+  const branchEmployees = employees.filter((e) => e.branchId === branchId && e.isActive);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">إدارة الطلبات</h1>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button><Plus className="w-4 h-4 ml-2" />طلب جديد</Button>
-          </DialogTrigger>
+          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />طلب جديد</Button></DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader><DialogTitle>إضافة طلب جديد</DialogTitle></DialogHeader>
             <div className="space-y-4">
@@ -138,9 +117,7 @@ export default function Orders() {
                 <Select value={form.employeeId} onValueChange={(v) => setForm((f) => ({ ...f, employeeId: v }))}>
                   <SelectTrigger><SelectValue placeholder="تعيين موظف (اختياري)" /></SelectTrigger>
                   <SelectContent>
-                    {branchEmployees.map((e) => (
-                      <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
-                    ))}
+                    {branchEmployees.map((e) => (<SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>))}
                   </SelectContent>
                 </Select>
               )}
@@ -176,13 +153,8 @@ export default function Orders() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>العميل</TableHead>
-                <TableHead>السيارة</TableHead>
-                <TableHead>الخدمات</TableHead>
-                <TableHead>المبلغ</TableHead>
-                <TableHead>الموظف</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead>إجراءات</TableHead>
+                <TableHead>العميل</TableHead><TableHead>السيارة</TableHead><TableHead>الخدمات</TableHead>
+                <TableHead>المبلغ</TableHead><TableHead>الموظف</TableHead><TableHead>الحالة</TableHead><TableHead>إجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -196,14 +168,14 @@ export default function Orders() {
                     <div className="flex flex-wrap gap-1">
                       {o.services.map((sid) => {
                         const svc = services.find((s) => s.id === sid);
-                        return <Badge key={sid} variant="secondary" className="text-xs">{svc?.name}</Badge>;
+                        return <Badge key={sid} variant="secondary" className="text-xs">{svc?.name || sid}</Badge>;
                       })}
                     </div>
                   </TableCell>
                   <TableCell className="font-semibold">{o.totalPrice} ر.س</TableCell>
                   <TableCell>{o.employeeName || "-"}</TableCell>
                   <TableCell>
-                    <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v as OrderStatus)}>
+                    <Select value={o.status} onValueChange={(v) => handleUpdateStatus(o.id, v as OrderStatus)}>
                       <SelectTrigger className="w-28 h-8">
                         <Badge className={statusMap[o.status]?.color}>{statusMap[o.status]?.label}</Badge>
                       </SelectTrigger>
@@ -216,7 +188,7 @@ export default function Orders() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => deleteOrder(o.id)}>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(o.id)}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </TableCell>
