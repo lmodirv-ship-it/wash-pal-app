@@ -50,6 +50,8 @@ export type Database = {
           id: string
           name: string
           phone: string
+          reference: string | null
+          role: string
           total_visits: number
         }
         Insert: {
@@ -60,6 +62,8 @@ export type Database = {
           id?: string
           name: string
           phone: string
+          reference?: string | null
+          role?: string
           total_visits?: number
         }
         Update: {
@@ -70,6 +74,8 @@ export type Database = {
           id?: string
           name?: string
           phone?: string
+          reference?: string | null
+          role?: string
           total_visits?: number
         }
         Relationships: []
@@ -83,7 +89,9 @@ export type Database = {
           is_active: boolean
           name: string
           phone: string
+          reference: string | null
           role: string
+          role_type: string
         }
         Insert: {
           branch_id: string
@@ -93,7 +101,9 @@ export type Database = {
           is_active?: boolean
           name: string
           phone: string
+          reference?: string | null
           role: string
+          role_type?: string
         }
         Update: {
           branch_id?: string
@@ -103,7 +113,9 @@ export type Database = {
           is_active?: boolean
           name?: string
           phone?: string
+          reference?: string | null
           role?: string
+          role_type?: string
         }
         Relationships: [
           {
@@ -179,6 +191,7 @@ export type Database = {
           employee_name: string | null
           id: string
           notes: string | null
+          reference: string | null
           services: string[]
           status: string
           total_price: number
@@ -195,6 +208,7 @@ export type Database = {
           employee_name?: string | null
           id?: string
           notes?: string | null
+          reference?: string | null
           services?: string[]
           status?: string
           total_price?: number
@@ -211,6 +225,7 @@ export type Database = {
           employee_name?: string | null
           id?: string
           notes?: string | null
+          reference?: string | null
           services?: string[]
           status?: string
           total_price?: number
@@ -263,6 +278,66 @@ export type Database = {
           id?: string
           name?: string
           price?: number
+        }
+        Relationships: []
+      }
+      shops: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          email: string | null
+          expiry_date: string
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          owner_name: string
+          package_name: string
+          phone: string
+          reference: string | null
+          registration_date: string
+          remaining_points: number | null
+          total_points: number
+          used_points: number
+        }
+        Insert: {
+          address: string
+          city?: string
+          created_at?: string
+          email?: string | null
+          expiry_date?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          owner_name: string
+          package_name?: string
+          phone: string
+          reference?: string | null
+          registration_date?: string
+          remaining_points?: number | null
+          total_points?: number
+          used_points?: number
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          email?: string | null
+          expiry_date?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          owner_name?: string
+          package_name?: string
+          phone?: string
+          reference?: string | null
+          registration_date?: string
+          remaining_points?: number | null
+          total_points?: number
+          used_points?: number
         }
         Relationships: []
       }
