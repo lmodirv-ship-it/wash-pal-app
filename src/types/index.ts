@@ -1,29 +1,34 @@
 export type OrderStatus = 'waiting' | 'in_progress' | 'completed' | 'cancelled';
+export type UserRole = 'admin' | 'employee' | 'customer';
 
 export interface Service {
   id: string;
   name: string;
   price: number;
-  duration: number; // minutes
+  duration: number;
   description: string;
 }
 
 export interface Customer {
   id: string;
+  reference?: string;
   name: string;
   phone: string;
   email?: string;
   carType: string;
   carPlate: string;
+  role: string;
   totalVisits: number;
   createdAt: string;
 }
 
 export interface Employee {
   id: string;
+  reference?: string;
   name: string;
   phone: string;
   role: string;
+  roleType: string;
   branchId: string;
   isActive: boolean;
   hireDate: string;
@@ -31,6 +36,7 @@ export interface Employee {
 
 export interface Order {
   id: string;
+  reference?: string;
   customerId: string;
   customerName: string;
   carType: string;
@@ -64,6 +70,26 @@ export interface Branch {
   address: string;
   phone: string;
   isActive: boolean;
+}
+
+export interface Shop {
+  id: string;
+  reference?: string;
+  name: string;
+  ownerName: string;
+  address: string;
+  city: string;
+  phone: string;
+  email?: string;
+  registrationDate: string;
+  packageName: string;
+  totalPoints: number;
+  usedPoints: number;
+  remainingPoints: number;
+  expiryDate: string;
+  isActive: boolean;
+  notes?: string;
+  createdAt: string;
 }
 
 export interface DailyStats {
