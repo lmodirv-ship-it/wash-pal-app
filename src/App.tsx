@@ -13,6 +13,7 @@ import Services from "./pages/Services";
 import Invoices from "./pages/Invoices";
 import Reports from "./pages/Reports";
 import Branches from "./pages/Branches";
+import Shops from "./pages/Shops";
 import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/branches" element={<Branches />} />
+              <Route path="/shops" element={<Shops />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
