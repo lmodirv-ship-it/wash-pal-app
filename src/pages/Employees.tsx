@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Employee } from "@/types";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,16 +33,15 @@ export default function Employees() {
 
   const resetForm = () => { setForm({ name: "", phone: "", role: "", roleType: "employee" }); setEditing(null); setDialogOpen(false); };
   const startEdit = (e: Employee) => { setForm({ name: e.name, phone: e.phone, role: e.role, roleType: e.roleType }); setEditing(e); setDialogOpen(true); };
-
   const toggleActive = async (e: Employee) => { await updateEmployee(e.id, { isActive: !e.isActive }); };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">إدارة الموظفين</h1>
+        <h1 className="text-2xl font-bold text-foreground">إدارة الموظفين</h1>
         <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />موظف جديد</Button></DialogTrigger>
-          <DialogContent>
+          <DialogTrigger asChild><Button className="lavage-btn"><Plus className="w-4 h-4 ml-2" />موظف جديد</Button></DialogTrigger>
+          <DialogContent className="bg-card border-border">
             <DialogHeader><DialogTitle>{editing ? "تعديل الموظف" : "إضافة موظف جديد"}</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Input placeholder="الاسم" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
@@ -56,52 +54,50 @@ export default function Employees() {
                   <SelectItem value="employee">موظف</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="w-full" onClick={handleSubmit}>{editing ? "حفظ" : "إضافة"}</Button>
+              <Button className="w-full lavage-btn" onClick={handleSubmit}>{editing ? "حفظ" : "إضافة"}</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>المرجع</TableHead><TableHead>الاسم</TableHead><TableHead>الصلاحية</TableHead>
-                <TableHead>الوظيفة</TableHead><TableHead>الهاتف</TableHead><TableHead>تاريخ البداية</TableHead>
-                <TableHead>الحالة</TableHead><TableHead>إجراءات</TableHead>
+      <div className="lavage-card overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-secondary/50">
+              <TableHead className="text-muted-foreground">المرجع</TableHead><TableHead className="text-muted-foreground">الاسم</TableHead><TableHead className="text-muted-foreground">الصلاحية</TableHead>
+              <TableHead className="text-muted-foreground">الوظيفة</TableHead><TableHead className="text-muted-foreground">الهاتف</TableHead><TableHead className="text-muted-foreground">تاريخ البداية</TableHead>
+              <TableHead className="text-muted-foreground">الحالة</TableHead><TableHead className="text-muted-foreground">إجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {branchEmployees.length === 0 ? (
+              <TableRow className="border-border"><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">لا يوجد موظفين</TableCell></TableRow>
+            ) : branchEmployees.map((e) => (
+              <TableRow key={e.id} className="lavage-table-row border-border">
+                <TableCell className="font-mono text-xs text-foreground">{e.reference || "-"}</TableCell>
+                <TableCell className="font-medium text-foreground">{e.name}</TableCell>
+                <TableCell><Badge variant="secondary">{e.roleType === 'admin' ? 'مدير' : 'موظف'}</Badge></TableCell>
+                <TableCell className="text-foreground">{e.role}</TableCell>
+                <TableCell className="text-foreground">{e.phone}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(e.hireDate).toLocaleDateString("ar-SA")}</TableCell>
+                <TableCell>
+                  <Badge className={e.isActive ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"} onClick={() => toggleActive(e)} style={{ cursor: "pointer" }}>
+                    {e.isActive ? "نشط" : "غير نشط"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => startEdit(e)} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={async () => { await deleteEmployee(e.id); toast.success("تم حذف الموظف"); }} className="lavage-glow">
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {branchEmployees.length === 0 ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">لا يوجد موظفين</TableCell></TableRow>
-              ) : branchEmployees.map((e) => (
-                <TableRow key={e.id}>
-                  <TableCell className="font-mono text-xs">{e.reference || "-"}</TableCell>
-                  <TableCell className="font-medium">{e.name}</TableCell>
-                  <TableCell><Badge variant="secondary">{e.roleType === 'admin' ? 'مدير' : 'موظف'}</Badge></TableCell>
-                  <TableCell>{e.role}</TableCell>
-                  <TableCell>{e.phone}</TableCell>
-                  <TableCell className="text-xs">{new Date(e.hireDate).toLocaleDateString("ar-SA")}</TableCell>
-                  <TableCell>
-                    <Badge className={e.isActive ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"} onClick={() => toggleActive(e)} style={{ cursor: "pointer" }}>
-                      {e.isActive ? "نشط" : "غير نشط"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => startEdit(e)}><Edit className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={async () => { await deleteEmployee(e.id); toast.success("تم حذف الموظف"); }}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

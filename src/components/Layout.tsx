@@ -16,7 +16,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center justify-between border-b border-border bg-card px-4 gap-4">
+          <header className="h-14 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm px-4 gap-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="mr-2" />
               {profile && (
@@ -26,6 +26,7 @@ export function Layout({ children }: { children: ReactNode }) {
               )}
             </div>
             <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-primary hidden sm:inline">H&Lavage</span>
               {branches.length > 1 && currentBranch && (
                 <Select
                   value={currentBranch?.id || ""}
@@ -44,7 +45,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   </SelectContent>
                 </Select>
               )}
-              <Button variant="ghost" size="icon" onClick={signOut} title="تسجيل الخروج">
+              <Button variant="ghost" size="icon" onClick={signOut} title="تسجيل الخروج" className="lavage-glow">
                 <LogOut className="w-4 h-4" />
               </Button>
             </div>

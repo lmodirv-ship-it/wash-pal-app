@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Branch } from "@/types";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -34,16 +33,16 @@ export default function Branches() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">إدارة الفروع</h1>
+        <h1 className="text-2xl font-bold text-foreground">إدارة الفروع</h1>
         <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />فرع جديد</Button></DialogTrigger>
-          <DialogContent>
+          <DialogTrigger asChild><Button className="lavage-btn"><Plus className="w-4 h-4 ml-2" />فرع جديد</Button></DialogTrigger>
+          <DialogContent className="bg-card border-border">
             <DialogHeader><DialogTitle>{editing ? "تعديل الفرع" : "إضافة فرع جديد"}</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Input placeholder="اسم الفرع" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
               <Input placeholder="العنوان" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} />
               <Input placeholder="رقم الهاتف" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
-              <Button className="w-full" onClick={handleSubmit}>{editing ? "حفظ" : "إضافة"}</Button>
+              <Button className="w-full lavage-btn" onClick={handleSubmit}>{editing ? "حفظ" : "إضافة"}</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -51,34 +50,32 @@ export default function Branches() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {branches.map((b) => (
-          <Card key={b.id} className={`relative ${b.id === currentBranch?.id ? "ring-2 ring-primary" : ""}`}>
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold">{b.name}</h3>
-                  {b.id === currentBranch?.id && <Badge className="bg-primary text-primary-foreground text-xs">الفرع الحالي</Badge>}
-                </div>
+          <div key={b.id} className={`lavage-card p-5 ${b.id === currentBranch?.id ? "ring-2 ring-primary shadow-[0_0_25px_hsl(var(--primary)/0.2)]" : ""}`}>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-primary" />
               </div>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2"><MapPin className="w-4 h-4" />{b.address}</div>
-                <div className="flex items-center gap-2"><Phone className="w-4 h-4" />{b.phone}</div>
+              <div>
+                <h3 className="font-bold text-foreground">{b.name}</h3>
+                {b.id === currentBranch?.id && <Badge className="bg-primary text-primary-foreground text-xs">الفرع الحالي</Badge>}
               </div>
-              <div className="flex gap-2 mt-4">
-                {b.id !== currentBranch?.id && (
-                  <Button variant="outline" size="sm" onClick={() => { setCurrentBranch(b); toast.success(`تم التبديل إلى ${b.name}`); }}>تبديل</Button>
-                )}
-                <Button variant="ghost" size="icon" onClick={() => startEdit(b)}><Edit className="w-4 h-4" /></Button>
-                {branches.length > 1 && b.id !== currentBranch?.id && (
-                  <Button variant="ghost" size="icon" onClick={async () => { await deleteBranch(b.id); toast.success("تم حذف الفرع"); }}>
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2"><MapPin className="w-4 h-4" />{b.address}</div>
+              <div className="flex items-center gap-2"><Phone className="w-4 h-4" />{b.phone}</div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              {b.id !== currentBranch?.id && (
+                <Button variant="outline" size="sm" onClick={() => { setCurrentBranch(b); toast.success(`تم التبديل إلى ${b.name}`); }} className="lavage-glow">تبديل</Button>
+              )}
+              <Button variant="ghost" size="icon" onClick={() => startEdit(b)} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
+              {branches.length > 1 && b.id !== currentBranch?.id && (
+                <Button variant="ghost" size="icon" onClick={async () => { await deleteBranch(b.id); toast.success("تم حذف الفرع"); }} className="lavage-glow">
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              )}
+            </div>
+          </div>
         ))}
       </div>
     </div>

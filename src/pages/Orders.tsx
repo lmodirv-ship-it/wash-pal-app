@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { OrderStatus } from "@/types";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -75,10 +74,10 @@ export default function Orders() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">إدارة الطلبات</h1>
+        <h1 className="text-2xl font-bold text-foreground">إدارة الطلبات</h1>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />طلب جديد</Button></DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogTrigger asChild><Button className="lavage-btn"><Plus className="w-4 h-4 ml-2" />طلب جديد</Button></DialogTrigger>
+          <DialogContent className="max-w-lg bg-card border-border">
             <DialogHeader><DialogTitle>إضافة طلب جديد</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Input placeholder="اسم العميل" value={form.customerName} onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))} />
@@ -87,10 +86,10 @@ export default function Orders() {
                 <Input placeholder="رقم اللوحة" value={form.carPlate} onChange={(e) => setForm((f) => ({ ...f, carPlate: e.target.value }))} />
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">الخدمات</p>
+                <p className="text-sm font-medium mb-2 text-foreground">الخدمات</p>
                 <div className="flex flex-wrap gap-2">
                   {services.map((s) => (
-                    <Button key={s.id} variant={form.selectedServices.includes(s.id) ? "default" : "outline"} size="sm" onClick={() => toggleService(s.id)}>
+                    <Button key={s.id} variant={form.selectedServices.includes(s.id) ? "default" : "outline"} size="sm" onClick={() => toggleService(s.id)} className="lavage-glow">
                       {s.name} - {s.price} ر.س
                     </Button>
                   ))}
@@ -104,8 +103,8 @@ export default function Orders() {
               )}
               <Textarea placeholder="ملاحظات (اختياري)" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
               <div className="flex justify-between items-center">
-                <p className="font-bold text-lg">المجموع: {totalPrice} ر.س</p>
-                <Button onClick={handleSubmit}>إضافة الطلب</Button>
+                <p className="font-bold text-lg text-primary">المجموع: {totalPrice} ر.س</p>
+                <Button onClick={handleSubmit} className="lavage-btn">إضافة الطلب</Button>
               </div>
             </div>
           </DialogContent>
@@ -129,56 +128,54 @@ export default function Orders() {
         </Select>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>المرجع</TableHead><TableHead>العميل</TableHead><TableHead>السيارة</TableHead>
-                <TableHead>الخدمات</TableHead><TableHead>المبلغ</TableHead><TableHead>الموظف</TableHead>
-                <TableHead>الحالة</TableHead><TableHead>التاريخ</TableHead><TableHead>إجراءات</TableHead>
+      <div className="lavage-card overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-secondary/50">
+              <TableHead className="text-muted-foreground">المرجع</TableHead><TableHead className="text-muted-foreground">العميل</TableHead><TableHead className="text-muted-foreground">السيارة</TableHead>
+              <TableHead className="text-muted-foreground">الخدمات</TableHead><TableHead className="text-muted-foreground">المبلغ</TableHead><TableHead className="text-muted-foreground">الموظف</TableHead>
+              <TableHead className="text-muted-foreground">الحالة</TableHead><TableHead className="text-muted-foreground">التاريخ</TableHead><TableHead className="text-muted-foreground">إجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {branchOrders.length === 0 ? (
+              <TableRow className="border-border"><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">لا توجد طلبات</TableCell></TableRow>
+            ) : branchOrders.map((o) => (
+              <TableRow key={o.id} className="lavage-table-row border-border">
+                <TableCell className="font-mono text-xs text-foreground">{o.reference || "-"}</TableCell>
+                <TableCell className="font-medium text-foreground">{o.customerName}</TableCell>
+                <TableCell className="text-foreground">{o.carType}<br /><span className="text-xs text-muted-foreground">{o.carPlate}</span></TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {o.services.map((sid) => <Badge key={sid} variant="secondary" className="text-xs">{services.find((s) => s.id === sid)?.name || sid}</Badge>)}
+                  </div>
+                </TableCell>
+                <TableCell className="font-semibold text-primary">{o.totalPrice} ر.س</TableCell>
+                <TableCell className="text-foreground">{o.employeeName || "-"}</TableCell>
+                <TableCell>
+                  <Select value={o.status} onValueChange={(v) => handleUpdateStatus(o.id, v as OrderStatus)}>
+                    <SelectTrigger className="w-28 h-8">
+                      <Badge className={statusMap[o.status]?.color}>{statusMap[o.status]?.label}</Badge>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="waiting">انتظار</SelectItem>
+                      <SelectItem value="in_progress">جاري</SelectItem>
+                      <SelectItem value="completed">مكتمل</SelectItem>
+                      <SelectItem value="cancelled">ملغي</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleDateString("ar-SA")}</TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="icon" onClick={async () => { await deleteOrder(o.id); toast.success("تم حذف الطلب"); }} className="lavage-glow">
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {branchOrders.length === 0 ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">لا توجد طلبات</TableCell></TableRow>
-              ) : branchOrders.map((o) => (
-                <TableRow key={o.id}>
-                  <TableCell className="font-mono text-xs">{o.reference || "-"}</TableCell>
-                  <TableCell className="font-medium">{o.customerName}</TableCell>
-                  <TableCell>{o.carType}<br /><span className="text-xs text-muted-foreground">{o.carPlate}</span></TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {o.services.map((sid) => <Badge key={sid} variant="secondary" className="text-xs">{services.find((s) => s.id === sid)?.name || sid}</Badge>)}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-semibold">{o.totalPrice} ر.س</TableCell>
-                  <TableCell>{o.employeeName || "-"}</TableCell>
-                  <TableCell>
-                    <Select value={o.status} onValueChange={(v) => handleUpdateStatus(o.id, v as OrderStatus)}>
-                      <SelectTrigger className="w-28 h-8">
-                        <Badge className={statusMap[o.status]?.color}>{statusMap[o.status]?.label}</Badge>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="waiting">انتظار</SelectItem>
-                        <SelectItem value="in_progress">جاري</SelectItem>
-                        <SelectItem value="completed">مكتمل</SelectItem>
-                        <SelectItem value="cancelled">ملغي</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell className="text-xs">{new Date(o.createdAt).toLocaleDateString("ar-SA")}</TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={async () => { await deleteOrder(o.id); toast.success("تم حذف الطلب"); }}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

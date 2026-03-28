@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Shop } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -91,12 +90,12 @@ export default function Shops() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">إدارة المحلات</h1>
+          <h1 className="text-2xl font-bold text-foreground">إدارة المحلات</h1>
           <p className="text-sm text-muted-foreground">إدارة المحلات المشتركة في البرنامج</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />محل جديد</Button></DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogTrigger asChild><Button className="lavage-btn"><Plus className="w-4 h-4 ml-2" />محل جديد</Button></DialogTrigger>
+          <DialogContent className="max-w-lg bg-card border-border">
             <DialogHeader><DialogTitle>{editing ? "تعديل المحل" : "إضافة محل جديد"}</DialogTitle></DialogHeader>
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
               <div className="grid grid-cols-2 gap-3">
@@ -112,11 +111,11 @@ export default function Shops() {
                 <Input placeholder="البريد الإلكتروني (اختياري)" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">الباقة</p>
+                <p className="text-sm font-medium mb-2 text-foreground">الباقة</p>
                 <div className="grid grid-cols-2 gap-2">
                   {packages.map((pkg) => (
                     <Button key={pkg.name} variant={form.packageName === pkg.name ? "default" : "outline"} size="sm"
-                      onClick={() => setForm((f) => ({ ...f, packageName: pkg.name, totalPoints: pkg.points }))}>
+                      onClick={() => setForm((f) => ({ ...f, packageName: pkg.name, totalPoints: pkg.points }))} className="lavage-glow">
                       {pkg.label}
                     </Button>
                   ))}
@@ -124,16 +123,16 @@ export default function Shops() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium">عدد النقاط</label>
+                  <label className="text-sm font-medium text-foreground">عدد النقاط</label>
                   <Input type="number" value={form.totalPoints} onChange={(e) => setForm((f) => ({ ...f, totalPoints: Number(e.target.value) }))} />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">مدة الاشتراك (أيام)</label>
+                  <label className="text-sm font-medium text-foreground">مدة الاشتراك (أيام)</label>
                   <Input type="number" value={form.expiryDays} onChange={(e) => setForm((f) => ({ ...f, expiryDays: Number(e.target.value) }))} />
                 </div>
               </div>
               <Textarea placeholder="ملاحظات (اختياري)" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
-              <Button className="w-full" onClick={handleSubmit}>{editing ? "حفظ التعديلات" : "إضافة المحل"}</Button>
+              <Button className="w-full lavage-btn" onClick={handleSubmit}>{editing ? "حفظ التعديلات" : "إضافة المحل"}</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -141,22 +140,22 @@ export default function Shops() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card><CardContent className="p-4 text-center">
+        <div className="lavage-card p-4 text-center">
           <p className="text-3xl font-bold text-primary">{shops.length}</p>
           <p className="text-xs text-muted-foreground">إجمالي المحلات</p>
-        </CardContent></Card>
-        <Card><CardContent className="p-4 text-center">
+        </div>
+        <div className="lavage-card p-4 text-center">
           <p className="text-3xl font-bold text-success">{shops.filter((s) => s.isActive).length}</p>
           <p className="text-xs text-muted-foreground">نشطة</p>
-        </CardContent></Card>
-        <Card><CardContent className="p-4 text-center">
+        </div>
+        <div className="lavage-card p-4 text-center">
           <p className="text-3xl font-bold text-warning">{shops.filter((s) => { const d = Math.ceil((new Date(s.expiryDate).getTime() - Date.now()) / 86400000); return d > 0 && d <= 7; }).length}</p>
           <p className="text-xs text-muted-foreground">قريبة الانتهاء</p>
-        </CardContent></Card>
-        <Card><CardContent className="p-4 text-center">
+        </div>
+        <div className="lavage-card p-4 text-center">
           <p className="text-3xl font-bold text-destructive">{shops.filter((s) => new Date(s.expiryDate) < new Date()).length}</p>
           <p className="text-xs text-muted-foreground">منتهية</p>
-        </CardContent></Card>
+        </div>
       </div>
 
       <div className="relative max-w-sm">
@@ -164,65 +163,63 @@ export default function Shops() {
         <Input className="pr-9" placeholder="بحث بالاسم أو الهاتف أو المرجع..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>المرجع</TableHead>
-                <TableHead>المحل</TableHead>
-                <TableHead>المالك</TableHead>
-                <TableHead>العنوان</TableHead>
-                <TableHead>الهاتف</TableHead>
-                <TableHead>الباقة</TableHead>
-                <TableHead>النقاط</TableHead>
-                <TableHead>تاريخ التسجيل</TableHead>
-                <TableHead>آخر أجل</TableHead>
-                <TableHead>إجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
-                  <Store className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  لا توجد محلات مسجلة
-                </TableCell></TableRow>
-              ) : filtered.map((s) => {
-                const expiry = getExpiryColor(s.expiryDate);
-                return (
-                  <TableRow key={s.id}>
-                    <TableCell className="font-mono text-xs">{s.reference || "-"}</TableCell>
-                    <TableCell className="font-medium">{s.name}</TableCell>
-                    <TableCell>{s.ownerName}</TableCell>
-                    <TableCell><span className="text-xs">{s.address}{s.city ? ` - ${s.city}` : ""}</span></TableCell>
-                    <TableCell>{s.phone}</TableCell>
-                    <TableCell><Badge variant="secondary">{packages.find((p) => p.name === s.packageName)?.label || s.packageName}</Badge></TableCell>
-                    <TableCell>
-                      <div className="text-center">
-                        <span className="font-bold">{s.remainingPoints}</span>
-                        <span className="text-xs text-muted-foreground">/{s.totalPoints}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-xs">{new Date(s.registrationDate).toLocaleDateString("ar-SA")}</TableCell>
-                    <TableCell>
-                      <Badge className={expiry.bg}>{expiry.label}</Badge>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{new Date(s.expiryDate).toLocaleDateString("ar-SA")}</p>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => startEdit(s)}><Edit className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={async () => { await deleteShop(s.id); toast.success("تم حذف المحل"); }}>
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <div className="lavage-card overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-secondary/50">
+              <TableHead className="text-muted-foreground">المرجع</TableHead>
+              <TableHead className="text-muted-foreground">المحل</TableHead>
+              <TableHead className="text-muted-foreground">المالك</TableHead>
+              <TableHead className="text-muted-foreground">العنوان</TableHead>
+              <TableHead className="text-muted-foreground">الهاتف</TableHead>
+              <TableHead className="text-muted-foreground">الباقة</TableHead>
+              <TableHead className="text-muted-foreground">النقاط</TableHead>
+              <TableHead className="text-muted-foreground">تاريخ التسجيل</TableHead>
+              <TableHead className="text-muted-foreground">آخر أجل</TableHead>
+              <TableHead className="text-muted-foreground">إجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
+              <TableRow className="border-border"><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                <Store className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                لا توجد محلات مسجلة
+              </TableCell></TableRow>
+            ) : filtered.map((s) => {
+              const expiry = getExpiryColor(s.expiryDate);
+              return (
+                <TableRow key={s.id} className="lavage-table-row border-border">
+                  <TableCell className="font-mono text-xs text-foreground">{s.reference || "-"}</TableCell>
+                  <TableCell className="font-medium text-foreground">{s.name}</TableCell>
+                  <TableCell className="text-foreground">{s.ownerName}</TableCell>
+                  <TableCell><span className="text-xs text-foreground">{s.address}{s.city ? ` - ${s.city}` : ""}</span></TableCell>
+                  <TableCell className="text-foreground">{s.phone}</TableCell>
+                  <TableCell><Badge variant="secondary">{packages.find((p) => p.name === s.packageName)?.label || s.packageName}</Badge></TableCell>
+                  <TableCell>
+                    <div className="text-center">
+                      <span className="font-bold text-foreground">{s.remainingPoints}</span>
+                      <span className="text-xs text-muted-foreground">/{s.totalPoints}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{new Date(s.registrationDate).toLocaleDateString("ar-SA")}</TableCell>
+                  <TableCell>
+                    <Badge className={expiry.bg}>{expiry.label}</Badge>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{new Date(s.expiryDate).toLocaleDateString("ar-SA")}</p>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => startEdit(s)} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={async () => { await deleteShop(s.id); toast.success("تم حذف المحل"); }} className="lavage-glow">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
