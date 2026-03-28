@@ -9,8 +9,9 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
 import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
 
-const items = [
+const adminItems = [
   { title: "لوحة التحكم", url: "/", icon: LayoutDashboard },
   { title: "الطلبات", url: "/orders", icon: ClipboardList },
   { title: "العملاء", url: "/customers", icon: Users },
@@ -23,11 +24,19 @@ const items = [
   { title: "الإعدادات", url: "/settings", icon: Settings },
 ];
 
+const employeeItems = [
+  { title: "الخدمات", url: "/services", icon: Droplets },
+  { title: "الفواتير", url: "/invoices", icon: FileText },
+];
+
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { currentBranch } = useApp();
+  const { isAdmin } = useAuth();
+
+  const items = isAdmin ? adminItems : employeeItems;
 
   return (
     <Sidebar collapsible="icon" side="right">
