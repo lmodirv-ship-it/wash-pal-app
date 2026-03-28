@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { LogIn, UserPlus, Camera, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-car-wash.jpg";
 
 export default function Login() {
