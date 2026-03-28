@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit, Settings as SettingsIcon, Droplets, Building2, Users } from "lucide-react";
+import { Plus, Trash2, Edit, Settings as SettingsIcon, Droplets, Building2, Users, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { Service, Branch } from "@/types";
 
@@ -50,6 +53,45 @@ export default function SettingsPage() {
     setBrForm({ name: "", address: "", phone: "" }); setEditingBr(null); setBrDialog(false);
   };
 
+  // User roles management
+  const [users, setUsers] = useState<{ id: string; user_id: string; name: string; role: string; created_at: string }[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+    if (data) setUsers(data);
+    setLoadingUsers(false);
+  };
+
+  useEffect(() => { fetchUsers(); }, []);
+
+  const updateUserRole = async (profileId: string, newRole: string) => {
+    const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', profileId);
+    if (error) { toast.error("خطأ في تحديث الدور"); return; }
+    toast.success("تم تحديث دور المستخدم");
+    fetchUsers();
+  };
+
+  const roleLabel = (role: string) => {
+    switch (role) {
+      case 'admin': return 'مدير';
+      case 'supervisor': return 'مشرف';
+      case 'employee': return 'موظف';
+      case 'customer': return 'عميل';
+      default: return role;
+    }
+  };
+
+  const roleBadgeClass = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-destructive text-destructive-foreground';
+      case 'supervisor': return 'bg-warning text-warning-foreground';
+      case 'employee': return 'bg-primary text-primary-foreground';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
   const totalRevenue = orders.filter((o) => o.status === "completed").reduce((s, o) => s + o.totalPrice, 0);
 
   return (
@@ -84,13 +126,65 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="services" dir="rtl">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="roles" dir="rtl">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="roles"><Shield className="w-4 h-4 ml-1" />الصلاحيات</TabsTrigger>
           <TabsTrigger value="services"><Droplets className="w-4 h-4 ml-1" />الخدمات</TabsTrigger>
           <TabsTrigger value="branches"><Building2 className="w-4 h-4 ml-1" />الفروع</TabsTrigger>
           <TabsTrigger value="overview"><Users className="w-4 h-4 ml-1" />نظرة عامة</TabsTrigger>
           <TabsTrigger value="about">حول</TabsTrigger>
         </TabsList>
+
+        {/* Roles Management Tab */}
+        <TabsContent value="roles" className="mt-4">
+          <div className="lavage-card overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">إدارة الصلاحيات والأدوار</h3>
+                <p className="text-xs text-muted-foreground">المدير يحدد دور كل مستخدم في النظام</p>
+              </div>
+              <Button size="sm" className="lavage-btn" onClick={fetchUsers}>تحديث</Button>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border hover:bg-secondary/50">
+                  <TableHead className="text-muted-foreground">الاسم</TableHead>
+                  <TableHead className="text-muted-foreground">الدور الحالي</TableHead>
+                  <TableHead className="text-muted-foreground">تاريخ التسجيل</TableHead>
+                  <TableHead className="text-muted-foreground">تغيير الدور</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loadingUsers ? (
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">جاري التحميل...</TableCell></TableRow>
+                ) : users.length === 0 ? (
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">لا يوجد مستخدمين</TableCell></TableRow>
+                ) : users.map((u) => (
+                  <TableRow key={u.id} className="lavage-table-row border-border">
+                    <TableCell className="font-medium text-foreground">{u.name || 'بدون اسم'}</TableCell>
+                    <TableCell>
+                      <Badge className={roleBadgeClass(u.role)}>{roleLabel(u.role)}</Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString("ar-SA")}</TableCell>
+                    <TableCell>
+                      <Select value={u.role} onValueChange={(val) => updateUserRole(u.id, val)}>
+                        <SelectTrigger className="w-32 h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="admin">مدير</SelectItem>
+                          <SelectItem value="supervisor">مشرف</SelectItem>
+                          <SelectItem value="employee">موظف</SelectItem>
+                          <SelectItem value="customer">عميل</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
 
         <TabsContent value="services" className="mt-4">
           <div className="lavage-card overflow-hidden">
