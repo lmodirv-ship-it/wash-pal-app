@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { LogIn, UserPlus, Camera, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-car-wash.jpg";
 
 export default function Login() {
@@ -282,6 +283,10 @@ export default function Login() {
                     className="bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground h-12 text-lg"
                     minLength={6}
                   />
+
+                  <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                    نسيت كلمة المرور؟
+                  </Link>
 
                   <div className="grid grid-cols-2 gap-3">
                     <Button
