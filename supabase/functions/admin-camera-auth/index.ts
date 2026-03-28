@@ -19,7 +19,6 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Check if this email belongs to an admin
     const { data: users } = await supabaseAdmin.auth.admin.listUsers();
     const adminUser = users?.users?.find((u) => u.email === email);
 
@@ -30,7 +29,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check profile role
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("id, role, face_photo")
@@ -44,7 +42,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Action: check if admin email
+    // Action: check
     if (action === "check") {
       return new Response(
         JSON.stringify({ isAdmin: true, hasPhoto: !!profile.face_photo }),
@@ -52,7 +50,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Action: register face (first time)
+    // Action: register face
     if (action === "register") {
       if (!face_image) {
         return new Response(
@@ -66,26 +64,18 @@ Deno.serve(async (req) => {
         .update({ face_photo: face_image })
         .eq("id", profile.id);
 
-      // Generate session for admin
-      const { data: session, error: signInError } = await supabaseAdmin.auth.admin.generateLink({
-        type: "magiclink",
-        email: email,
-      });
-
-      // Use signInWithPassword approach - set a temp password
-      // Actually, use admin API to create session
-      const { data: tokenData, error: tokenError } = await supabaseAdmin.auth.admin.generateLink({
+      const { data: tokenData } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: email,
       });
 
       return new Response(
-        JSON.stringify({ 
-          success: true, 
+        JSON.stringify({
+          success: true,
           message: "تم تسجيل الوجه بنجاح",
-          // Return user info for client-side session
           user_id: adminUser.id,
-          token: tokenData?.properties?.hashed_token
+          token: tokenData?.properties?.hashed_token,
+          action_link: tokenData?.properties?.action_link,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -107,10 +97,10 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Use Lovable AI to compare faces
+      // AI face comparison
       const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-      
-      const aiResponse = await fetch("https://api.lovable.dev/v1/chat/completions", {
+
+      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${LOVABLE_API_KEY}`,
@@ -124,16 +114,10 @@ Deno.serve(async (req) => {
               content: [
                 {
                   type: "text",
-                  text: "Compare these two face photos. Are they the SAME person? Reply ONLY with 'YES' or 'NO'. Photo 1 is the registered admin face. Photo 2 is the current camera capture. Be strict but reasonable - same person even with slight angle/lighting differences should be YES."
+                  text: "Compare these two face photos. Are they the SAME person? Reply ONLY with 'YES' or 'NO'. Photo 1 is the registered admin face. Photo 2 is the current camera capture. Be strict but reasonable."
                 },
-                {
-                  type: "image_url",
-                  image_url: { url: profile.face_photo }
-                },
-                {
-                  type: "image_url",
-                  image_url: { url: face_image }
-                }
+                { type: "image_url", image_url: { url: profile.face_photo } },
+                { type: "image_url", image_url: { url: face_image } }
               ]
             }
           ],
@@ -146,13 +130,26 @@ Deno.serve(async (req) => {
       const isMatch = answer.includes("YES");
 
       if (!isMatch) {
+        // Store intruder photo in login_attempts table
+        try {
+          await supabaseAdmin
+            .from("login_attempts")
+            .insert({
+              admin_email: email,
+              intruder_photo: face_image,
+              ip_address: req.headers.get("x-forwarded-for") || "unknown",
+            });
+        } catch (e) {
+          console.error("Failed to store intruder photo:", e);
+        }
+
         return new Response(
-          JSON.stringify({ error: "التحقق فشل - الوجه غير مطابق", verified: false }),
+          JSON.stringify({ error: "التحقق فشل - الوجه غير مطابق. تم حفظ صورة المتسلل.", verified: false }),
           { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Face matched! Generate magic link for admin sign-in
+      // Face matched
       const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: email,
@@ -166,8 +163,8 @@ Deno.serve(async (req) => {
       }
 
       return new Response(
-        JSON.stringify({ 
-          verified: true, 
+        JSON.stringify({
+          verified: true,
           message: "تم التحقق بنجاح",
           token: linkData?.properties?.hashed_token,
           action_link: linkData?.properties?.action_link,
