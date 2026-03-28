@@ -178,6 +178,30 @@ export type Database = {
           },
         ]
       }
+      login_attempts: {
+        Row: {
+          admin_email: string
+          created_at: string
+          id: string
+          intruder_photo: string | null
+          ip_address: string | null
+        }
+        Insert: {
+          admin_email: string
+          created_at?: string
+          id?: string
+          intruder_photo?: string | null
+          ip_address?: string | null
+        }
+        Update: {
+          admin_email?: string
+          created_at?: string
+          id?: string
+          intruder_photo?: string | null
+          ip_address?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           branch_id: string
