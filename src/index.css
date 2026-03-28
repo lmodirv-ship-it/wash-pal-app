@@ -6,88 +6,49 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 25% 15%;
+    --background: 220 15% 6%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card: 220 15% 8%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 215 80% 35%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 45 95% 55%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 160 45% 40%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 210 15% 93%;
-    --muted-foreground: 215 10% 45%;
+    --muted: 220 15% 12%;
+    --muted-foreground: 220 10% 55%;
 
-    --accent: 160 45% 40%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 45 95% 55%;
+    --accent-foreground: 0 0% 5%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 20% 88%;
-    --input: 214 20% 88%;
-    --ring: 215 80% 35%;
+    --border: 220 15% 15%;
+    --input: 220 15% 15%;
+    --ring: 45 95% 55%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 215 35% 18%;
-    --sidebar-foreground: 210 20% 90%;
-    --sidebar-primary: 160 45% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 30% 25%;
-    --sidebar-accent-foreground: 210 20% 95%;
-    --sidebar-border: 215 25% 25%;
-    --sidebar-ring: 160 45% 50%;
+    --sidebar-background: 220 20% 5%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 45 95% 55%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 220 15% 12%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 15% 12%;
+    --sidebar-ring: 45 95% 55%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
     --success: 160 60% 40%;
     --success-foreground: 0 0% 100%;
-  }
-
-  .dark {
-    --background: 215 25% 10%;
-    --foreground: 210 20% 95%;
-
-    --card: 215 25% 13%;
-    --card-foreground: 210 20% 95%;
-
-    --popover: 215 25% 13%;
-    --popover-foreground: 210 20% 95%;
-
-    --primary: 215 80% 50%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 160 45% 45%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 215 20% 20%;
-    --muted-foreground: 215 15% 60%;
-
-    --accent: 160 45% 45%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 215 20% 22%;
-    --input: 215 20% 22%;
-    --ring: 215 80% 50%;
-
-    --sidebar-background: 215 35% 12%;
-    --sidebar-foreground: 210 20% 90%;
-    --sidebar-primary: 160 45% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 30% 20%;
-    --sidebar-accent-foreground: 210 20% 95%;
-    --sidebar-border: 215 25% 18%;
-    --sidebar-ring: 160 45% 50%;
   }
 }
 
@@ -102,11 +63,66 @@
 
   body {
     @apply bg-background text-foreground font-cairo;
+    background: linear-gradient(135deg, #050505 0%, #0d0d1a 50%, #050505 100%);
+    min-height: 100vh;
   }
 }
 
+/* Glossy Dark Theme - Global Styles */
+@layer components {
+  /* 3D Box Button Effect */
+  .lavage-btn {
+    @apply relative overflow-hidden rounded-xl font-bold text-lg px-6 py-3 transition-all duration-300;
+    background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 
+      0 4px 6px rgba(0,0,0,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.1),
+      inset 0 -1px 0 rgba(0,0,0,0.3);
+    color: white;
+  }
+
+  .lavage-btn:hover {
+    color: #facc15;
+    border-color: rgba(250, 204, 21, 0.4);
+    box-shadow: 
+      0 0 20px rgba(250, 204, 21, 0.2),
+      0 6px 12px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Glossy Card */
+  .lavage-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  /* Table Row Hover */
+  .lavage-table-row {
+    @apply transition-all duration-200;
+  }
+  .lavage-table-row:hover {
+    background: rgba(250, 204, 21, 0.05);
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.08);
+  }
+  .lavage-table-row:hover td {
+    color: #facc15 !important;
+  }
+
+  /* Glow Text on Hover */
+  .lavage-glow:hover {
+    color: #facc15;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+  }
+}
+
+/* Dashboard dark override */
 .dashboard-dark {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+  background: linear-gradient(135deg, #050505 0%, #0d0d1a 50%, #050505 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   min-height: calc(100vh - 5rem);
