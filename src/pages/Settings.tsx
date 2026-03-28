@@ -126,13 +126,65 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="services" dir="rtl">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="roles" dir="rtl">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="roles"><Shield className="w-4 h-4 ml-1" />الصلاحيات</TabsTrigger>
           <TabsTrigger value="services"><Droplets className="w-4 h-4 ml-1" />الخدمات</TabsTrigger>
           <TabsTrigger value="branches"><Building2 className="w-4 h-4 ml-1" />الفروع</TabsTrigger>
           <TabsTrigger value="overview"><Users className="w-4 h-4 ml-1" />نظرة عامة</TabsTrigger>
           <TabsTrigger value="about">حول</TabsTrigger>
         </TabsList>
+
+        {/* Roles Management Tab */}
+        <TabsContent value="roles" className="mt-4">
+          <div className="lavage-card overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">إدارة الصلاحيات والأدوار</h3>
+                <p className="text-xs text-muted-foreground">المدير يحدد دور كل مستخدم في النظام</p>
+              </div>
+              <Button size="sm" className="lavage-btn" onClick={fetchUsers}>تحديث</Button>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border hover:bg-secondary/50">
+                  <TableHead className="text-muted-foreground">الاسم</TableHead>
+                  <TableHead className="text-muted-foreground">الدور الحالي</TableHead>
+                  <TableHead className="text-muted-foreground">تاريخ التسجيل</TableHead>
+                  <TableHead className="text-muted-foreground">تغيير الدور</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loadingUsers ? (
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">جاري التحميل...</TableCell></TableRow>
+                ) : users.length === 0 ? (
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">لا يوجد مستخدمين</TableCell></TableRow>
+                ) : users.map((u) => (
+                  <TableRow key={u.id} className="lavage-table-row border-border">
+                    <TableCell className="font-medium text-foreground">{u.name || 'بدون اسم'}</TableCell>
+                    <TableCell>
+                      <Badge className={roleBadgeClass(u.role)}>{roleLabel(u.role)}</Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString("ar-SA")}</TableCell>
+                    <TableCell>
+                      <Select value={u.role} onValueChange={(val) => updateUserRole(u.id, val)}>
+                        <SelectTrigger className="w-32 h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="admin">مدير</SelectItem>
+                          <SelectItem value="supervisor">مشرف</SelectItem>
+                          <SelectItem value="employee">موظف</SelectItem>
+                          <SelectItem value="customer">عميل</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
 
         <TabsContent value="services" className="mt-4">
           <div className="lavage-card overflow-hidden">
