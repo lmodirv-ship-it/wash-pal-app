@@ -284,6 +284,10 @@ export default function Login() {
                     minLength={6}
                   />
 
+                  <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                    نسيت كلمة المرور؟
+                  </Link>
+
                   <div className="grid grid-cols-2 gap-3">
                     <Button
                       type="submit"
