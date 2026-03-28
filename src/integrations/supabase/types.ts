@@ -257,6 +257,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          face_photo: string | null
           id: string
           name: string
           role: string
@@ -264,6 +265,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          face_photo?: string | null
           id?: string
           name?: string
           role?: string
@@ -271,6 +273,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          face_photo?: string | null
           id?: string
           name?: string
           role?: string
