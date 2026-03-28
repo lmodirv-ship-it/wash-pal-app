@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Customer } from "@/types";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -37,10 +36,10 @@ export default function Customers() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">إدارة العملاء</h1>
+        <h1 className="text-2xl font-bold text-foreground">إدارة العملاء</h1>
         <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />عميل جديد</Button></DialogTrigger>
-          <DialogContent>
+          <DialogTrigger asChild><Button className="lavage-btn"><Plus className="w-4 h-4 ml-2" />عميل جديد</Button></DialogTrigger>
+          <DialogContent className="bg-card border-border">
             <DialogHeader><DialogTitle>{editing ? "تعديل العميل" : "إضافة عميل جديد"}</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <Input placeholder="الاسم" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
@@ -50,7 +49,7 @@ export default function Customers() {
                 <Input placeholder="نوع السيارة" value={form.carType} onChange={(e) => setForm((f) => ({ ...f, carType: e.target.value }))} />
                 <Input placeholder="رقم اللوحة" value={form.carPlate} onChange={(e) => setForm((f) => ({ ...f, carPlate: e.target.value }))} />
               </div>
-              <Button className="w-full" onClick={handleSubmit}>{editing ? "حفظ التعديلات" : "إضافة العميل"}</Button>
+              <Button className="w-full lavage-btn" onClick={handleSubmit}>{editing ? "حفظ التعديلات" : "إضافة العميل"}</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -61,43 +60,41 @@ export default function Customers() {
         <Input className="pr-9" placeholder="بحث بالاسم أو الهاتف أو المرجع..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>المرجع</TableHead><TableHead>الاسم</TableHead><TableHead>الصلاحية</TableHead>
-                <TableHead>الهاتف</TableHead><TableHead>السيارة</TableHead><TableHead>اللوحة</TableHead>
-                <TableHead>تاريخ التسجيل</TableHead><TableHead>الزيارات</TableHead><TableHead>إجراءات</TableHead>
+      <div className="lavage-card overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-secondary/50">
+              <TableHead className="text-muted-foreground">المرجع</TableHead><TableHead className="text-muted-foreground">الاسم</TableHead><TableHead className="text-muted-foreground">الصلاحية</TableHead>
+              <TableHead className="text-muted-foreground">الهاتف</TableHead><TableHead className="text-muted-foreground">السيارة</TableHead><TableHead className="text-muted-foreground">اللوحة</TableHead>
+              <TableHead className="text-muted-foreground">تاريخ التسجيل</TableHead><TableHead className="text-muted-foreground">الزيارات</TableHead><TableHead className="text-muted-foreground">إجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
+              <TableRow className="border-border"><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">لا يوجد عملاء</TableCell></TableRow>
+            ) : filtered.map((c) => (
+              <TableRow key={c.id} className="lavage-table-row border-border">
+                <TableCell className="font-mono text-xs text-foreground">{c.reference || "-"}</TableCell>
+                <TableCell className="font-medium text-foreground">{c.name}</TableCell>
+                <TableCell><Badge variant="secondary">{c.role === 'customer' ? 'عميل' : c.role}</Badge></TableCell>
+                <TableCell className="text-foreground">{c.phone}</TableCell>
+                <TableCell className="text-foreground">{c.carType}</TableCell>
+                <TableCell className="text-foreground">{c.carPlate}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(c.createdAt).toLocaleDateString("ar-SA")}</TableCell>
+                <TableCell className="text-foreground">{c.totalVisits}</TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => startEdit(c)} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={async () => { await deleteCustomer(c.id); toast.success("تم حذف العميل"); }} className="lavage-glow">
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">لا يوجد عملاء</TableCell></TableRow>
-              ) : filtered.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="font-mono text-xs">{c.reference || "-"}</TableCell>
-                  <TableCell className="font-medium">{c.name}</TableCell>
-                  <TableCell><Badge variant="secondary">{c.role === 'customer' ? 'عميل' : c.role}</Badge></TableCell>
-                  <TableCell>{c.phone}</TableCell>
-                  <TableCell>{c.carType}</TableCell>
-                  <TableCell>{c.carPlate}</TableCell>
-                  <TableCell className="text-xs">{new Date(c.createdAt).toLocaleDateString("ar-SA")}</TableCell>
-                  <TableCell>{c.totalVisits}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => startEdit(c)}><Edit className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={async () => { await deleteCustomer(c.id); toast.success("تم حذف العميل"); }}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

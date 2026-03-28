@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, ClipboardList, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Car, Store,
+  FileText, BarChart3, Building2, Settings, Store,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -45,11 +45,11 @@ export function AppSidebar() {
         <div className="p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-sidebar-primary flex items-center justify-center flex-shrink-0">
-              <Car className="w-6 h-6 text-sidebar-primary-foreground" />
+              <span className="text-sm font-black text-sidebar-primary-foreground">H&L</span>
             </div>
             {!collapsed && (
               <div>
-                <h1 className="text-lg font-bold text-sidebar-foreground">لافاج</h1>
+                <h1 className="text-lg font-bold text-sidebar-foreground">H&Lavage</h1>
                 <p className="text-xs text-sidebar-foreground/60">{currentBranch?.name || "..."}</p>
               </div>
             )}
