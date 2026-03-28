@@ -53,6 +53,45 @@ export default function SettingsPage() {
     setBrForm({ name: "", address: "", phone: "" }); setEditingBr(null); setBrDialog(false);
   };
 
+  // User roles management
+  const [users, setUsers] = useState<{ id: string; user_id: string; name: string; role: string; created_at: string }[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+    if (data) setUsers(data);
+    setLoadingUsers(false);
+  };
+
+  useEffect(() => { fetchUsers(); }, []);
+
+  const updateUserRole = async (profileId: string, newRole: string) => {
+    const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', profileId);
+    if (error) { toast.error("خطأ في تحديث الدور"); return; }
+    toast.success("تم تحديث دور المستخدم");
+    fetchUsers();
+  };
+
+  const roleLabel = (role: string) => {
+    switch (role) {
+      case 'admin': return 'مدير';
+      case 'supervisor': return 'مشرف';
+      case 'employee': return 'موظف';
+      case 'customer': return 'عميل';
+      default: return role;
+    }
+  };
+
+  const roleBadgeClass = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-destructive text-destructive-foreground';
+      case 'supervisor': return 'bg-warning text-warning-foreground';
+      case 'employee': return 'bg-primary text-primary-foreground';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
   const totalRevenue = orders.filter((o) => o.status === "completed").reduce((s, o) => s + o.totalPrice, 0);
 
   return (
