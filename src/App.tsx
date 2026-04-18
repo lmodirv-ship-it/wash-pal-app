@@ -19,6 +19,9 @@ import Reports from "./pages/Reports";
 import Branches from "./pages/Branches";
 import Shops from "./pages/Shops";
 import SettingsPage from "./pages/Settings";
+import Finance from "./pages/Finance";
+import EmployeeApp from "./pages/EmployeeApp";
+import CustomerApp from "./pages/CustomerApp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,18 +38,21 @@ function ProtectedRoutes() {
   if (!user) return <Navigate to="/login" replace />;
 
   const role = profile?.role || 'employee';
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'manager';
+  const isCustomer = role === 'customer';
+  const isEmployee = role === 'employee';
 
-  // Employee and customer go directly to services
-  if (!isAdmin && window.location.pathname === '/') {
-    return <Navigate to="/services" replace />;
+  const path = window.location.pathname;
+  if (path === '/') {
+    if (isEmployee) return <Navigate to="/work" replace />;
+    if (isCustomer) return <Navigate to="/app" replace />;
   }
 
   return (
     <AppProvider>
       <Layout>
         <Routes>
-          {isAdmin ? (
+          {isAdmin && (
             <>
               <Route path="/" element={<Index />} />
               <Route path="/orders" element={<Orders />} />
@@ -55,15 +61,22 @@ function ProtectedRoutes() {
               <Route path="/services" element={<Services />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/finance" element={<Finance />} />
               <Route path="/branches" element={<Branches />} />
               <Route path="/shops" element={<Shops />} />
               <Route path="/settings" element={<SettingsPage />} />
             </>
-          ) : (
+          )}
+          {isEmployee && (
             <>
-              <Route path="/services" element={<Services />} />
-              <Route path="/invoices" element={<Invoices />} />
-              <Route path="*" element={<Navigate to="/services" replace />} />
+              <Route path="/work" element={<EmployeeApp />} />
+              <Route path="*" element={<Navigate to="/work" replace />} />
+            </>
+          )}
+          {isCustomer && (
+            <>
+              <Route path="/app" element={<CustomerApp />} />
+              <Route path="*" element={<Navigate to="/app" replace />} />
             </>
           )}
           <Route path="*" element={<NotFound />} />
