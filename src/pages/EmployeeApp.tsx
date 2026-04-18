@@ -22,6 +22,7 @@ export default function EmployeeApp() {
   const [form, setForm] = useState({ carModel: "", plate: "", price: "" });
   const [saving, setSaving] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [cameraModeOpen, setCameraModeOpen] = useState(false);
   const [plateHistory, setPlateHistory] = useState<string[]>([]);
 
   useEffect(() => {
