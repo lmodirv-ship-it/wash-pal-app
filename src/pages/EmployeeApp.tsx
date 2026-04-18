@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Droplets, Car, CheckCircle2, Play, Award, TrendingUp, Sparkles, X, ScanLine } from "lucide-react";
+import { Droplets, Car, CheckCircle2, Play, Award, TrendingUp, Sparkles, X, ScanLine, Video } from "lucide-react";
 import { toast } from "sonner";
 import { Service } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { PlateScanner } from "@/components/PlateScanner";
+import { CameraMode } from "@/components/CameraMode";
 
 export default function EmployeeApp() {
   const { services, orders, currentBranch, addOrder, updateOrder, refreshAll } = useApp();
@@ -21,6 +22,7 @@ export default function EmployeeApp() {
   const [form, setForm] = useState({ carModel: "", plate: "", price: "" });
   const [saving, setSaving] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [cameraModeOpen, setCameraModeOpen] = useState(false);
   const [plateHistory, setPlateHistory] = useState<string[]>([]);
 
   useEffect(() => {
@@ -125,6 +127,25 @@ export default function EmployeeApp() {
         <StatTile icon={<TrendingUp className="w-5 h-5" />} label="إيراداتي" value={`${todayEarnings} DH`} color="accent" />
         <StatTile icon={<Award className="w-5 h-5" />} label="ترتيبي" value={`#${ranking.myRank}`} color="warning" />
       </div>
+
+      {/* Camera Mode CTA */}
+      <button
+        onClick={() => setCameraModeOpen(true)}
+        className="w-full p-4 rounded-2xl border-2 border-primary/40 bg-gradient-to-l from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 transition active:scale-[0.99] flex items-center justify-between"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-glow">
+            <Video className="w-5 h-5" />
+          </div>
+          <div className="text-right">
+            <p className="font-bold text-sm flex items-center gap-1.5">
+              وضع الكاميرا الذكي <Sparkles className="w-3.5 h-3.5 text-primary" />
+            </p>
+            <p className="text-[11px] text-muted-foreground">كشف اللوحة + اقتراح الخدمة تلقائياً</p>
+          </div>
+        </div>
+        <Badge className="bg-primary/15 text-primary border-primary/30">جديد</Badge>
+      </button>
 
       {/* SERVICES — POS BIG BUTTONS */}
       <section>
@@ -282,6 +303,35 @@ export default function EmployeeApp() {
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
         onDetected={(plate) => setForm(f => ({ ...f, plate }))}
+      />
+
+      <CameraMode
+        open={cameraModeOpen}
+        onClose={() => setCameraModeOpen(false)}
+        services={services}
+        pastOrders={orders}
+        onConfirm={async ({ plate, serviceId, price }) => {
+          if (!currentBranch) { toast.error("اختر فرعاً أولاً"); return; }
+          try {
+            await addOrder({
+              customerId: "",
+              customerName: "عميل مباشر",
+              carType: "غير محدد",
+              carPlate: plate,
+              services: [serviceId],
+              totalPrice: price,
+              status: "waiting",
+              employeeName: myName,
+              branchId: currentBranch.id,
+            });
+            const history = JSON.parse(localStorage.getItem("plate_history") || "[]");
+            const updated = [plate, ...history.filter((p: string) => p !== plate)].slice(0, 10);
+            localStorage.setItem("plate_history", JSON.stringify(updated));
+            toast.success(`✓ تم تسجيل ${plate} - ${price} DH`);
+          } catch (e: any) {
+            toast.error("فشل الحفظ: " + (e?.message || ""));
+          }
+        }}
       />
     </div>
   );
