@@ -109,10 +109,10 @@ export default function Finance() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard title="إجمالي الإيرادات" value={`${revenue.toLocaleString()} ر.س`} icon={<TrendingUp className="w-4 h-4" />} variant="success" />
-        <KPICard title="إجمالي المصروفات" value={`${totalExpenses.toLocaleString()} ر.س`} icon={<TrendingDown className="w-4 h-4" />} variant="warning" />
-        <KPICard title="صافي الربح" value={`${profit.toLocaleString()} ر.س`} icon={<DollarSign className="w-4 h-4" />} variant={profit >= 0 ? "default" : "destructive"} />
-        <KPICard title="هامش الربح" value={`${margin}%`} icon={<Receipt className="w-4 h-4" />} variant="default" />
+        <KPICard label="إجمالي الإيرادات" value={`${revenue.toLocaleString()} ر.س`} icon={TrendingUp} accent="success" />
+        <KPICard label="إجمالي المصروفات" value={`${totalExpenses.toLocaleString()} ر.س`} icon={TrendingDown} accent="warning" />
+        <KPICard label="صافي الربح" value={`${profit.toLocaleString()} ر.س`} icon={DollarSign} accent={profit >= 0 ? "primary" : "warning"} />
+        <KPICard label="هامش الربح" value={`${margin}%`} icon={Receipt} accent="info" />
       </div>
 
       {/* Monthly breakdown */}
