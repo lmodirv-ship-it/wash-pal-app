@@ -7,6 +7,7 @@ export interface Service {
   price: number;
   duration: number;
   description: string;
+  isActive: boolean;
 }
 
 export interface Customer {

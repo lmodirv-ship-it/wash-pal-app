@@ -4,26 +4,28 @@ import { Service } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit, Droplets, Clock, DollarSign, ShoppingCart } from "lucide-react";
+import { Plus, Trash2, Edit, Droplets, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Services() {
-  const { services, addService, updateService, deleteService, addInvoice, currentBranch } = useApp();
+  const { services, addService, updateService, deleteService } = useApp();
   const { isAdmin } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [form, setForm] = useState({ name: "", price: "", duration: "", description: "" });
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   const handleSubmit = async () => {
-    if (!form.name || !form.price || !form.duration) { toast.error("يرجى ملء جميع الحقول"); return; }
+    if (!form.name || !form.price) { toast.error("الاسم والسعر مطلوبان"); return; }
     if (editing) {
-      await updateService(editing.id, { name: form.name, price: Number(form.price), duration: Number(form.duration), description: form.description });
+      await updateService(editing.id, { name: form.name, price: Number(form.price), duration: Number(form.duration) || 0, description: form.description });
       toast.success("تم تعديل الخدمة");
     } else {
-      await addService({ name: form.name, price: Number(form.price), duration: Number(form.duration), description: form.description });
+      await addService({ name: form.name, price: Number(form.price), duration: Number(form.duration) || 0, description: form.description, isActive: true });
       toast.success("تم إضافة الخدمة");
     }
     resetForm();
@@ -35,119 +37,82 @@ export default function Services() {
     setEditing(s); setDialogOpen(true);
   };
 
-  const toggleService = (id: string) => {
-    setSelectedServices(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
-  };
-
-  const totalPrice = selectedServices.reduce((sum, id) => sum + (services.find(s => s.id === id)?.price || 0), 0);
-
-  const handleCreateInvoice = async () => {
-    if (selectedServices.length === 0) { toast.error("يرجى اختيار خدمة واحدة على الأقل"); return; }
-    await addInvoice({
-      orderId: crypto.randomUUID(),
-      customerName: "عميل مباشر",
-      services: selectedServices.map(id => {
-        const svc = services.find(s => s.id === id);
-        return { name: svc?.name || '', price: svc?.price || 0 };
-      }),
-      totalAmount: totalPrice,
-      paidAmount: totalPrice,
-      isPaid: true,
-      createdAt: new Date().toISOString(),
-      branchId: currentBranch?.id || '',
-    });
-    setSelectedServices([]);
-    toast.success("تم إنشاء الفاتورة بنجاح");
+  const toggleActive = async (s: Service) => {
+    await updateService(s.id, { isActive: !s.isActive });
+    toast.success(s.isActive ? "تم تعطيل الخدمة" : "تم تفعيل الخدمة");
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-foreground">إدارة الخدمات</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">إدارة الخدمات</h1>
+          <p className="text-sm text-muted-foreground">الخدمات المعطّلة لن تظهر للموظفين</p>
+        </div>
         {isAdmin && (
           <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
             <DialogTrigger asChild>
-              <Button className="lavage-btn"><Plus className="w-4 h-4 ml-2" />خدمة جديدة</Button>
+              <Button className="rounded-xl" style={{ background: "var(--gradient-primary)" }}>
+                <Plus className="w-4 h-4 ml-1" />خدمة جديدة
+              </Button>
             </DialogTrigger>
-            <DialogContent className="bg-card border-border">
+            <DialogContent>
               <DialogHeader><DialogTitle>{editing ? "تعديل الخدمة" : "إضافة خدمة جديدة"}</DialogTitle></DialogHeader>
-              <div className="space-y-4">
-                <Input placeholder="اسم الخدمة" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+              <div className="space-y-3">
+                <Input placeholder="اسم الخدمة (مثال: غسيل عادي)" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 <div className="grid grid-cols-2 gap-3">
-                  <Input type="number" placeholder="السعر (ر.س)" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
-                  <Input type="number" placeholder="المدة (دقيقة)" value={form.duration} onChange={(e) => setForm((f) => ({ ...f, duration: e.target.value }))} />
+                  <Input type="number" placeholder="السعر (DH)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+                  <Input type="number" placeholder="المدة (دقيقة)" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
                 </div>
-                <Textarea placeholder="الوصف" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-                <Button className="w-full" onClick={handleSubmit}>{editing ? "حفظ" : "إضافة"}</Button>
+                <Textarea placeholder="الوصف (اختياري)" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <Button className="w-full rounded-xl" onClick={handleSubmit} style={{ background: "var(--gradient-primary)" }}>
+                  {editing ? "حفظ التعديلات" : "إضافة"}
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
         )}
       </div>
 
-      {/* Services as Button Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {services.map((s) => {
-          const isSelected = selectedServices.includes(s.id);
-          return (
-            <button
-              key={s.id}
-              onClick={() => toggleService(s.id)}
-              className={`lavage-card p-5 text-right transition-all duration-300 group cursor-pointer ${
-                isSelected 
-                  ? 'ring-2 ring-primary shadow-[0_0_25px_rgba(250,204,21,0.2)]' 
-                  : 'hover:shadow-[0_0_20px_rgba(250,204,21,0.1)]'
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                  isSelected ? 'bg-primary' : 'bg-muted'
-                }`}>
-                  <Droplets className={`w-5 h-5 ${isSelected ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+        {services.map((s) => (
+          <Card key={s.id} className={`p-5 rounded-2xl transition-all ${s.isActive ? "" : "opacity-60 bg-muted/30"}`}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <Droplets className="w-5 h-5" />
+              </div>
+              {s.isActive
+                ? <Badge className="bg-success/10 text-success border-success/20">مفعّلة</Badge>
+                : <Badge variant="outline" className="text-muted-foreground">معطّلة</Badge>}
+            </div>
+            <h3 className="font-bold text-lg mb-1">{s.name}</h3>
+            {s.description && <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{s.description}</p>}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-2xl font-bold text-primary">{s.price} <span className="text-sm font-medium text-muted-foreground">DH</span></span>
+              {s.duration > 0 && (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="w-3.5 h-3.5" />{s.duration}د</span>
+              )}
+            </div>
+
+            {isAdmin && (
+              <div className="flex items-center justify-between pt-3 border-t">
+                <div className="flex items-center gap-2">
+                  <Switch checked={s.isActive} onCheckedChange={() => toggleActive(s)} />
+                  <span className="text-xs text-muted-foreground">{s.isActive ? "نشطة" : "معطّلة"}</span>
                 </div>
-                <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">{s.name}</h3>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">{s.description}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="w-4 h-4" />{s.duration} دقيقة</div>
-                <div className="flex items-center gap-1 font-bold text-primary"><DollarSign className="w-4 h-4" />{s.price} ر.س</div>
-              </div>
-              {isAdmin && (
-                <div className="flex gap-1 mt-3 justify-end" onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon" onClick={() => startEdit(s)} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
-                  <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success("تم حذف الخدمة"); }} className="lavage-glow">
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => startEdit(s)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success("تم الحذف"); }}>
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                 </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Invoice Total */}
-      {selectedServices.length > 0 && (
-        <div className="lavage-card p-6 sticky bottom-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <ShoppingCart className="w-6 h-6 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">{selectedServices.length} خدمة مختارة</p>
-                <p className="text-3xl font-bold text-primary">{totalPrice} ر.س</p>
               </div>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setSelectedServices([])} className="lavage-glow">
-                إلغاء
-              </Button>
-              <Button onClick={handleCreateInvoice} className="lavage-btn">
-                <DollarSign className="w-4 h-4 ml-1" />
-                إنشاء فاتورة
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+            )}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
