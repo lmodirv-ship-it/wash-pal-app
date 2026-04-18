@@ -196,6 +196,26 @@ async function imouCall(path: string, params: Record<string, unknown>, appId: st
   return await res.json();
 }
 
+// Token cache (per cold-start instance)
+let cachedToken: { token: string; expiresAt: number } | null = null;
+
+async function getAccessToken(appId: string, appSecret: string): Promise<string> {
+  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
+    return cachedToken.token;
+  }
+  const res = await imouCall("/accessToken", {}, appId, appSecret);
+  const token = res?.result?.data?.accessToken;
+  const expireTime = res?.result?.data?.expireTime;
+  if (!token) {
+    throw new Error("Failed to get accessToken: " + JSON.stringify(res));
+  }
+  cachedToken = {
+    token,
+    expiresAt: Date.now() + (Number(expireTime || 7200) * 1000),
+  };
+  return token;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -213,7 +233,8 @@ Deno.serve(async (req) => {
 
     // List devices bound to the IMOU app account
     if (action === "listDevices") {
-      const result = await imouCall("/deviceBaseList", { bindId: -1, limit: 50, type: "bindAndShare", needApInfo: false }, APP_ID, APP_SECRET);
+      const token = await getAccessToken(APP_ID, APP_SECRET);
+      const result = await imouCall("/deviceBaseList", { token, bindId: -1, limit: 50, type: "bindAndShare", needApInfo: false }, APP_ID, APP_SECRET);
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
