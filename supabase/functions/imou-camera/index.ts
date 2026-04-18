@@ -248,10 +248,10 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      // setDeviceSnapEnhanced creates a snapshot, returns URL
+      const token = await getAccessToken(APP_ID, APP_SECRET);
       const result = await imouCall(
         "/setDeviceSnapEnhanced",
-        { deviceId, channelId: channelId || "0" },
+        { token, deviceId, channelId: channelId || "0" },
         APP_ID,
         APP_SECRET
       );
@@ -268,9 +268,10 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      const token = await getAccessToken(APP_ID, APP_SECRET);
       const result = await imouCall(
         "/bindDeviceLive",
-        { deviceId, channelId: channelId || "0", streamId: 1 },
+        { token, deviceId, channelId: channelId || "0", streamId: 1 },
         APP_ID,
         APP_SECRET
       );
