@@ -347,6 +347,7 @@ export type Database = {
           description: string | null
           duration: number
           id: string
+          is_active: boolean
           name: string
           price: number
         }
@@ -355,6 +356,7 @@ export type Database = {
           description?: string | null
           duration: number
           id?: string
+          is_active?: boolean
           name: string
           price: number
         }
@@ -363,6 +365,7 @@ export type Database = {
           description?: string | null
           duration?: number
           id?: string
+          is_active?: boolean
           name?: string
           price?: number
         }
