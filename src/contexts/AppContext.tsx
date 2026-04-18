@@ -67,6 +67,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
   const mapService = (r: any): Service => ({
     id: r.id, name: r.name, price: Number(r.price), duration: r.duration, description: r.description || '',
+    isActive: r.is_active !== false,
   });
   const mapInvoice = (r: any): Invoice => ({
     id: r.id, orderId: r.order_id, customerName: r.customer_name,
@@ -180,7 +181,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Service CRUD
   const addService = async (s: Omit<Service, 'id'>) => {
-    await supabase.from('services').insert({ name: s.name, price: s.price, duration: s.duration, description: s.description });
+    await supabase.from('services').insert({ name: s.name, price: s.price, duration: s.duration, description: s.description, is_active: s.isActive ?? true });
     await refreshAll();
   };
   const updateService = async (id: string, s: Partial<Service>) => {
@@ -189,6 +190,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (s.price !== undefined) u.price = s.price;
     if (s.duration !== undefined) u.duration = s.duration;
     if (s.description !== undefined) u.description = s.description;
+    if (s.isActive !== undefined) u.is_active = s.isActive;
     await supabase.from('services').update(u).eq('id', id);
     await refreshAll();
   };
