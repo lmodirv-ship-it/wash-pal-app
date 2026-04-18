@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Droplets, Car, CheckCircle2, Play, Award, TrendingUp, Sparkles, X, ScanLine } from "lucide-react";
+import { Droplets, Car, CheckCircle2, Play, Award, TrendingUp, Sparkles, X, ScanLine, Video } from "lucide-react";
 import { toast } from "sonner";
 import { Service } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { PlateScanner } from "@/components/PlateScanner";
+import { CameraMode } from "@/components/CameraMode";
 
 export default function EmployeeApp() {
   const { services, orders, currentBranch, addOrder, updateOrder, refreshAll } = useApp();
