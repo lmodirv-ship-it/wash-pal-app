@@ -304,6 +304,35 @@ export default function EmployeeApp() {
         onClose={() => setScannerOpen(false)}
         onDetected={(plate) => setForm(f => ({ ...f, plate }))}
       />
+
+      <CameraMode
+        open={cameraModeOpen}
+        onClose={() => setCameraModeOpen(false)}
+        services={services}
+        pastOrders={orders}
+        onConfirm={async ({ plate, serviceId, price }) => {
+          if (!currentBranch) { toast.error("اختر فرعاً أولاً"); return; }
+          try {
+            await addOrder({
+              customerId: "",
+              customerName: "عميل مباشر",
+              carType: "غير محدد",
+              carPlate: plate,
+              services: [serviceId],
+              totalPrice: price,
+              status: "waiting",
+              employeeName: myName,
+              branchId: currentBranch.id,
+            });
+            const history = JSON.parse(localStorage.getItem("plate_history") || "[]");
+            const updated = [plate, ...history.filter((p: string) => p !== plate)].slice(0, 10);
+            localStorage.setItem("plate_history", JSON.stringify(updated));
+            toast.success(`✓ تم تسجيل ${plate} - ${price} DH`);
+          } catch (e: any) {
+            toast.error("فشل الحفظ: " + (e?.message || ""));
+          }
+        }}
+      />
     </div>
   );
 }
