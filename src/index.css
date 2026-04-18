@@ -257,6 +257,13 @@
     @apply w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-muted-foreground;
     background: hsl(var(--muted));
   }
+
+  /* Legacy aliases — keep older pages styled with the new SaaS design */
+  .lavage-card { @apply saas-card; }
+  .lavage-btn  { @apply fab; }
+  .lavage-glow { @apply transition-colors hover:text-primary; }
+  .lavage-table-row { @apply transition-colors hover:bg-muted/40; }
+  .dashboard-dark { @apply space-y-6; }
 }
 
 @layer utilities {
