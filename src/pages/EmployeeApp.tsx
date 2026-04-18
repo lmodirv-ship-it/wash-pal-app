@@ -128,6 +128,25 @@ export default function EmployeeApp() {
         <StatTile icon={<Award className="w-5 h-5" />} label="ترتيبي" value={`#${ranking.myRank}`} color="warning" />
       </div>
 
+      {/* Camera Mode CTA */}
+      <button
+        onClick={() => setCameraModeOpen(true)}
+        className="w-full p-4 rounded-2xl border-2 border-primary/40 bg-gradient-to-l from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 transition active:scale-[0.99] flex items-center justify-between"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-glow">
+            <Video className="w-5 h-5" />
+          </div>
+          <div className="text-right">
+            <p className="font-bold text-sm flex items-center gap-1.5">
+              وضع الكاميرا الذكي <Sparkles className="w-3.5 h-3.5 text-primary" />
+            </p>
+            <p className="text-[11px] text-muted-foreground">كشف اللوحة + اقتراح الخدمة تلقائياً</p>
+          </div>
+        </div>
+        <Badge className="bg-primary/15 text-primary border-primary/30">جديد</Badge>
+      </button>
+
       {/* SERVICES — POS BIG BUTTONS */}
       <section>
         <h2 className="font-bold mb-3 flex items-center gap-2 text-lg">
