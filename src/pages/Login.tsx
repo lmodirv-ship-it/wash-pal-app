@@ -103,24 +103,7 @@ export default function Login() {
       return;
     }
 
-    // Check if user is admin
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role, face_photo")
-        .eq("user_id", user.id)
-        .single();
-
-      if (profile?.role === "admin") {
-        // Admin: open camera for face verification
-        toast.info("يرجى التحقق من هويتك عبر الكاميرا");
-        setLoading(false);
-        await startCamera();
-        return;
-      }
-    }
-
+    toast.success("تم تسجيل الدخول بنجاح");
     setLoading(false);
   };
 
