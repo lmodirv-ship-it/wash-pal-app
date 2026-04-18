@@ -67,18 +67,10 @@ function ProtectedRoutes() {
               <Route path="/settings" element={<SettingsPage />} />
             </>
           )}
-          {isEmployee && (
-            <>
-              <Route path="/work" element={<EmployeeApp />} />
-              <Route path="*" element={<Navigate to="/work" replace />} />
-            </>
-          )}
-          {isCustomer && (
-            <>
-              <Route path="/app" element={<CustomerApp />} />
-              <Route path="*" element={<Navigate to="/app" replace />} />
-            </>
-          )}
+          <Route path="/work" element={<EmployeeApp />} />
+          <Route path="/app" element={<CustomerApp />} />
+          {isEmployee && <Route path="*" element={<Navigate to="/work" replace />} />}
+          {isCustomer && <Route path="*" element={<Navigate to="/app" replace />} />}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
