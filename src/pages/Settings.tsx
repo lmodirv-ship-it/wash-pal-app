@@ -31,7 +31,7 @@ export default function SettingsPage() {
       await updateService(editingSvc.id, { name: svcForm.name, price: Number(svcForm.price), duration: Number(svcForm.duration), description: svcForm.description });
       toast.success("تم تعديل الخدمة");
     } else {
-      await addService({ name: svcForm.name, price: Number(svcForm.price), duration: Number(svcForm.duration), description: svcForm.description });
+      await addService({ name: svcForm.name, price: Number(svcForm.price), duration: Number(svcForm.duration), description: svcForm.description, isActive: true });
       toast.success("تم إضافة الخدمة");
     }
     setSvcForm({ name: "", price: "", duration: "", description: "" }); setEditingSvc(null); setSvcDialog(false);
