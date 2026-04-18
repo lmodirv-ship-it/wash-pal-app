@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Droplets, Car, CheckCircle2, Play, Award, TrendingUp, Sparkles, X } from "lucide-react";
+import { Droplets, Car, CheckCircle2, Play, Award, TrendingUp, Sparkles, X, ScanLine } from "lucide-react";
 import { toast } from "sonner";
 import { Service } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
+import { PlateScanner } from "@/components/PlateScanner";
 
 export default function EmployeeApp() {
   const { services, orders, currentBranch, addOrder, updateOrder, refreshAll } = useApp();
@@ -19,6 +20,14 @@ export default function EmployeeApp() {
   const [picked, setPicked] = useState<Service | null>(null);
   const [form, setForm] = useState({ carModel: "", plate: "", price: "" });
   const [saving, setSaving] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [plateHistory, setPlateHistory] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      setPlateHistory(JSON.parse(localStorage.getItem("plate_history") || "[]"));
+    } catch { /* ignore */ }
+  }, [picked]);
 
   const today = new Date().toISOString().slice(0, 10);
   const myName = profile?.name || "أنا";
@@ -200,13 +209,38 @@ export default function EmployeeApp() {
           <div className="space-y-3">
             <div>
               <Label className="text-xs text-muted-foreground">رقم اللوحة *</Label>
-              <Input
-                autoFocus
-                placeholder="مثال: 1234-أ-ب"
-                value={form.plate}
-                onChange={e => setForm({ ...form, plate: e.target.value })}
-                className="h-12 text-lg font-bold text-center uppercase"
-              />
+              <div className="flex gap-2">
+                <Input
+                  autoFocus
+                  placeholder="مثال: 1234-أ-ب"
+                  value={form.plate}
+                  onChange={e => setForm({ ...form, plate: e.target.value })}
+                  className="h-12 text-lg font-bold text-center uppercase flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setScannerOpen(true)}
+                  className="h-12 px-3 rounded-xl border-primary/40 text-primary hover:bg-primary/10"
+                  title="مسح اللوحة بالكاميرا"
+                >
+                  <ScanLine className="w-5 h-5" />
+                </Button>
+              </div>
+              {plateHistory.length > 0 && (
+                <div className="flex gap-1.5 mt-2 flex-wrap">
+                  {plateHistory.slice(0, 4).map(p => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, plate: p }))}
+                      className="text-[11px] px-2 py-1 rounded-md bg-muted hover:bg-primary/10 hover:text-primary transition"
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">موديل السيارة (اختياري)</Label>
@@ -243,6 +277,12 @@ export default function EmployeeApp() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <PlateScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onDetected={(plate) => setForm(f => ({ ...f, plate }))}
+      />
     </div>
   );
 }
