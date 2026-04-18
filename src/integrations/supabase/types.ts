@@ -163,6 +163,50 @@ export type Database = {
         }
         Relationships: []
       }
+      imou_devices: {
+        Row: {
+          branch_id: string | null
+          channel_id: string
+          created_at: string
+          device_id: string
+          device_name: string
+          id: string
+          is_active: boolean
+          last_snapshot_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          branch_id?: string | null
+          channel_id?: string
+          created_at?: string
+          device_id: string
+          device_name: string
+          id?: string
+          is_active?: boolean
+          last_snapshot_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string | null
+          channel_id?: string
+          created_at?: string
+          device_id?: string
+          device_name?: string
+          id?: string
+          is_active?: boolean
+          last_snapshot_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imou_devices_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           branch_id: string
