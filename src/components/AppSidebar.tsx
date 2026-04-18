@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Sparkles,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Sparkles, Wallet,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -24,6 +24,7 @@ const manageItems = [
 
 const businessItems = [
   { title: "الفواتير", url: "/invoices", icon: FileText },
+  { title: "المالية", url: "/finance", icon: Wallet },
   { title: "التقارير", url: "/reports", icon: BarChart3 },
   { title: "الفروع", url: "/branches", icon: Building2 },
   { title: "المحلات", url: "/shops", icon: Store },
