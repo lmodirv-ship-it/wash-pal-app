@@ -13,7 +13,8 @@ export default {
       },
     },
     fontFamily: {
-        cairo: ['Cairo', 'sans-serif'],
+        cairo: ['Cairo', 'Inter', 'sans-serif'],
+        sans: ['Cairo', 'Inter', 'sans-serif'],
       },
       extend: {
       colors: {
@@ -24,6 +25,10 @@ export default {
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
