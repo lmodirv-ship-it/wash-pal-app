@@ -66,9 +66,13 @@ export default function SettingsPage() {
 
   useEffect(() => { fetchUsers(); }, []);
 
-  const updateUserRole = async (profileId: string, newRole: string) => {
-    const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', profileId);
-    if (error) { toast.error("خطأ في تحديث الدور"); return; }
+  const updateUserRole = async (profileId: string, userId: string, newRole: string) => {
+    const { error: pErr } = await supabase.from('profiles').update({ role: newRole }).eq('id', profileId);
+    if (pErr) { toast.error("خطأ في تحديث الدور"); return; }
+    // Sync user_roles (source of truth for permissions)
+    await supabase.from('user_roles').delete().eq('user_id', userId);
+    const { error: rErr } = await supabase.from('user_roles').insert({ user_id: userId, role: newRole as any });
+    if (rErr) { toast.error("تم تحديث الملف لكن فشل تحديث الصلاحية"); return; }
     toast.success("تم تحديث دور المستخدم");
     fetchUsers();
   };
@@ -76,6 +80,7 @@ export default function SettingsPage() {
   const roleLabel = (role: string) => {
     switch (role) {
       case 'admin': return 'مدير';
+      case 'manager': return 'مسير';
       case 'supervisor': return 'مشرف';
       case 'employee': return 'موظف';
       case 'customer': return 'عميل';
@@ -86,6 +91,7 @@ export default function SettingsPage() {
   const roleBadgeClass = (role: string) => {
     switch (role) {
       case 'admin': return 'bg-destructive text-destructive-foreground';
+      case 'manager': return 'bg-accent text-accent-foreground';
       case 'supervisor': return 'bg-warning text-warning-foreground';
       case 'employee': return 'bg-primary text-primary-foreground';
       default: return 'bg-muted text-muted-foreground';
@@ -167,15 +173,15 @@ export default function SettingsPage() {
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString("ar-SA")}</TableCell>
                     <TableCell>
-                      <Select value={u.role} onValueChange={(val) => updateUserRole(u.id, val)}>
+                      <Select value={u.role} onValueChange={(val) => updateUserRole(u.id, u.user_id, val)}>
                         <SelectTrigger className="w-32 h-8 text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="admin">مدير</SelectItem>
+                          <SelectItem value="manager">مسير</SelectItem>
                           <SelectItem value="supervisor">مشرف</SelectItem>
                           <SelectItem value="employee">موظف</SelectItem>
-                          <SelectItem value="customer">عميل</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
