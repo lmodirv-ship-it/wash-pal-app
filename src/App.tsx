@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider } from "@/contexts/AppContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Layout } from "@/components/Layout";
+import { supabase } from "@/integrations/supabase/client";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -98,15 +99,45 @@ function ProtectedRoutes() {
   );
 }
 
-// Smart redirect after login: send user to their role-based home
+// Smart redirect after login: role-based home derived from shop_members + profile
 function PostLoginRedirect() {
   const { user, profile, loading } = useAuth();
-  if (loading || (user && !profile)) return <LoadingScreen />;
+  const [target, setTarget] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (loading || !user || !profile) return;
+
+    // 1) Profile-level roles take priority (super-admin / customer)
+    const pRole = profile.role;
+    if (pRole === "admin") { setTarget("/admin"); return; }
+    if (pRole === "customer") { setTarget("/app"); return; }
+
+    // 2) Otherwise derive from shop_members (highest privilege wins)
+    (async () => {
+      const { data } = await supabase
+        .from("shop_members")
+        .select("role")
+        .eq("user_id", user.id);
+
+      if (!data || data.length === 0) {
+        // No shop yet → onboarding
+        setTarget("/create-shop");
+        return;
+      }
+      const roles = data.map((r) => r.role);
+      if (roles.includes("supervisor") || roles.includes("manager")) {
+        setTarget("/dashboard");
+      } else if (roles.includes("employee")) {
+        setTarget("/employee");
+      } else {
+        setTarget("/app");
+      }
+    })();
+  }, [user, profile, loading]);
+
+  if (loading || (user && !profile) || !target) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
-  const role = profile?.role || 'employee';
-  if (role === 'admin' || role === 'manager') return <Navigate to="/dashboard" replace />;
-  if (role === 'employee') return <Navigate to="/employee" replace />;
-  return <Navigate to="/app" replace />;
+  return <Navigate to={target} replace />;
 }
 
 function AuthedCreateShop() {
