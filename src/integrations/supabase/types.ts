@@ -324,6 +324,50 @@ export type Database = {
           },
         ]
       }
+      invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          role: string
+          shop_id: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          role?: string
+          shop_id: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          role?: string
+          shop_id?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           branch_id: string
@@ -594,6 +638,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          invited_by: string | null
           role: string
           shop_id: string
           user_id: string
@@ -601,6 +646,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          invited_by?: string | null
           role?: string
           shop_id: string
           user_id: string
@@ -608,6 +654,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          invited_by?: string | null
           role?: string
           shop_id?: string
           user_id?: string
@@ -675,6 +722,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invite: { Args: { _token: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -682,6 +730,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_shop_manager: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_member: { Args: { _shop_id: string }; Returns: boolean }
       user_shop_ids: { Args: never; Returns: string[] }
     }
