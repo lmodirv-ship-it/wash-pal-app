@@ -10,10 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit, Settings as SettingsIcon, Droplets, Building2, Users, Shield, Camera } from "lucide-react";
+import { Plus, Trash2, Edit, Settings as SettingsIcon, Droplets, Building2, Users, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { Service, Branch } from "@/types";
-import ImouCamerasTab from "@/components/ImouCamerasTab";
 
 export default function SettingsPage() {
   const {
@@ -128,18 +127,13 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="roles" dir="rtl">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="roles"><Shield className="w-4 h-4 ml-1" />الصلاحيات</TabsTrigger>
           <TabsTrigger value="services"><Droplets className="w-4 h-4 ml-1" />الخدمات</TabsTrigger>
           <TabsTrigger value="branches"><Building2 className="w-4 h-4 ml-1" />الفروع</TabsTrigger>
-          <TabsTrigger value="cameras"><Camera className="w-4 h-4 ml-1" />كاميرات IMOU</TabsTrigger>
           <TabsTrigger value="overview"><Users className="w-4 h-4 ml-1" />نظرة عامة</TabsTrigger>
           <TabsTrigger value="about">حول</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="cameras" className="mt-4">
-          <ImouCamerasTab />
-        </TabsContent>
 
         {/* Roles Management Tab */}
         <TabsContent value="roles" className="mt-4">
