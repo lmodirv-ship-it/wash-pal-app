@@ -153,11 +153,15 @@ const App = () => (
               <Route path="/team" element={<Team />} />
             </Route>
 
-            {/* Employee */}
+            {/* Employee — fullscreen, no sidebar/layout */}
             <Route
               element={
                 <ProtectedRoute allowedRoles={["employee", "supervisor", "manager"]}>
-                  <AppShell />
+                  <AppProvider>
+                    <ShopGate needsShop={false}>
+                      <Outlet />
+                    </ShopGate>
+                  </AppProvider>
                 </ProtectedRoute>
               }
             >
