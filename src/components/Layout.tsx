@@ -7,7 +7,8 @@ import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Bell, LogOut } from "lucide-react";
+import { Search, Bell, LogOut, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
@@ -44,6 +45,11 @@ export function Layout({ children }: { children: ReactNode }) {
 
             <div className="flex items-center gap-2">
               <LanguageSwitcher />
+              {isAdmin && (
+                <Button asChild size="sm" variant="outline" className="h-10 rounded-xl gap-2 hidden sm:flex border-primary/30 text-primary hover:bg-primary/10">
+                  <Link to="/create-shop"><Plus className="w-4 h-4" /><span className="hidden md:inline">متجر جديد</span></Link>
+                </Button>
+              )}
               {isAdmin && branches.length > 1 && currentBranch && (
                 <Select
                   value={currentBranch?.id || ""}
