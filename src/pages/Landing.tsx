@@ -4,9 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 /* ---------- Auth-aware Start Free wrapper ---------- */
 function StartFreeLink({ children, className }: { children: React.ReactNode; className?: string }) {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const target = user ? "/create-shop" : "/signup?redirect=create-shop";
+  const target = "/signup?redirect=create-shop";
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     navigate(target);
