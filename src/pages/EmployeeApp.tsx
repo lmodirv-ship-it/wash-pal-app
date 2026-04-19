@@ -284,6 +284,84 @@ export default function EmployeeApp() {
         <Save className="w-5 h-5 ml-2" />
         {saving ? "جاري الحفظ..." : "حفظ الطلب"}
       </Button>
+
+      <DailyOrdersTable orders={orders} services={services} myName={myName} branchId={currentBranch?.id} />
     </div>
+  );
+}
+
+function DailyOrdersTable({
+  orders,
+  services,
+  myName,
+  branchId,
+}: {
+  orders: ReturnType<typeof useApp>["orders"];
+  services: ReturnType<typeof useApp>["services"];
+  myName: string;
+  branchId?: string;
+}) {
+  const todayOrders = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return orders.filter(o => {
+      if (o.employeeName !== myName) return false;
+      if (branchId && o.branchId !== branchId) return false;
+      return new Date(o.createdAt) >= today;
+    });
+  }, [orders, myName, branchId]);
+
+  const totalRevenue = todayOrders.reduce((sum, o) => sum + o.totalPrice, 0);
+  const serviceName = (id: string) => services.find(s => s.id === id)?.name || "—";
+
+  return (
+    <Card className="p-3 rounded-2xl shadow-soft">
+      <div className="flex items-center justify-between mb-3 px-1">
+        <div className="flex items-center gap-2">
+          <ListChecks className="w-4 h-4 text-primary" />
+          <h3 className="font-bold text-sm">عملي اليوم</h3>
+          <Badge variant="secondary" className="text-[10px]">{todayOrders.length}</Badge>
+        </div>
+        <div className="flex items-center gap-1 text-success font-bold text-sm">
+          <Coins className="w-4 h-4" />
+          {totalRevenue} DH
+        </div>
+      </div>
+
+      {todayOrders.length === 0 ? (
+        <p className="text-center text-xs text-muted-foreground py-6">لم تسجل أي طلب اليوم بعد</p>
+      ) : (
+        <div className="overflow-x-auto -mx-1">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-right text-[10px] h-8 px-2"><Hash className="w-3 h-3 inline" /></TableHead>
+                <TableHead className="text-right text-[10px] h-8 px-2">الوقت</TableHead>
+                <TableHead className="text-right text-[10px] h-8 px-2">اللوحة</TableHead>
+                <TableHead className="text-right text-[10px] h-8 px-2">السيارة</TableHead>
+                <TableHead className="text-right text-[10px] h-8 px-2">الخدمة</TableHead>
+                <TableHead className="text-right text-[10px] h-8 px-2">السعر</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {todayOrders.map((o, idx) => (
+                <TableRow key={o.id}>
+                  <TableCell className="text-[11px] px-2 py-1.5 text-muted-foreground">{todayOrders.length - idx}</TableCell>
+                  <TableCell className="text-[11px] px-2 py-1.5 whitespace-nowrap">
+                    {new Date(o.createdAt).toLocaleTimeString("ar-MA", { hour: "2-digit", minute: "2-digit" })}
+                  </TableCell>
+                  <TableCell className="text-[11px] px-2 py-1.5 font-bold">{o.carPlate}</TableCell>
+                  <TableCell className="text-[11px] px-2 py-1.5 max-w-[120px] truncate">{o.carType}</TableCell>
+                  <TableCell className="text-[11px] px-2 py-1.5 max-w-[140px] truncate">
+                    {o.services.map(serviceName).join(", ")}
+                  </TableCell>
+                  <TableCell className="text-[11px] px-2 py-1.5 font-bold text-primary whitespace-nowrap">{o.totalPrice} DH</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </Card>
   );
 }
