@@ -66,6 +66,15 @@ export function Layout({ children }: { children: ReactNode }) {
                 <Bell className="w-[18px] h-[18px]" />
                 <span className={`absolute top-2 ${isRtl ? "left-2" : "right-2"} w-2 h-2 rounded-full bg-destructive`} />
               </button>
+              <Button
+                onClick={signOut}
+                variant="outline"
+                size="sm"
+                className="h-10 rounded-xl gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">{t("nav.logout")}</span>
+              </Button>
             </div>
           </header>
 
