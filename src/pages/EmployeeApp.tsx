@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Car, Save, Crown, Sparkles, Package, Droplets, Check } from "lucide-react";
+import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike } from "lucide-react";
 import { toast } from "sonner";
 
 const CATS: { id: ServiceCategory; label: string; icon: any; cls: string }[] = [
@@ -95,41 +95,55 @@ export default function EmployeeApp() {
         </div>
         <div>
           <Label className="text-sm font-semibold mb-2 block">نوع السيارة</Label>
-          <div className="flex gap-2">
-            <div className="flex gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => setCarSize("normal")}
-                className={`px-3 h-11 rounded-lg text-xs font-bold border-2 transition-all ${
-                  carSize === "normal"
-                    ? "border-primary bg-primary text-primary-foreground shadow-glow"
-                    : "border-border bg-card text-muted-foreground hover:border-primary/50"
-                }`}
-              >
-                Normal
-              </button>
-              <button
-                type="button"
-                onClick={() => setCarSize("4x4")}
-                className={`px-3 h-11 rounded-lg text-xs font-bold border-2 transition-all flex items-center gap-1 ${
-                  carSize === "4x4"
-                    ? "border-warning bg-warning text-warning-foreground shadow-glow"
-                    : "border-border bg-card text-muted-foreground hover:border-warning/50"
-                }`}
-              >
-                4×4
-                <span className="text-[9px] opacity-80">+10</span>
-              </button>
-            </div>
-            <Input
-              placeholder="مثال: تويوتا كامري"
-              value={carType}
-              onChange={e => setCarType(e.target.value)}
-              className="h-11 flex-1"
-            />
+          <div className="grid grid-cols-3 gap-1.5 mb-2">
+            <button
+              type="button"
+              onClick={() => setCarSize("normal")}
+              className={`h-11 rounded-lg text-xs font-bold border-2 transition-all flex items-center justify-center gap-1 ${
+                carSize === "normal"
+                  ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/50"
+              }`}
+            >
+              <Car className="w-3.5 h-3.5" />
+              Normal
+            </button>
+            <button
+              type="button"
+              onClick={() => setCarSize("4x4")}
+              className={`h-11 rounded-lg text-xs font-bold border-2 transition-all flex flex-col items-center justify-center leading-none ${
+                carSize === "4x4"
+                  ? "border-warning bg-warning text-warning-foreground shadow-glow"
+                  : "border-border bg-card text-muted-foreground hover:border-warning/50"
+              }`}
+            >
+              <span>4×4</span>
+              <span className="text-[9px] opacity-80 mt-0.5">+10 DH</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCarSize("motor")}
+              className={`h-11 rounded-lg text-xs font-bold border-2 transition-all flex items-center justify-center gap-1 ${
+                carSize === "motor"
+                  ? "border-success bg-success text-success-foreground shadow-glow"
+                  : "border-border bg-card text-muted-foreground hover:border-success/50"
+              }`}
+            >
+              <Bike className="w-3.5 h-3.5" />
+              Motor
+            </button>
           </div>
+          <Input
+            placeholder={carSize === "motor" ? "مثال: ياماها R1" : "مثال: تويوتا كامري"}
+            value={carType}
+            onChange={e => setCarType(e.target.value)}
+            className="h-11 w-full"
+          />
           {carSize === "4x4" && (
             <p className="text-[11px] text-warning mt-1.5">⚡ زيادة +10 DH للسيارات الكبيرة (4×4)</p>
+          )}
+          {carSize === "motor" && (
+            <p className="text-[11px] text-success mt-1.5">🏍 دراجة نارية — نفس السعر العادي</p>
           )}
         </div>
       </Card>
