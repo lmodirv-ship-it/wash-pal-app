@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           address: string
           city: string
+          country: string | null
           created_at: string
           email: string | null
           expiry_date: string
@@ -32,12 +33,16 @@ export type Database = {
           registration_date: string
           remaining_points: number | null
           shop_id: string | null
+          source: string | null
           total_points: number
           used_points: number
+          website: string | null
+          whatsapp: string | null
         }
         Insert: {
           address: string
           city?: string
+          country?: string | null
           created_at?: string
           email?: string | null
           expiry_date?: string
@@ -52,12 +57,16 @@ export type Database = {
           registration_date?: string
           remaining_points?: number | null
           shop_id?: string | null
+          source?: string | null
           total_points?: number
           used_points?: number
+          website?: string | null
+          whatsapp?: string | null
         }
         Update: {
           address?: string
           city?: string
+          country?: string | null
           created_at?: string
           email?: string | null
           expiry_date?: string
@@ -72,8 +81,11 @@ export type Database = {
           registration_date?: string
           remaining_points?: number | null
           shop_id?: string | null
+          source?: string | null
           total_points?: number
           used_points?: number
+          website?: string | null
+          whatsapp?: string | null
         }
         Relationships: [
           {
