@@ -85,7 +85,7 @@ export default function Employees() {
           </TableHeader>
           <TableBody>
             {branchEmployees.length === 0 ? (
-              <TableRow className="border-border"><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">{t("employees.noEmployees")}</TableCell></TableRow>
+              <TableRow className="border-border"><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">{t("employees.noEmployees")}</TableCell></TableRow>
             ) : branchEmployees.map((e) => (
               <TableRow key={e.id} className="lavage-table-row border-border">
                 <TableCell className="font-mono text-xs text-foreground">{e.reference || "-"}</TableCell>
