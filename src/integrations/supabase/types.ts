@@ -387,6 +387,7 @@ export type Database = {
       }
       services: {
         Row: {
+          category: string
           created_at: string
           description: string | null
           duration: number
@@ -395,8 +396,10 @@ export type Database = {
           name: string
           price: number
           reference: string | null
+          starting_from: boolean
         }
         Insert: {
+          category?: string
           created_at?: string
           description?: string | null
           duration: number
@@ -405,8 +408,10 @@ export type Database = {
           name: string
           price: number
           reference?: string | null
+          starting_from?: boolean
         }
         Update: {
+          category?: string
           created_at?: string
           description?: string | null
           duration?: number
@@ -415,6 +420,7 @@ export type Database = {
           name?: string
           price?: number
           reference?: string | null
+          starting_from?: boolean
         }
         Relationships: []
       }
