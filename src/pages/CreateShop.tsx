@@ -100,6 +100,11 @@ export default function CreateShop() {
         });
       }
 
+      // If user picked Pro/Business, update the auto-created trial subscription
+      if (form.plan !== "starter") {
+        await supabase.from("subscriptions").update({ plan: form.plan }).eq("shop_id", shop.id);
+      }
+
       setCurrentShopId(shop.id);
       await refreshAll();
       toast.success("🎉 تم إنشاء متجرك بنجاح!");
