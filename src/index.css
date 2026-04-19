@@ -131,7 +131,6 @@
 
 @layer base {
   * { @apply border-border; }
-  html { direction: rtl; }
   body {
     @apply bg-background text-foreground;
     font-family: 'Cairo', 'Inter', system-ui, sans-serif;
@@ -139,6 +138,7 @@
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
   }
+  html[dir="ltr"] body { font-family: 'Inter', 'Cairo', system-ui, sans-serif; }
 
   /* Subtle background pattern for depth */
   body::before {
