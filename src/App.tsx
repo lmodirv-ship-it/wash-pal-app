@@ -34,6 +34,7 @@ import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
+import AdminPricingPlans from "./pages/AdminPricingPlans";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -127,6 +128,7 @@ const App = () => (
             >
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+              <Route path="/admin/pricing-plans" element={<AdminPricingPlans />} />
             </Route>
 
             {/* Manager / Supervisor / Admin */}
