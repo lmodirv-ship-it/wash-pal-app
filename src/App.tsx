@@ -35,6 +35,7 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminPricingPlans from "./pages/AdminPricingPlans";
+import Entries from "./pages/Entries";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -144,6 +145,7 @@ const App = () => (
               <Route path="/customers" element={<Customers />} />
               <Route path="/employees" element={<Employees />} />
               <Route path="/services" element={<Services />} />
+              <Route path="/entries" element={<Entries />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/finance" element={<Finance />} />
