@@ -154,6 +154,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (e.phone !== undefined) u.phone = e.phone;
     if (e.role !== undefined) u.role = e.role;
     if (e.roleType !== undefined) u.role_type = e.roleType;
+    if (e.branchId !== undefined) u.branch_id = e.branchId;
     if (e.isActive !== undefined) u.is_active = e.isActive;
     await supabase.from('employees').update(u).eq('id', id);
     await refreshAll();
