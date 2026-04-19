@@ -191,7 +191,7 @@ export default function Services() {
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex-1 min-w-0">
                         <div className="text-[10px] font-mono text-primary mb-1">{s.reference || "—"}</div>
-                        <div className="font-bold text-foreground line-clamp-2">{s.name}</div>
+                        <div className="font-bold text-foreground line-clamp-2">{getServiceName(s, lang)}</div>
                       </div>
                       <Badge variant="outline" className={`${catBadge[s.category]} text-[10px] shrink-0`}>
                         {s.category.toUpperCase()}
@@ -248,7 +248,7 @@ export default function Services() {
                   {filtered.map(s => (
                     <TableRow key={s.id} className={`lavage-table-row border-border ${!s.isActive ? "opacity-50" : ""}`}>
                       <TableCell className="font-mono text-xs text-primary">{s.reference || "—"}</TableCell>
-                      <TableCell className="font-medium text-foreground">{s.name}</TableCell>
+                      <TableCell className="font-medium text-foreground">{getServiceName(s, lang)}</TableCell>
                       <TableCell>
                         {s.startingFrom && <span className="text-[10px] text-muted-foreground block">{t("services.startingFrom")}</span>}
                         <span className="font-bold text-primary">{s.price}</span>
@@ -257,7 +257,7 @@ export default function Services() {
                       <TableCell className="text-xs text-muted-foreground">
                         {s.duration > 0 ? `${s.duration} ${t("common.minutes")}` : "—"}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{s.description || "—"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{getServiceDescription(s, lang) || "—"}</TableCell>
                       <TableCell>
                         {isAdmin ? (
                           <Switch checked={s.isActive} onCheckedChange={() => toggleActive(s)} />
