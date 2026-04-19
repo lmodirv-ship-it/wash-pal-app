@@ -66,7 +66,7 @@ export default function Entries() {
   };
 
   const clearFilters = () => {
-    setSearch(""); setFrom(""); setTo(""); setEmpFilter("all"); setStatusFilter("all"); setPage(1);
+    setSearch(""); setFrom(""); setTo(""); setEmpFilter("all"); setStatusFilter("all"); setBranchFilter("all"); setPage(1);
   };
 
   const allRows = useMemo(() => {
