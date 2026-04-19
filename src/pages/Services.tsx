@@ -117,7 +117,7 @@ export default function Services() {
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-secondary/50">
-              <TableHead className="text-muted-foreground">#</TableHead>
+              <TableHead className="text-muted-foreground">المرجع</TableHead>
               <TableHead className="text-muted-foreground">الخدمة</TableHead>
               <TableHead className="text-muted-foreground">نوع السيارة</TableHead>
               <TableHead className="text-muted-foreground">الثمن</TableHead>
@@ -133,7 +133,7 @@ export default function Services() {
               const size = detectCarSize(s.name);
               return (
                 <TableRow key={s.id} className={`lavage-table-row border-border ${!s.isActive ? "opacity-50" : ""}`}>
-                  <TableCell className="text-xs text-muted-foreground font-mono">{idx + 1}</TableCell>
+                  <TableCell className="text-xs font-mono text-primary font-semibold">{s.reference || "-"}</TableCell>
                   <TableCell>
                     <div className="font-medium text-foreground">{s.name}</div>
                     {s.description && <div className="text-xs text-muted-foreground mt-0.5">{s.description}</div>}

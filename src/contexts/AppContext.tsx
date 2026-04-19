@@ -66,7 +66,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     createdAt: r.created_at, completedAt: r.completed_at,
   });
   const mapService = (r: any): Service => ({
-    id: r.id, name: r.name, price: Number(r.price), duration: r.duration, description: r.description || '',
+    id: r.id, reference: r.reference, name: r.name, price: Number(r.price), duration: r.duration, description: r.description || '',
     isActive: r.is_active !== false,
   });
   const mapInvoice = (r: any): Invoice => ({

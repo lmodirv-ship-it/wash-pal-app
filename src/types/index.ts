@@ -3,6 +3,7 @@ export type UserRole = 'admin' | 'employee' | 'customer';
 
 export interface Service {
   id: string;
+  reference?: string;
   name: string;
   price: number;
   duration: number;
