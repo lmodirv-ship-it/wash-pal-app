@@ -344,6 +344,7 @@ export default function Entries() {
               <TableHead className="text-right cursor-pointer select-none" onClick={() => toggleSort("empName")}>
                 <SortIcon k="empName" />الموظف
               </TableHead>
+              <TableHead className="text-right">الفرع</TableHead>
               <TableHead className="text-right cursor-pointer select-none" onClick={() => toggleSort("date")}>
                 <SortIcon k="date" />التاريخ
               </TableHead>
