@@ -29,6 +29,7 @@ import CreateShop from "./pages/CreateShop";
 import Team from "./pages/Team";
 import AcceptInvite from "./pages/AcceptInvite";
 import StartFree from "./pages/StartFree";
+import Pricing from "./pages/Pricing";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
