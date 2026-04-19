@@ -87,6 +87,10 @@ function ProtectedRoutes() {
           <Route path="/" element={<Navigate to={homeFor(role)} replace />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+          {/* Relative variants (matched when parent route uses /admin/*) */}
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="admin/subscriptions" element={<AdminSubscriptions />} />
+          <Route path="subscriptions" element={<AdminSubscriptions />} />
           {(isSuperAdmin || isShopManager) && (
             <>
               <Route path="/dashboard" element={<Index />} />
