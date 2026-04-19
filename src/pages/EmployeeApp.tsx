@@ -36,7 +36,7 @@ export default function EmployeeApp() {
   const myName = profile?.name || "موظف";
 
   const grouped = useMemo(() => {
-    const out: Record<ServiceCategory, typeof activeServices> = { standard: [], vip: [], extra: [], packs: [] };
+    const out: Record<ServiceCategory, typeof activeServices> = { standard: [], vip: [], extra: [], packs: [], motor: [] };
     activeServices.forEach(s => out[s.category]?.push(s));
     return out;
   }, [activeServices]);
