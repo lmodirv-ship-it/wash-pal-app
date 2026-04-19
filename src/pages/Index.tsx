@@ -69,7 +69,7 @@ export default function Dashboard() {
     const serviceCount: Record<string, number> = {};
     branchOrders.forEach((o) => o.services.forEach((sid) => { serviceCount[sid] = (serviceCount[sid] || 0) + 1; }));
     const servicesPie = Object.entries(serviceCount)
-      .map(([sid, count]) => ({ name: services.find((s) => s.id === sid)?.name || "—", value: count }))
+      .map(([sid, count]) => { const sv = services.find((s) => s.id === sid); return { name: sv ? getServiceName(sv, i18n.language) : "—", value: count }; })
       .sort((a, b) => b.value - a.value).slice(0, 5);
 
     const activity = [...branchOrders]
