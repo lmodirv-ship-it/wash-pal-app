@@ -1,6 +1,8 @@
 export type OrderStatus = 'waiting' | 'in_progress' | 'completed' | 'cancelled';
 export type UserRole = 'admin' | 'employee' | 'customer';
 
+export type ServiceCategory = 'standard' | 'vip' | 'extra' | 'packs';
+
 export interface Service {
   id: string;
   reference?: string;
@@ -9,6 +11,8 @@ export interface Service {
   duration: number;
   description: string;
   isActive: boolean;
+  category: ServiceCategory;
+  startingFrom: boolean;
 }
 
 export interface Customer {
