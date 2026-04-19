@@ -110,9 +110,11 @@ export default function Entries() {
           services: svcNames,
           price: Number(o.totalPrice || 0),
           status: o.status,
+          branchId: o.branchId || "",
+          branchName: (o.branchId && branchById.get(o.branchId)) || "—",
         };
       });
-  }, [orders, empById, svcById, search, from, to, empFilter, statusFilter]);
+  }, [orders, empById, svcById, branchById, search, from, to, empFilter, statusFilter, branchFilter]);
 
   const sortedRows = useMemo(() => {
     const arr = [...allRows];
