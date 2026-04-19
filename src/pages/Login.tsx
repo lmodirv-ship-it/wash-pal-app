@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input";
 import { LogIn, Camera, X, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 
 export default function Login() {
-  const { signIn } = useAuth();
+  const { signIn, user, loading: authLoading } = useAuth();
+  if (!authLoading && user) return <Navigate to="/" replace />;
   const { t, i18n } = useTranslation();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
