@@ -373,6 +373,7 @@ export default function Entries() {
                 <TableRow key={r.id}>
                   <TableCell className="font-mono text-xs">{r.empRef}</TableCell>
                   <TableCell className="font-medium">{r.empName}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{r.branchName}</TableCell>
                   <TableCell className="whitespace-nowrap">{r.date}</TableCell>
                   <TableCell className="whitespace-nowrap text-muted-foreground">{r.time}</TableCell>
                   <TableCell>{r.customer}</TableCell>
