@@ -12,6 +12,7 @@ import { Search, Bell, LogOut, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { branches, currentBranch, setCurrentBranch } = useApp();
@@ -28,6 +29,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <header className="sticky top-0 z-30 h-16 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-4 md:px-6 gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <SidebarTrigger className="hover:bg-muted rounded-lg" />
+              <BrandLogo size={36} />
               <div className="hidden sm:block min-w-0">
                 <p className="text-[11px] text-muted-foreground">{t("common.welcome")}</p>
                 <p className="text-sm font-semibold text-foreground truncate">{profile?.name || t("common.user")} 👋</p>

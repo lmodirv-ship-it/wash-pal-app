@@ -1,7 +1,8 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Sparkles, Wallet, UserPlus, ShieldCheck, CreditCard,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard,
 } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -151,13 +152,10 @@ export function AppSidebar() {
       <SidebarContent className="bg-sidebar">
         <div className="px-4 py-5 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black"
-              style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-glow)' }}>
-              <Sparkles className="w-5 h-5" />
-            </div>
+            <BrandLogo size={40} />
             {!collapsed && (
               <div className="min-w-0">
-                <h1 className="text-base font-bold text-foreground truncate">H&Lavage</h1>
+                <h1 className="text-base font-bold text-foreground truncate">HN Carwash</h1>
                 <p className="text-[11px] text-muted-foreground truncate">{currentBranch?.name || "—"}</p>
               </div>
             )}
