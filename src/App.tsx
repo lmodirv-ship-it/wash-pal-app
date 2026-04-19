@@ -1,13 +1,12 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppProvider } from "@/contexts/AppContext";
+import { AppProvider, useApp } from "@/contexts/AppContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Layout } from "@/components/Layout";
-import { supabase } from "@/integrations/supabase/client";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -36,7 +35,6 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { useApp } from "@/contexts/AppContext";
 
 const queryClient = new QueryClient();
 
@@ -51,121 +49,40 @@ function LoadingScreen() {
   );
 }
 
-function ShopGate({ children, role }: { children: ReactNode; role: string }) {
-  const { tenantShops, loading } = useApp();
-  if (loading) return <LoadingScreen />;
-  // Customers/employees don't need to own a shop
-  const needsShop = role === 'admin' || role === 'manager' || role === 'supervisor';
-  if (needsShop && tenantShops.length === 0) return <Navigate to="/create-shop" replace />;
-  return <>{children}</>;
-}
-
-function ProtectedRoutes() {
-  const { user, profile, loading } = useAuth();
-
-  if (loading || (user && !profile)) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace />;
-
-  const role = profile?.role || 'employee';
-  const isSuperAdmin = role === 'admin';
-  const isShopManager = role === 'manager' || role === 'supervisor';
-  const isCustomer = role === 'customer';
-  const isEmployee = role === 'employee';
-
-  const homeFor = (r: string) => {
-    if (r === 'admin') return '/admin';
-    if (r === 'manager' || r === 'supervisor') return '/dashboard';
-    if (r === 'customer') return '/app';
-    return '/employee';
-  };
-
-  // Map absolute pathname → component (works regardless of which parent /xxx/* matched)
-  const PageRouter = () => {
-    const location = useLocation();
-    const path = location.pathname.replace(/\/+$/, "") || "/";
-
-    // Admin pages
-    if (path === "/admin") return <AdminDashboard />;
-    if (path === "/admin/subscriptions") return <AdminSubscriptions />;
-
-    // Shop manager pages
-    if (isSuperAdmin || isShopManager) {
-      if (path === "/dashboard") return <Index />;
-      if (path === "/orders") return <Orders />;
-      if (path === "/customers") return <Customers />;
-      if (path === "/employees") return <Employees />;
-      if (path === "/services") return <Services />;
-      if (path === "/invoices") return <Invoices />;
-      if (path === "/reports") return <Reports />;
-      if (path === "/finance") return <Finance />;
-      if (path === "/branches") return <Branches />;
-      if (path === "/shops") return <Shops />;
-      if (path === "/settings") return <SettingsPage />;
-      if (path === "/team") return <Team />;
-    }
-
-    if (path === "/employee") return <EmployeeApp />;
-    if (path === "/work") return <Navigate to="/employee" replace />;
-    if (path === "/app") return <CustomerApp />;
-    if (path === "/" || path === "") return <Navigate to={homeFor(role)} replace />;
-
-    if (isEmployee) return <Navigate to="/employee" replace />;
-    if (isCustomer) return <Navigate to="/app" replace />;
-    return <NotFound />;
-  };
+/** Wraps protected pages with AppProvider + Layout + shop gate */
+function AppShell() {
+  const { profile } = useAuth();
+  const role = profile?.role || "employee";
+  const needsShop = role === "admin" || role === "manager" || role === "supervisor";
 
   return (
     <AppProvider>
-      <ShopGate role={role}>
+      <ShopGate needsShop={needsShop}>
         <Layout>
-          <Routes>
-            <Route path="*" element={<PageRouter />} />
-          </Routes>
+          <Outlet />
         </Layout>
       </ShopGate>
     </AppProvider>
   );
 }
 
-// Smart redirect after login: role-based home derived from shop_members + profile
-function PostLoginRedirect() {
-  const { user, profile, loading } = useAuth();
-  const [target, setTarget] = useState<string | null>(null);
+function ShopGate({ needsShop, children }: { needsShop: boolean; children: ReactNode }) {
+  const { tenantShops, loading } = useApp();
+  if (loading) return <LoadingScreen />;
+  if (needsShop && tenantShops.length === 0) return <Navigate to="/create-shop" replace />;
+  return <>{children}</>;
+}
 
-  useEffect(() => {
-    if (loading || !user || !profile) return;
-
-    // 1) Profile-level roles take priority (super-admin / customer)
-    const pRole = profile.role;
-    if (pRole === "admin") { setTarget("/admin"); return; }
-    if (pRole === "customer") { setTarget("/app"); return; }
-
-    // 2) Otherwise derive from shop_members (highest privilege wins)
-    (async () => {
-      const { data } = await supabase
-        .from("shop_members")
-        .select("role")
-        .eq("user_id", user.id);
-
-      if (!data || data.length === 0) {
-        // No shop yet → onboarding
-        setTarget("/create-shop");
-        return;
-      }
-      const roles = data.map((r) => r.role);
-      if (roles.includes("supervisor") || roles.includes("manager")) {
-        setTarget("/dashboard");
-      } else if (roles.includes("employee")) {
-        setTarget("/employee");
-      } else {
-        setTarget("/app");
-      }
-    })();
-  }, [user, profile, loading]);
-
-  if (loading || (user && !profile) || !target) return <LoadingScreen />;
+/** Smart root redirect based on role */
+function RoleHomeRedirect() {
+  const { profile, loading, user } = useAuth();
+  if (loading || (user && !profile)) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
-  return <Navigate to={target} replace />;
+  const role = profile?.role;
+  if (role === "admin") return <Navigate to="/admin" replace />;
+  if (role === "customer") return <Navigate to="/app" replace />;
+  if (role === "employee") return <Navigate to="/employee" replace />;
+  return <Navigate to="/dashboard" replace />;
 }
 
 function AuthedCreateShop() {
@@ -187,43 +104,75 @@ const App = () => (
       <AuthProvider>
         <BrowserRouter>
           <Routes>
+            {/* Public */}
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="/post-login" element={<PostLoginRedirect />} />
+            <Route path="/post-login" element={<RoleHomeRedirect />} />
             <Route path="/start" element={<StartFree />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/invite/:token" element={<AcceptInvite />} />
 
-            {/* Super-admin only */}
-            <Route path="/admin/*" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
+            {/* Super-admin */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={["super_admin", "admin"]}>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+            </Route>
 
-            {/* Supervisor + Manager + Admin (admin has full access) */}
-            {[
-              "/dashboard", "/orders", "/customers", "/employees", "/services",
-              "/invoices", "/reports", "/finance", "/branches", "/shops",
-              "/settings", "/team",
-            ].map((path) => (
-              <Route
-                key={path}
-                path={`${path}/*`}
-                element={
-                  <ProtectedRoute allowedRoles={["admin", "supervisor", "manager"]}>
-                    <ProtectedRoutes />
-                  </ProtectedRoute>
-                }
-              />
-            ))}
+            {/* Manager / Supervisor / Admin */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={["admin", "supervisor", "manager"]}>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<Index />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/customers" element={<Customers />} />
+              <Route path="/employees" element={<Employees />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/invoices" element={<Invoices />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/finance" element={<Finance />} />
+              <Route path="/branches" element={<Branches />} />
+              <Route path="/shops" element={<Shops />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/team" element={<Team />} />
+            </Route>
 
             {/* Employee */}
-            <Route path="/employee" element={<ProtectedRoute allowedRoles={["employee", "supervisor", "manager"]}><ProtectedRoutes /></ProtectedRoute>} />
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={["employee", "supervisor", "manager"]}>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/employee" element={<EmployeeApp />} />
+              <Route path="/work" element={<Navigate to="/employee" replace />} />
+            </Route>
 
             {/* Customer */}
-            <Route path="/app" element={<ProtectedRoute allowedRoles={["customer"]}><ProtectedRoutes /></ProtectedRoute>} />
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={["customer"]}>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/app" element={<CustomerApp />} />
+            </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
