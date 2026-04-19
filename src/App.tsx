@@ -23,7 +23,9 @@ import SettingsPage from "./pages/Settings";
 import Finance from "./pages/Finance";
 import EmployeeApp from "./pages/EmployeeApp";
 import CustomerApp from "./pages/CustomerApp";
+import CreateShop from "./pages/CreateShop";
 import NotFound from "./pages/NotFound";
+import { useApp } from "@/contexts/AppContext";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,15 @@ function LoadingScreen() {
       </div>
     </div>
   );
+}
+
+function ShopGate({ children, role }: { children: ReactNode; role: string }) {
+  const { tenantShops, loading } = useApp();
+  if (loading) return <LoadingScreen />;
+  // Customers/employees don't need to own a shop
+  const needsShop = role === 'admin' || role === 'manager' || role === 'supervisor';
+  if (needsShop && tenantShops.length === 0) return <Navigate to="/create-shop" replace />;
+  return <>{children}</>;
 }
 
 function ProtectedRoutes() {
@@ -51,6 +62,7 @@ function ProtectedRoutes() {
 
   return (
     <AppProvider>
+      <ShopGate role={role}>
       <Layout>
         <Routes>
           <Route path="/" element={isAdmin ? <Index /> : <Navigate to={isEmployee ? "/employee" : "/app"} replace />} />
