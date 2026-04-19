@@ -53,6 +53,7 @@ export type Database = {
           reference: string | null
           role: string
           total_visits: number
+          user_id: string | null
         }
         Insert: {
           car_plate: string
@@ -65,6 +66,7 @@ export type Database = {
           reference?: string | null
           role?: string
           total_visits?: number
+          user_id?: string | null
         }
         Update: {
           car_plate?: string
@@ -77,6 +79,7 @@ export type Database = {
           reference?: string | null
           role?: string
           total_visits?: number
+          user_id?: string | null
         }
         Relationships: []
       }
