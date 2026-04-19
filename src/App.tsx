@@ -35,6 +35,7 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminPricingPlans from "./pages/AdminPricingPlans";
+import AdminLeads from "./pages/AdminLeads";
 import Entries from "./pages/Entries";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -130,6 +131,7 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
               <Route path="/admin/pricing-plans" element={<AdminPricingPlans />} />
+              <Route path="/admin/leads" element={<AdminLeads />} />
             </Route>
 
             {/* Manager / Supervisor / Admin */}
