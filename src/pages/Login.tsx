@@ -22,7 +22,7 @@ export default function Login() {
 
   useEffect(() => () => { if (stream) stream.getTracks().forEach(t => t.stop()); }, [stream]);
 
-  if (!authLoading && user) return <Navigate to="/" replace />;
+  if (!authLoading && user) return <Navigate to="/post-login" replace />;
 
   const stopCamera = () => {
     if (stream) stream.getTracks().forEach(t => t.stop());
@@ -64,7 +64,7 @@ export default function Login() {
     e.preventDefault(); setLoading(true);
     const { error } = await signIn(form.email, form.password);
     if (error) { toast.error(error); setLoading(false); return; }
-    toast.success(t("auth.loggedIn")); setLoading(false);
+    toast.success("مرحباً بعودتك 👋"); setLoading(false);
   };
 
   const isRtl = i18n.language === "ar";
