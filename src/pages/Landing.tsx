@@ -140,6 +140,11 @@ export default function Landing() {
             <Link to="/login" className="hidden sm:block">
               <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10 rounded-xl">تسجيل الدخول</Button>
             </Link>
+            <Link to="/login">
+              <Button size="sm" variant="outline" className="rounded-xl border-amber-400/40 bg-amber-400/10 text-amber-300 hover:bg-amber-400/20 hover:text-amber-200 backdrop-blur-md">
+                دخول الموظف
+              </Button>
+            </Link>
             <StartFreeLink>
               <Button size="sm" className="bg-gradient-to-r from-blue-500 to-cyan-400 text-white hover:opacity-95 shadow-[0_0_25px_rgba(59,130,246,0.5)] rounded-xl border border-white/20">ابدأ مجاناً</Button>
             </StartFreeLink>
