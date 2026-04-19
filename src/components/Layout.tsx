@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { AdminModeSwitcher } from "@/components/AdminModeSwitcher";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -45,6 +46,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
             <div className="flex items-center gap-2">
               <LanguageSwitcher />
+              {isAdmin && <AdminModeSwitcher />}
               {isAdmin && (
                 <Button asChild size="sm" variant="outline" className="h-10 rounded-xl gap-2 hidden sm:flex border-primary/30 text-primary hover:bg-primary/10">
                   <Link to="/create-shop"><Plus className="w-4 h-4" /><span className="hidden md:inline">متجر جديد</span></Link>
