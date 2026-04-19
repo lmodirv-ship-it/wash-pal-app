@@ -150,7 +150,7 @@ function PostLoginRedirect() {
 function AuthedCreateShop() {
   const { user, profile, loading } = useAuth();
   if (loading || (user && !profile)) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login?redirect=create-shop" replace />;
   return (
     <AppProvider>
       <CreateShop />
