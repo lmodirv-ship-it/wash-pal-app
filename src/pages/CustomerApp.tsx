@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Droplets, Clock, CheckCircle2, Loader2, Sparkles, History, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 export default function CustomerApp() {
   const { services, orders, currentBranch, addOrder } = useApp();

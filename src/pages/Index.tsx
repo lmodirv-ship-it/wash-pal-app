@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 function startOfDay(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
 function pctChange(curr: number, prev: number) {

@@ -1,6 +1,7 @@
 import { useApp } from "@/contexts/AppContext";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 const COLORS = ["hsl(45,95%,55%)", "hsl(160,60%,40%)", "hsl(38,92%,50%)", "hsl(0,72%,51%)"];
 

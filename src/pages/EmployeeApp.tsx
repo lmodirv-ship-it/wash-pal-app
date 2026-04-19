@@ -12,6 +12,7 @@ import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks,
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 export default function EmployeeApp() {
   const { services, currentBranch, addOrder, orders } = useApp();

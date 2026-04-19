@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Search, Trash2, Edit3 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 export default function Orders() {
   const { orders, services, employees, currentBranch, addOrder, updateOrder, deleteOrder, addInvoice } = useApp();

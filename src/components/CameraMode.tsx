@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Tesseract from "tesseract.js";
 import { Order, Service } from "@/types";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 interface CameraModeProps {
   open: boolean;
