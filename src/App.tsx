@@ -29,7 +29,9 @@ import CreateShop from "./pages/CreateShop";
 import Team from "./pages/Team";
 import AcceptInvite from "./pages/AcceptInvite";
 import StartFree from "./pages/StartFree";
+import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { useApp } from "@/contexts/AppContext";
 
 const queryClient = new QueryClient();
@@ -163,24 +165,38 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/post-login" element={<PostLoginRedirect />} />
             <Route path="/start" element={<StartFree />} />
             <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/invite/:token" element={<AcceptInvite />} />
-            <Route path="/team" element={<ProtectedRoutes />} />
-            <Route path="/dashboard/*" element={<ProtectedRoutes />} />
-            <Route path="/employee" element={<ProtectedRoutes />} />
-            <Route path="/app" element={<ProtectedRoutes />} />
-            <Route path="/orders" element={<ProtectedRoutes />} />
-            <Route path="/customers" element={<ProtectedRoutes />} />
-            <Route path="/employees" element={<ProtectedRoutes />} />
-            <Route path="/services" element={<ProtectedRoutes />} />
-            <Route path="/invoices" element={<ProtectedRoutes />} />
-            <Route path="/reports" element={<ProtectedRoutes />} />
-            <Route path="/finance" element={<ProtectedRoutes />} />
-            <Route path="/branches" element={<ProtectedRoutes />} />
-            <Route path="/shops" element={<ProtectedRoutes />} />
-            <Route path="/settings" element={<ProtectedRoutes />} />
+
+            {/* Super-admin only */}
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
+
+            {/* Supervisor + Manager (admin auto-included) */}
+            {[
+              "/dashboard/*", "/orders", "/customers", "/employees", "/services",
+              "/invoices", "/reports", "/finance", "/branches", "/shops",
+              "/settings", "/team",
+            ].map((path) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <ProtectedRoute allowedRoles={["supervisor", "manager"]}>
+                    <ProtectedRoutes />
+                  </ProtectedRoute>
+                }
+              />
+            ))}
+
+            {/* Employee */}
+            <Route path="/employee" element={<ProtectedRoute allowedRoles={["employee", "supervisor", "manager"]}><ProtectedRoutes /></ProtectedRoute>} />
+
+            {/* Customer */}
+            <Route path="/app" element={<ProtectedRoute allowedRoles={["customer"]}><ProtectedRoutes /></ProtectedRoute>} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
