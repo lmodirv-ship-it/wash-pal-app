@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package,
 } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { NavLink } from "@/components/NavLink";
@@ -70,6 +70,7 @@ export function AppSidebar() {
   const adminPlatform = [
     { title: "لوحة المنصة", url: "/admin", icon: ShieldCheck },
     { title: "اشتراكات المحلات", url: "/admin/subscriptions", icon: CreditCard },
+    { title: "باقات الأسعار", url: "/admin/pricing-plans", icon: Package },
   ];
 
   const supervisorOverview = [
