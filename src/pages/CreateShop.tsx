@@ -42,9 +42,20 @@ export default function CreateShop() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
 
+  // Pre-select plan + cycle from /pricing if user came from there
+  const preselected = (() => {
+    try {
+      const raw = localStorage.getItem("selectedPlan");
+      if (!raw) return null;
+      return JSON.parse(raw) as { plan: "starter" | "pro" | "business"; cycle: "monthly" | "yearly" };
+    } catch { return null; }
+  })();
+
   const [step, setStep] = useState(1);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(preselected?.cycle || "monthly");
   const [form, setForm] = useState({
-    shop_name: "", manager_name: "", phone: "", city: "", plan: "starter" as "starter" | "pro" | "business",
+    shop_name: "", manager_name: "", phone: "", city: "",
+    plan: (preselected?.plan || "starter") as "starter" | "pro" | "business",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -100,10 +111,22 @@ export default function CreateShop() {
         });
       }
 
-      // If user picked Pro/Business, update the auto-created trial subscription
-      if (form.plan !== "starter") {
-        await supabase.from("subscriptions").update({ plan: form.plan }).eq("shop_id", shop.id);
-      }
+      // Update auto-created trial subscription with chosen plan + correct price
+      const PRICE_MAP: Record<string, { monthly: number; yearly: number }> = {
+        starter:  { monthly: 0,   yearly: 0 },
+        pro:      { monthly: 199, yearly: 1990 },
+        business: { monthly: 499, yearly: 4790 },
+      };
+      const monthly_price = billingCycle === "yearly"
+        ? Math.round(PRICE_MAP[form.plan].yearly / 12)
+        : PRICE_MAP[form.plan].monthly;
+      await supabase.from("subscriptions").update({
+        plan: form.plan,
+        billing_cycle: billingCycle,
+        monthly_price,
+      }).eq("shop_id", shop.id);
+
+      try { localStorage.removeItem("selectedPlan"); } catch {}
 
       setCurrentShopId(shop.id);
       await refreshAll();
