@@ -31,6 +31,8 @@ import AcceptInvite from "./pages/AcceptInvite";
 import StartFree from "./pages/StartFree";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminSubscriptions from "./pages/AdminSubscriptions";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useApp } from "@/contexts/AppContext";
 
@@ -73,6 +75,8 @@ function ProtectedRoutes() {
       <Layout>
         <Routes>
           <Route path="/" element={isAdmin ? <Index /> : <Navigate to={isEmployee ? "/employee" : "/app"} replace />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
           {isAdmin && (
             <>
               <Route path="/orders" element={<Orders />} />
@@ -173,6 +177,7 @@ const App = () => (
 
             {/* Super-admin only */}
             <Route path="/admin" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
+            <Route path="/admin/subscriptions" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
 
             {/* Supervisor + Manager (admin auto-included) */}
             {[
