@@ -127,18 +127,13 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="roles" dir="rtl">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="roles"><Shield className="w-4 h-4 ml-1" />الصلاحيات</TabsTrigger>
           <TabsTrigger value="services"><Droplets className="w-4 h-4 ml-1" />الخدمات</TabsTrigger>
           <TabsTrigger value="branches"><Building2 className="w-4 h-4 ml-1" />الفروع</TabsTrigger>
-          <TabsTrigger value="cameras"><Camera className="w-4 h-4 ml-1" />كاميرات IMOU</TabsTrigger>
           <TabsTrigger value="overview"><Users className="w-4 h-4 ml-1" />نظرة عامة</TabsTrigger>
           <TabsTrigger value="about">حول</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="cameras" className="mt-4">
-          <ImouCamerasTab />
-        </TabsContent>
 
         {/* Roles Management Tab */}
         <TabsContent value="roles" className="mt-4">
