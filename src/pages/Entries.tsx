@@ -80,6 +80,7 @@ export default function Entries() {
         if (ts < fromTs || ts > toTs) return false;
         if (empFilter !== "all" && o.employeeId !== empFilter) return false;
         if (statusFilter !== "all" && o.status !== statusFilter) return false;
+        if (branchFilter !== "all" && o.branchId !== branchFilter) return false;
         if (!q) return true;
         const empRef = (o.employeeId && empById.get(o.employeeId)?.reference) || "";
         return (
