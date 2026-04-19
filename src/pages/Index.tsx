@@ -15,6 +15,7 @@ import {
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getServiceName } from "@/lib/serviceI18n";
+import { TrialBanner } from "@/components/TrialBanner";
 
 function startOfDay(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
 function pctChange(curr: number, prev: number) {
@@ -127,6 +128,8 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      <TrialBanner />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <KPICard label={t("dashboard.todayRevenue")} value={`${data.todayRevenue.toLocaleString()} ${t("common.currency")}`} icon={DollarSign} trend={data.revenueTrend} trendLabel={t("dashboard.vsYesterday")} accent="success" loading={loading} />
