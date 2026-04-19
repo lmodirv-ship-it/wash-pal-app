@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike } from "lucide-react";
+import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks, Coins, Hash } from "lucide-react";
 import { toast } from "sonner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const CATS: { id: ServiceCategory; label: string; icon: any; cls: string }[] = [
   { id: "standard", label: "Standard", icon: Droplets, cls: "text-primary" },
