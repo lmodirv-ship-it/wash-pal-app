@@ -1,7 +1,7 @@
 export type OrderStatus = 'waiting' | 'in_progress' | 'completed' | 'cancelled';
 export type UserRole = 'admin' | 'employee' | 'customer';
 
-export type ServiceCategory = 'standard' | 'vip' | 'extra' | 'packs';
+export type ServiceCategory = 'standard' | 'vip' | 'extra' | 'packs' | 'motor';
 
 export interface Service {
   id: string;
