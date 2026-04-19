@@ -192,7 +192,7 @@ const App = () => (
             <Route path="/admin" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
             <Route path="/admin/subscriptions" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
 
-            {/* Supervisor + Manager (admin auto-included) */}
+            {/* Supervisor + Manager + Admin (admin has full access) */}
             {[
               "/dashboard/*", "/orders", "/customers", "/employees", "/services",
               "/invoices", "/reports", "/finance", "/branches", "/shops",
@@ -202,7 +202,7 @@ const App = () => (
                 key={path}
                 path={path}
                 element={
-                  <ProtectedRoute allowedRoles={["supervisor", "manager"]}>
+                  <ProtectedRoute allowedRoles={["admin", "supervisor", "manager"]}>
                     <ProtectedRoutes />
                   </ProtectedRoute>
                 }

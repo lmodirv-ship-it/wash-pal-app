@@ -113,8 +113,10 @@ export function AppSidebar() {
       return (
         <>
           <Group label="إدارة المنصة" items={adminPlatform} collapsed={collapsed} isPathActive={isPathActive} />
-          {/* Admin can also peek into shop tools via /shops */}
-          <Group label={t("nav.management")} items={[{ title: t("nav.shops"), url: "/shops", icon: Store }]} collapsed={collapsed} isPathActive={isPathActive} />
+          <Group label={t("nav.overview")} items={supervisorOverview} collapsed={collapsed} isPathActive={isPathActive} />
+          <Group label={t("nav.management")} items={[...supervisorManage, { title: t("nav.shops"), url: "/shops", icon: Store }]} collapsed={collapsed} isPathActive={isPathActive} />
+          <Group label={t("nav.business")} items={supervisorBusiness} collapsed={collapsed} isPathActive={isPathActive} />
+          <Group items={supervisorSettings} collapsed={collapsed} isPathActive={isPathActive} />
         </>
       );
     }
