@@ -94,6 +94,8 @@ export default function Dashboard() {
     return t("dashboard.welcomeBack");
   })();
 
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'manager';
+
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -109,12 +111,19 @@ export default function Dashboard() {
             {currentBranch?.name || "—"} • {new Date().toLocaleDateString(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Link to="/orders">
             <Button className="fab">
               <Sparkles className="w-4 h-4" /> {t("dashboard.newOperation")}
             </Button>
           </Link>
+          {isAdmin && (
+            <Link to="/shops">
+              <Button variant="outline" className="gap-2">
+                <Sparkles className="w-4 h-4" /> {t("shops.newShop")}
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
