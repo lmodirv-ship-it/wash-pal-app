@@ -130,9 +130,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setServices((sRes.data || []).map(mapService));
     setInvoices((iRes.data || []).map(mapInvoice));
     setShops((shRes.data || []).map(mapShop));
-    setTenantShops((tRes.data || []).map(mapTenantShop));
+    const ts = (tRes.data || []).map(mapTenantShop);
+    setTenantShops(ts);
+    // auto-select first shop if none selected or stored one no longer accessible
+    if (ts.length > 0) {
+      const stored = localStorage.getItem(SHOP_STORAGE_KEY);
+      const valid = stored && ts.some((s) => s.id === stored);
+      if (!valid) {
+        localStorage.setItem(SHOP_STORAGE_KEY, ts[0].id);
+        setCurrentShopIdState(ts[0].id);
+      } else if (!currentShopId) {
+        setCurrentShopIdState(stored);
+      }
+    }
     setLoading(false);
-  }, [currentBranch]);
+  }, [currentBranch, currentShopId]);
 
   useEffect(() => { refreshAll(); }, []);
 
