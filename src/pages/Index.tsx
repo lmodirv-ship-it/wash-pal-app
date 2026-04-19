@@ -105,7 +105,7 @@ export default function Dashboard() {
             <span className="text-xs font-semibold text-success">{t("dashboard.live")}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground text-balance">
-            {greeting}، <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>{profile?.name || t("common.user")}</span>
+            {greeting}, <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--gradient-primary)' }}>{profile?.name || t("common.user")}</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {currentBranch?.name || "—"} • {new Date().toLocaleDateString(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
