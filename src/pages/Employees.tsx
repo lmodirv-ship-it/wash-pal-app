@@ -78,7 +78,7 @@ export default function Employees() {
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-secondary/50">
-              <TableHead className="text-muted-foreground">{t("common.reference")}</TableHead><TableHead className="text-muted-foreground">{t("common.name")}</TableHead><TableHead className="text-muted-foreground">{t("employees.role")}</TableHead>
+              <TableHead className="text-muted-foreground">{t("common.reference")}</TableHead><TableHead className="text-muted-foreground">{t("common.name")}</TableHead><TableHead className="text-muted-foreground">{t("employees.role")}</TableHead><TableHead className="text-muted-foreground">الفرع</TableHead>
               <TableHead className="text-muted-foreground">{t("employees.job")}</TableHead><TableHead className="text-muted-foreground">{t("common.phone")}</TableHead><TableHead className="text-muted-foreground">{t("employees.startDate")}</TableHead>
               <TableHead className="text-muted-foreground">{t("common.status")}</TableHead><TableHead className="text-muted-foreground">{t("common.actions")}</TableHead>
             </TableRow>
