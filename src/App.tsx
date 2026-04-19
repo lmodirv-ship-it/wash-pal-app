@@ -173,6 +173,7 @@ const App = () => (
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/post-login" element={<PostLoginRedirect />} />
             <Route path="/start" element={<StartFree />} />
+            <Route path="/pricing" element={<Pricing />} />
             <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/invite/:token" element={<AcceptInvite />} />
 
