@@ -20,7 +20,7 @@ const CATS: { id: ServiceCategory; label: string; icon: any; cls: string }[] = [
 ];
 
 export default function EmployeeApp() {
-  const { services, currentBranch, addOrder } = useApp();
+  const { services, currentBranch, addOrder, orders } = useApp();
   const { profile } = useAuth();
 
   const [plate, setPlate] = useState("");
