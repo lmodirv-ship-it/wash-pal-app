@@ -91,6 +91,7 @@ export default function Employees() {
                 <TableCell className="font-mono text-xs text-foreground">{e.reference || "-"}</TableCell>
                 <TableCell className="font-medium text-foreground">{e.name}</TableCell>
                 <TableCell><Badge variant="secondary">{e.roleType === 'admin' ? t("common.admin") : t("common.employee")}</Badge></TableCell>
+                <TableCell className="text-sm text-muted-foreground">{branchById.get(e.branchId) || "—"}</TableCell>
                 <TableCell className="text-foreground">{e.role}</TableCell>
                 <TableCell className="text-foreground">{e.phone}</TableCell>
                 <TableCell className="text-xs text-muted-foreground">{new Date(e.hireDate).toLocaleDateString(locale)}</TableCell>
