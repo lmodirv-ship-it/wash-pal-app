@@ -624,6 +624,66 @@ export type Database = {
           },
         ]
       }
+      pricing_plans: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string
+          features: Json
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          max_branches: number
+          max_employees: number
+          monthly_price: number
+          name_ar: string
+          name_en: string
+          name_fr: string
+          sort_order: number
+          trial_days: number
+          updated_at: string
+          yearly_price: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          max_branches?: number
+          max_employees?: number
+          monthly_price?: number
+          name_ar: string
+          name_en?: string
+          name_fr?: string
+          sort_order?: number
+          trial_days?: number
+          updated_at?: string
+          yearly_price?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          max_branches?: number
+          max_employees?: number
+          monthly_price?: number
+          name_ar?: string
+          name_en?: string
+          name_fr?: string
+          sort_order?: number
+          trial_days?: number
+          updated_at?: string
+          yearly_price?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
