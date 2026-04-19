@@ -391,7 +391,7 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/start" className="block">
+                <StartFreeLink className="block">
                   <Button className={`w-full h-12 font-bold rounded-xl ${
                     p.highlight
                       ? "bg-white text-blue-600 hover:bg-white/90"
@@ -399,7 +399,7 @@ export default function Landing() {
                   }`}>
                     اختر {p.name}
                   </Button>
-                </Link>
+                </StartFreeLink>
               </motion.div>
             ))}
           </div>
@@ -462,12 +462,12 @@ export default function Landing() {
             <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">جاهز لتغيير طريقة إدارتك؟</h2>
             <p className="text-white/80 mb-8 max-w-xl mx-auto">انضم لمئات أصحاب المغاسل الذين يثقون في CarwashPro. ابدأ مجاناً اليوم.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/start">
+              <StartFreeLink>
                 <Button size="lg" className="h-13 px-8 text-base font-bold rounded-2xl bg-white text-blue-600 hover:bg-white/90 shadow-xl">
                   ابدأ مجاناً الآن
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
                 </Button>
-              </Link>
+              </StartFreeLink>
               <Link to="/login">
                 <Button size="lg" variant="outline" className="h-13 px-8 text-base font-bold rounded-2xl border-white/20 bg-white/5 text-white hover:bg-white/10 backdrop-blur">
                   تحدث مع المبيعات
