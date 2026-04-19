@@ -88,7 +88,9 @@ const en = {
   services: {
     title: "Service management", subtitle: "List of services by category",
     newService: "New service", addNew: "Add new service", editService: "Edit service",
-    serviceName: "Service name", priceMad: "Price (DH)", durationMin: "Duration (min)",
+    serviceName: "Service name", nameAr: "Name (Arabic)", nameFr: "Name (French)", nameEn: "Name (English)",
+    descAr: "Description (Arabic)", descFr: "Description (French)", descEn: "Description (English)",
+    priceMad: "Price (DH)", durationMin: "Duration (min)",
     category: "Category", startingFrom: "Starting from", startingFromLabel: 'Price "starting from"',
     descOptional: "Description (optional)",
     cats: { all: "All", standard: "Standard", vip: "VIP", extra: "Extra", packs: "Packs", motor: "Motor" },

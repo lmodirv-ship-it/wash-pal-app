@@ -88,7 +88,9 @@ const ar = {
   services: {
     title: "إدارة الخدمات", subtitle: "قائمة الخدمات مصنّفة حسب الفئة",
     newService: "خدمة جديدة", addNew: "إضافة خدمة جديدة", editService: "تعديل الخدمة",
-    serviceName: "اسم الخدمة", priceMad: "السعر (DH)", durationMin: "المدة (دقيقة)",
+    serviceName: "اسم الخدمة", nameAr: "الاسم بالعربية", nameFr: "الاسم بالفرنسية", nameEn: "الاسم بالإنجليزية",
+    descAr: "الوصف بالعربية", descFr: "الوصف بالفرنسية", descEn: "الوصف بالإنجليزية",
+    priceMad: "السعر (DH)", durationMin: "المدة (دقيقة)",
     category: "الفئة", startingFrom: "ابتداءً من", startingFromLabel: 'سعر "ابتداءً من" (Dès)',
     descOptional: "الوصف (اختياري)",
     cats: { all: "الكل", standard: "Standard", vip: "VIP", extra: "Extra", packs: "Packs", motor: "Moto" },
