@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Camera, X, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
 import Tesseract from "tesseract.js";
+import { useTranslation } from "react-i18next";
 
 interface PlateScannerProps {
   open: boolean;
@@ -24,6 +25,7 @@ function cleanPlate(raw: string): string {
 }
 
 export function PlateScanner({ open, onClose, onDetected }: PlateScannerProps) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -50,8 +52,8 @@ export function PlateScanner({ open, onClose, onDetected }: PlateScannerProps) {
         }
       } catch (e: any) {
         setError(e?.message?.includes("Permission") || e?.name === "NotAllowedError"
-          ? "تم رفض إذن الكاميرا. الرجاء السماح بالوصول."
-          : "تعذّر فتح الكاميرا. تأكد من توفرها.");
+          ? t("camera.permissionDenied")
+          : t("camera.cantOpenCheck"));
       }
     };
     startCamera();
@@ -97,7 +99,7 @@ export function PlateScanner({ open, onClose, onDetected }: PlateScannerProps) {
 
       const plate = cleanPlate(text);
       if (!plate || plate.length < 3) {
-        toast.error("تعذّر قراءة اللوحة. حاول مجدداً أو أدخل يدوياً");
+        toast.error(t("camera.readFailed"));
         setScanning(false);
         return;
       }
@@ -106,11 +108,11 @@ export function PlateScanner({ open, onClose, onDetected }: PlateScannerProps) {
       const updated = [plate, ...history.filter((p: string) => p !== plate)].slice(0, 10);
       localStorage.setItem("plate_history", JSON.stringify(updated));
 
-      toast.success(`تم: ${plate}`);
+      toast.success(t("camera.plateDone", { plate }));
       onDetected(plate);
       onClose();
     } catch (e: any) {
-      toast.error("فشل التحليل: " + (e?.message || ""));
+      toast.error(t("camera.analyzeFailed", { msg: e?.message || "" }));
     } finally {
       setScanning(false);
     }
@@ -124,7 +126,7 @@ export function PlateScanner({ open, onClose, onDetected }: PlateScannerProps) {
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-white gap-3">
               <Camera className="w-12 h-12 opacity-50" />
               <p className="text-sm">{error}</p>
-              <Button variant="outline" onClick={onClose}>إغلاق</Button>
+              <Button variant="outline" onClick={onClose}>{t("common.close")}</Button>
             </div>
           ) : (
             <>
@@ -140,7 +142,7 @@ export function PlateScanner({ open, onClose, onDetected }: PlateScannerProps) {
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 h-32 border-2 border-primary rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]" />
                 <p className="absolute top-6 inset-x-0 text-center text-white text-sm font-medium">
-                  ضع لوحة السيارة داخل الإطار
+                  {t("camera.placePlateInFrame")}
                 </p>
               </div>
 
@@ -169,7 +171,7 @@ export function PlateScanner({ open, onClose, onDetected }: PlateScannerProps) {
 
               {scanning && (
                 <div className="absolute bottom-32 inset-x-0 text-center text-white text-sm">
-                  <RefreshCcw className="w-4 h-4 inline animate-spin ml-1" /> جاري التحليل...
+                  <RefreshCcw className="w-4 h-4 inline animate-spin ml-1" /> {t("camera.analyzing")}
                 </div>
               )}
             </>
