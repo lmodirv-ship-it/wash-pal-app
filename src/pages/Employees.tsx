@@ -25,18 +25,20 @@ export default function Employees() {
 
   const handleSubmit = async () => {
     if (!form.name || !form.phone || !form.role) { toast.error(t("common.fillRequired")); return; }
+    const targetBranchId = form.branchId || branchId;
+    if (!targetBranchId) { toast.error(t("common.fillRequired")); return; }
     if (editing) {
-      await updateEmployee(editing.id, form);
+      await updateEmployee(editing.id, { ...form, branchId: targetBranchId });
       toast.success(t("employees.employeeUpdated"));
     } else {
-      await addEmployee({ ...form, branchId, isActive: true, roleType: form.roleType });
+      await addEmployee({ name: form.name, phone: form.phone, role: form.role, roleType: form.roleType, branchId: targetBranchId, isActive: true });
       toast.success(t("employees.employeeAdded"));
     }
     resetForm();
   };
 
-  const resetForm = () => { setForm({ name: "", phone: "", role: "", roleType: "employee" }); setEditing(null); setDialogOpen(false); };
-  const startEdit = (e: Employee) => { setForm({ name: e.name, phone: e.phone, role: e.role, roleType: e.roleType }); setEditing(e); setDialogOpen(true); };
+  const resetForm = () => { setForm({ name: "", phone: "", role: "", roleType: "employee", branchId: "" }); setEditing(null); setDialogOpen(false); };
+  const startEdit = (e: Employee) => { setForm({ name: e.name, phone: e.phone, role: e.role, roleType: e.roleType, branchId: e.branchId }); setEditing(e); setDialogOpen(true); };
   const toggleActive = async (e: Employee) => { await updateEmployee(e.id, { isActive: !e.isActive }); };
 
   return (
