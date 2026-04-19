@@ -12,6 +12,7 @@ import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks,
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 export default function EmployeeApp() {
   const { services, currentBranch, addOrder, orders } = useApp();
@@ -153,7 +154,7 @@ export default function EmployeeApp() {
                         <Check className="w-3 h-3" />
                       </div>
                     ) : <Bike className="w-3.5 h-3.5 text-success absolute top-1.5 start-1.5" />}
-                    <p className="font-bold text-sm line-clamp-2 leading-tight">{s.name}</p>
+                    <p className="font-bold text-sm line-clamp-2 leading-tight">{getServiceName(s, i18n.language)}</p>
                     <div className="mt-1.5">
                       <p className={`text-lg font-bold ${selected ? "text-success" : "text-foreground"}`}>
                         {s.price} <span className="text-[10px] text-muted-foreground">DH</span>
@@ -203,7 +204,7 @@ export default function EmployeeApp() {
                         )}
                         {isVip && !selected && <Crown className="w-3.5 h-3.5 text-warning absolute top-1.5 start-1.5" />}
                         {isPack && !selected && <Package className="w-3.5 h-3.5 text-success absolute top-1.5 start-1.5" />}
-                        <p className="font-bold text-sm line-clamp-2 leading-tight">{s.name}</p>
+                        <p className="font-bold text-sm line-clamp-2 leading-tight">{getServiceName(s, i18n.language)}</p>
                         <div className="mt-1.5">
                           {s.startingFrom && <span className="text-[9px] text-muted-foreground block leading-none">{t("services.startingFrom")}</span>}
                           <p className={`text-lg font-bold ${selected ? "text-primary" : "text-foreground"}`}>
@@ -231,7 +232,7 @@ export default function EmployeeApp() {
           <div className="flex items-center justify-between">
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">{t("employeeApp.selectedService")}</p>
-              <p className="font-bold text-sm truncate">{picked.name}</p>
+              <p className="font-bold text-sm truncate">{getServiceName(picked, i18n.language)}</p>
             </div>
             <Badge className="bg-primary text-primary-foreground text-base font-bold shrink-0">
               {picked.startingFrom && "≥ "}{finalPrice} DH
@@ -268,7 +269,7 @@ function DailyOrdersTable({
   services: ReturnType<typeof useApp>["services"];
   myName: string; branchId?: string; locale: string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const todayOrders = useMemo(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     return orders.filter(o => {
@@ -279,7 +280,7 @@ function DailyOrdersTable({
   }, [orders, myName, branchId]);
 
   const totalRevenue = todayOrders.reduce((sum, o) => sum + o.totalPrice, 0);
-  const serviceName = (id: string) => services.find(s => s.id === id)?.name || "—";
+  const serviceName = (id: string) => { const sv = services.find(s => s.id === id); return sv ? getServiceName(sv, i18n.language) : "—"; };
 
   return (
     <Card className="p-3 rounded-2xl shadow-soft">

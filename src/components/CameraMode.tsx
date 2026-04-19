@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Tesseract from "tesseract.js";
 import { Order, Service } from "@/types";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 interface CameraModeProps {
   open: boolean;
@@ -27,7 +28,7 @@ function cleanPlate(raw: string): string {
 }
 
 export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: CameraModeProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -236,7 +237,7 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
                                 : "border-border hover:border-primary/40"
                             }`}
                           >
-                            <p className="text-xs font-bold line-clamp-1">{s.name}</p>
+                            <p className="text-xs font-bold line-clamp-1">{getServiceName(s, i18n.language)}</p>
                             <p className="text-[11px] opacity-70">{s.price} DH</p>
                           </button>
                         ))}

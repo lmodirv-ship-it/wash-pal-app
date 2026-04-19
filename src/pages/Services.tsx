@@ -14,6 +14,7 @@ import { Plus, Trash2, Edit, Search, Crown, Sparkles, Package, Droplets, Bike } 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
+import { getServiceName, getServiceDescription } from "@/lib/serviceI18n";
 
 const catBadge: Record<ServiceCategory, string> = {
   standard: "bg-primary/10 text-primary border-primary/20",
@@ -26,11 +27,14 @@ const catBadge: Record<ServiceCategory, string> = {
 export default function Services() {
   const { services, addService, updateService, deleteService } = useApp();
   const { isAdmin } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [form, setForm] = useState({
-    name: "", price: "", duration: "", description: "",
+    nameAr: "", nameFr: "", nameEn: "",
+    price: "", duration: "",
+    descriptionAr: "", descriptionFr: "", descriptionEn: "",
     category: "standard" as ServiceCategory, startingFrom: false,
   });
   const [search, setSearch] = useState("");
@@ -46,10 +50,14 @@ export default function Services() {
   ];
 
   const handleSubmit = async () => {
-    if (!form.name || !form.price) { toast.error(t("services.nameAndPriceRequired")); return; }
+    if (!form.nameAr || !form.price) { toast.error(t("services.nameAndPriceRequired")); return; }
     const payload = {
-      name: form.name, price: Number(form.price), duration: Number(form.duration) || 0,
-      description: form.description, category: form.category, startingFrom: form.startingFrom,
+      name: form.nameAr,
+      nameAr: form.nameAr, nameFr: form.nameFr, nameEn: form.nameEn,
+      price: Number(form.price), duration: Number(form.duration) || 0,
+      description: form.descriptionAr,
+      descriptionAr: form.descriptionAr, descriptionFr: form.descriptionFr, descriptionEn: form.descriptionEn,
+      category: form.category, startingFrom: form.startingFrom,
     };
     if (editing) {
       await updateService(editing.id, payload);
@@ -62,13 +70,15 @@ export default function Services() {
   };
 
   const resetForm = () => {
-    setForm({ name: "", price: "", duration: "", description: "", category: "standard", startingFrom: false });
+    setForm({ nameAr: "", nameFr: "", nameEn: "", price: "", duration: "", descriptionAr: "", descriptionFr: "", descriptionEn: "", category: "standard", startingFrom: false });
     setEditing(null); setDialogOpen(false);
   };
   const startEdit = (s: Service) => {
     setForm({
-      name: s.name, price: s.price.toString(), duration: s.duration.toString(),
-      description: s.description, category: s.category, startingFrom: s.startingFrom,
+      nameAr: s.nameAr || s.name, nameFr: s.nameFr || "", nameEn: s.nameEn || "",
+      price: s.price.toString(), duration: s.duration.toString(),
+      descriptionAr: s.descriptionAr || s.description || "", descriptionFr: s.descriptionFr || "", descriptionEn: s.descriptionEn || "",
+      category: s.category, startingFrom: s.startingFrom,
     });
     setEditing(s); setDialogOpen(true);
   };
@@ -79,9 +89,9 @@ export default function Services() {
   };
 
   const filtered = useMemo(() => services
-    .filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
+    .filter(s => getServiceName(s, lang).toLowerCase().includes(search.toLowerCase()))
     .filter(s => tab === "all" || s.category === tab),
-    [services, search, tab]);
+    [services, search, tab, lang]);
 
   const counts = useMemo(() => ({
     all: services.length,
@@ -107,7 +117,9 @@ export default function Services() {
             <DialogContent>
               <DialogHeader><DialogTitle>{editing ? t("services.editService") : t("services.addNew")}</DialogTitle></DialogHeader>
               <div className="space-y-3">
-                <Input placeholder={t("services.serviceName")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input placeholder={t("services.nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} dir="rtl" />
+                <Input placeholder={t("services.nameFr")} value={form.nameFr} onChange={(e) => setForm({ ...form, nameFr: e.target.value })} dir="ltr" />
+                <Input placeholder={t("services.nameEn")} value={form.nameEn} onChange={(e) => setForm({ ...form, nameEn: e.target.value })} dir="ltr" />
                 <div className="grid grid-cols-2 gap-3">
                   <Input type="number" placeholder={t("services.priceMad")} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
                   <Input type="number" placeholder={t("services.durationMin")} value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
@@ -126,7 +138,9 @@ export default function Services() {
                   <span className="text-sm">{t("services.startingFromLabel")}</span>
                   <Switch checked={form.startingFrom} onCheckedChange={(v) => setForm({ ...form, startingFrom: v })} />
                 </label>
-                <Textarea placeholder={t("services.descOptional")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <Textarea placeholder={t("services.descAr")} value={form.descriptionAr} onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })} dir="rtl" />
+                <Textarea placeholder={t("services.descFr")} value={form.descriptionFr} onChange={(e) => setForm({ ...form, descriptionFr: e.target.value })} dir="ltr" />
+                <Textarea placeholder={t("services.descEn")} value={form.descriptionEn} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} dir="ltr" />
                 <Button className="w-full rounded-xl lavage-btn" onClick={handleSubmit}>
                   {editing ? t("common.saveChanges") : t("common.add")}
                 </Button>
@@ -177,7 +191,7 @@ export default function Services() {
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex-1 min-w-0">
                         <div className="text-[10px] font-mono text-primary mb-1">{s.reference || "—"}</div>
-                        <div className="font-bold text-foreground line-clamp-2">{s.name}</div>
+                        <div className="font-bold text-foreground line-clamp-2">{getServiceName(s, lang)}</div>
                       </div>
                       <Badge variant="outline" className={`${catBadge[s.category]} text-[10px] shrink-0`}>
                         {s.category.toUpperCase()}
@@ -234,7 +248,7 @@ export default function Services() {
                   {filtered.map(s => (
                     <TableRow key={s.id} className={`lavage-table-row border-border ${!s.isActive ? "opacity-50" : ""}`}>
                       <TableCell className="font-mono text-xs text-primary">{s.reference || "—"}</TableCell>
-                      <TableCell className="font-medium text-foreground">{s.name}</TableCell>
+                      <TableCell className="font-medium text-foreground">{getServiceName(s, lang)}</TableCell>
                       <TableCell>
                         {s.startingFrom && <span className="text-[10px] text-muted-foreground block">{t("services.startingFrom")}</span>}
                         <span className="font-bold text-primary">{s.price}</span>
@@ -243,7 +257,7 @@ export default function Services() {
                       <TableCell className="text-xs text-muted-foreground">
                         {s.duration > 0 ? `${s.duration} ${t("common.minutes")}` : "—"}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{s.description || "—"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{getServiceDescription(s, lang) || "—"}</TableCell>
                       <TableCell>
                         {isAdmin ? (
                           <Switch checked={s.isActive} onCheckedChange={() => toggleActive(s)} />

@@ -7,9 +7,15 @@ export interface Service {
   id: string;
   reference?: string;
   name: string;
+  nameAr?: string;
+  nameFr?: string;
+  nameEn?: string;
   price: number;
   duration: number;
   description: string;
+  descriptionAr?: string;
+  descriptionFr?: string;
+  descriptionEn?: string;
   isActive: boolean;
   category: ServiceCategory;
   startingFrom: boolean;

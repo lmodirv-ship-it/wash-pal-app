@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Droplets, Clock, CheckCircle2, Loader2, Sparkles, History, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 export default function CustomerApp() {
   const { services, orders, currentBranch, addOrder } = useApp();
@@ -72,7 +73,7 @@ export default function CustomerApp() {
               <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2">
                 <Droplets className="w-5 h-5" />
               </div>
-              <p className="font-bold text-sm">{s.name}</p>
+              <p className="font-bold text-sm">{getServiceName(s, i18n.language)}</p>
               <p className="text-xs text-muted-foreground mt-0.5 mb-2">{s.duration} {t("common.minutes")}</p>
               <p className="text-lg font-bold text-primary">{s.price} {t("common.currency")}</p>
             </Card>
@@ -120,7 +121,7 @@ export default function CustomerApp() {
                       className={`p-3 rounded-xl border-2 text-start transition-all ${
                         sel ? "border-primary bg-primary/10 shadow-glow" : "border-border bg-card hover:border-primary/40"
                       }`}>
-                      <p className="font-bold text-sm">{s.name}</p>
+                      <p className="font-bold text-sm">{getServiceName(s, i18n.language)}</p>
                       <p className="text-xs text-muted-foreground">{s.price} {t("common.currency")}</p>
                     </button>
                   );

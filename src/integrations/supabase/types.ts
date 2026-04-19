@@ -393,10 +393,16 @@ export type Database = {
           category: string
           created_at: string
           description: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           duration: number
           id: string
           is_active: boolean
           name: string
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string | null
           price: number
           reference: string | null
           starting_from: boolean
@@ -405,10 +411,16 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           duration: number
           id?: string
           is_active?: boolean
           name: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string | null
           price: number
           reference?: string | null
           starting_from?: boolean
@@ -417,10 +429,16 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           duration?: number
           id?: string
           is_active?: boolean
           name?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string | null
           price?: number
           reference?: string | null
           starting_from?: boolean

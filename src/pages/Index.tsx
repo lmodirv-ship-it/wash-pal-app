@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { getServiceName } from "@/lib/serviceI18n";
 
 function startOfDay(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
 function pctChange(curr: number, prev: number) {
@@ -69,7 +70,7 @@ export default function Dashboard() {
     const serviceCount: Record<string, number> = {};
     branchOrders.forEach((o) => o.services.forEach((sid) => { serviceCount[sid] = (serviceCount[sid] || 0) + 1; }));
     const servicesPie = Object.entries(serviceCount)
-      .map(([sid, count]) => ({ name: services.find((s) => s.id === sid)?.name || "—", value: count }))
+      .map(([sid, count]) => { const sv = services.find((s) => s.id === sid); return { name: sv ? getServiceName(sv, i18n.language) : "—", value: count }; })
       .sort((a, b) => b.value - a.value).slice(0, 5);
 
     const activity = [...branchOrders]
