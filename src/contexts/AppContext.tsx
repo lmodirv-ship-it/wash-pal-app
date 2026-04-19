@@ -66,7 +66,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     createdAt: r.created_at, completedAt: r.completed_at,
   });
   const mapService = (r: any): Service => ({
-    id: r.id, reference: r.reference, name: r.name, price: Number(r.price), duration: r.duration, description: r.description || '',
+    id: r.id, reference: r.reference, name: r.name,
+    nameAr: r.name_ar || undefined, nameFr: r.name_fr || undefined, nameEn: r.name_en || undefined,
+    price: Number(r.price), duration: r.duration, description: r.description || '',
+    descriptionAr: r.description_ar || undefined, descriptionFr: r.description_fr || undefined, descriptionEn: r.description_en || undefined,
     isActive: r.is_active !== false,
     category: (r.category as any) || 'standard',
     startingFrom: r.starting_from === true,
@@ -188,7 +191,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Service CRUD
   const addService = async (s: Omit<Service, 'id'>) => {
     await supabase.from('services').insert({
-      name: s.name, price: s.price, duration: s.duration, description: s.description,
+      name: s.nameAr || s.name, price: s.price, duration: s.duration, description: s.descriptionAr || s.description,
+      name_ar: s.nameAr || s.name, name_fr: s.nameFr || null, name_en: s.nameEn || null,
+      description_ar: s.descriptionAr || s.description || null, description_fr: s.descriptionFr || null, description_en: s.descriptionEn || null,
       is_active: s.isActive ?? true,
       category: s.category || 'standard',
       starting_from: s.startingFrom ?? false,
@@ -198,9 +203,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateService = async (id: string, s: Partial<Service>) => {
     const u: any = {};
     if (s.name !== undefined) u.name = s.name;
+    if (s.nameAr !== undefined) { u.name_ar = s.nameAr; u.name = s.nameAr; }
+    if (s.nameFr !== undefined) u.name_fr = s.nameFr;
+    if (s.nameEn !== undefined) u.name_en = s.nameEn;
     if (s.price !== undefined) u.price = s.price;
     if (s.duration !== undefined) u.duration = s.duration;
     if (s.description !== undefined) u.description = s.description;
+    if (s.descriptionAr !== undefined) { u.description_ar = s.descriptionAr; u.description = s.descriptionAr; }
+    if (s.descriptionFr !== undefined) u.description_fr = s.descriptionFr;
+    if (s.descriptionEn !== undefined) u.description_en = s.descriptionEn;
     if (s.isActive !== undefined) u.is_active = s.isActive;
     if (s.category !== undefined) u.category = s.category;
     if (s.startingFrom !== undefined) u.starting_from = s.startingFrom;
