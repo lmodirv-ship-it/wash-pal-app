@@ -93,6 +93,7 @@ export type Database = {
           is_active: boolean
           name: string
           phone: string
+          shop_id: string
         }
         Insert: {
           address: string
@@ -101,6 +102,7 @@ export type Database = {
           is_active?: boolean
           name: string
           phone: string
+          shop_id: string
         }
         Update: {
           address?: string
@@ -109,8 +111,17 @@ export type Database = {
           is_active?: boolean
           name?: string
           phone?: string
+          shop_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "branches_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       customers: {
         Row: {
@@ -123,6 +134,7 @@ export type Database = {
           phone: string
           reference: string | null
           role: string
+          shop_id: string
           total_visits: number
           user_id: string | null
         }
@@ -136,6 +148,7 @@ export type Database = {
           phone: string
           reference?: string | null
           role?: string
+          shop_id: string
           total_visits?: number
           user_id?: string | null
         }
@@ -149,10 +162,19 @@ export type Database = {
           phone?: string
           reference?: string | null
           role?: string
+          shop_id?: string
           total_visits?: number
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "customers_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       employees: {
         Row: {
@@ -166,6 +188,7 @@ export type Database = {
           reference: string | null
           role: string
           role_type: string
+          shop_id: string
         }
         Insert: {
           branch_id: string
@@ -178,6 +201,7 @@ export type Database = {
           reference?: string | null
           role: string
           role_type?: string
+          shop_id: string
         }
         Update: {
           branch_id?: string
@@ -190,6 +214,7 @@ export type Database = {
           reference?: string | null
           role?: string
           role_type?: string
+          shop_id?: string
         }
         Relationships: [
           {
@@ -197,6 +222,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
             referencedColumns: ["id"]
           },
         ]
@@ -211,6 +243,7 @@ export type Database = {
           expense_date: string
           id: string
           notes: string | null
+          shop_id: string
           title: string
         }
         Insert: {
@@ -222,6 +255,7 @@ export type Database = {
           expense_date?: string
           id?: string
           notes?: string | null
+          shop_id: string
           title: string
         }
         Update: {
@@ -233,9 +267,18 @@ export type Database = {
           expense_date?: string
           id?: string
           notes?: string | null
+          shop_id?: string
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "expenses_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       imou_devices: {
         Row: {
@@ -291,6 +334,7 @@ export type Database = {
           order_id: string
           paid_amount: number
           services: Json
+          shop_id: string
           total_amount: number
         }
         Insert: {
@@ -302,6 +346,7 @@ export type Database = {
           order_id: string
           paid_amount?: number
           services?: Json
+          shop_id: string
           total_amount?: number
         }
         Update: {
@@ -313,6 +358,7 @@ export type Database = {
           order_id?: string
           paid_amount?: number
           services?: Json
+          shop_id?: string
           total_amount?: number
         }
         Relationships: [
@@ -328,6 +374,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
             referencedColumns: ["id"]
           },
         ]
@@ -371,6 +424,7 @@ export type Database = {
           notes: string | null
           reference: string | null
           services: string[]
+          shop_id: string
           status: string
           total_price: number
         }
@@ -388,6 +442,7 @@ export type Database = {
           notes?: string | null
           reference?: string | null
           services?: string[]
+          shop_id: string
           status?: string
           total_price?: number
         }
@@ -405,6 +460,7 @@ export type Database = {
           notes?: string | null
           reference?: string | null
           services?: string[]
+          shop_id?: string
           status?: string
           total_price?: number
         }
@@ -428,6 +484,13 @@ export type Database = {
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
             referencedColumns: ["id"]
           },
         ]
@@ -476,6 +539,7 @@ export type Database = {
           name_fr: string | null
           price: number
           reference: string | null
+          shop_id: string
           starting_from: boolean
         }
         Insert: {
@@ -494,6 +558,7 @@ export type Database = {
           name_fr?: string | null
           price: number
           reference?: string | null
+          shop_id: string
           starting_from?: boolean
         }
         Update: {
@@ -512,9 +577,50 @@ export type Database = {
           name_fr?: string | null
           price?: number
           reference?: string | null
+          shop_id?: string
           starting_from?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "services_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_members: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          shop_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          shop_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          shop_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_members_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shops: {
         Row: {
@@ -576,6 +682,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_shop_member: { Args: { _shop_id: string }; Returns: boolean }
+      user_shop_ids: { Args: never; Returns: string[] }
     }
     Enums: {
       app_role: "admin" | "manager" | "employee" | "customer" | "supervisor"

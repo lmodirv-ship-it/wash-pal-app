@@ -61,9 +61,11 @@ export default function Finance() {
   const submit = async () => {
     if (!form.title || !form.amount) { toast.error(t("finance.fillFields")); return; }
     const { data: { user } } = await supabase.auth.getUser();
+    const shopId = localStorage.getItem('currentShopId');
+    if (!shopId) { toast.error("No active shop selected"); return; }
     const { error } = await supabase.from("expenses").insert({
       title: form.title, amount: Number(form.amount), category: form.category, notes: form.notes || null,
-      created_by: user?.id || null,
+      created_by: user?.id || null, shop_id: shopId,
     });
     if (error) { toast.error(t("common.error") + ": " + error.message); return; }
     toast.success(t("finance.expenseAdded"));

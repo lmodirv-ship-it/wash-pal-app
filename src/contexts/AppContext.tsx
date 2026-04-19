@@ -13,6 +13,8 @@ interface AppContextType {
   invoices: Invoice[];
   shops: B2BPartner[];
   tenantShops: Shop[];
+  currentShopId: string | null;
+  setCurrentShopId: (id: string) => void;
   createTenantShop: (name: string) => Promise<Shop | null>;
   addBranch: (b: Omit<Branch, 'id'>) => Promise<void>;
   updateBranch: (id: string, b: Partial<Branch>) => Promise<void>;
@@ -39,6 +41,8 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null);
 
+const SHOP_STORAGE_KEY = 'currentShopId';
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [currentBranch, setCurrentBranch] = useState<Branch | null>(null);
@@ -49,7 +53,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [shops, setShops] = useState<B2BPartner[]>([]);
   const [tenantShops, setTenantShops] = useState<Shop[]>([]);
+  const [currentShopId, setCurrentShopIdState] = useState<string | null>(() => localStorage.getItem(SHOP_STORAGE_KEY));
   const [loading, setLoading] = useState(true);
+
+  const setCurrentShopId = (id: string) => {
+    localStorage.setItem(SHOP_STORAGE_KEY, id);
+    setCurrentShopIdState(id);
+  };
+
+  const requireShopId = () => {
+    if (!currentShopId) throw new Error('No active shop selected. Please create or select a shop first.');
+    return currentShopId;
+  };
 
   const mapBranch = (r: any): Branch => ({ id: r.id, name: r.name, address: r.address, phone: r.phone, isActive: r.is_active });
   const mapCustomer = (r: any): Customer => ({
@@ -115,15 +130,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setServices((sRes.data || []).map(mapService));
     setInvoices((iRes.data || []).map(mapInvoice));
     setShops((shRes.data || []).map(mapShop));
-    setTenantShops((tRes.data || []).map(mapTenantShop));
+    const ts = (tRes.data || []).map(mapTenantShop);
+    setTenantShops(ts);
+    // auto-select first shop if none selected or stored one no longer accessible
+    if (ts.length > 0) {
+      const stored = localStorage.getItem(SHOP_STORAGE_KEY);
+      const valid = stored && ts.some((s) => s.id === stored);
+      if (!valid) {
+        localStorage.setItem(SHOP_STORAGE_KEY, ts[0].id);
+        setCurrentShopIdState(ts[0].id);
+      } else if (!currentShopId) {
+        setCurrentShopIdState(stored);
+      }
+    }
     setLoading(false);
-  }, [currentBranch]);
+  }, [currentBranch, currentShopId]);
 
   useEffect(() => { refreshAll(); }, []);
 
   // Branch CRUD
   const addBranch = async (b: Omit<Branch, 'id'>) => {
-    await supabase.from('branches').insert({ name: b.name, address: b.address, phone: b.phone, is_active: b.isActive });
+    await supabase.from('branches').insert({ name: b.name, address: b.address, phone: b.phone, is_active: b.isActive, shop_id: requireShopId() });
     await refreshAll();
   };
   const updateBranch = async (id: string, b: Partial<Branch>) => {
@@ -139,7 +166,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Customer CRUD
   const addCustomer = async (c: Omit<Customer, 'id' | 'totalVisits' | 'createdAt' | 'reference'>) => {
-    await supabase.from('customers').insert({ name: c.name, phone: c.phone, email: c.email, car_type: c.carType, car_plate: c.carPlate, role: c.role || 'customer' });
+    await supabase.from('customers').insert({ name: c.name, phone: c.phone, email: c.email, car_type: c.carType, car_plate: c.carPlate, role: c.role || 'customer', shop_id: requireShopId() });
     await refreshAll();
   };
   const updateCustomer = async (id: string, c: Partial<Customer>) => {
@@ -157,7 +184,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Employee CRUD
   const addEmployee = async (e: Omit<Employee, 'id' | 'hireDate' | 'reference'>) => {
-    await supabase.from('employees').insert({ name: e.name, phone: e.phone, role: e.role, role_type: e.roleType || 'employee', branch_id: e.branchId, is_active: e.isActive });
+    await supabase.from('employees').insert({ name: e.name, phone: e.phone, role: e.role, role_type: e.roleType || 'employee', branch_id: e.branchId, is_active: e.isActive, shop_id: requireShopId() });
     await refreshAll();
   };
   const updateEmployee = async (id: string, e: Partial<Employee>) => {
@@ -180,6 +207,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       car_type: o.carType, car_plate: o.carPlate, services: o.services,
       total_price: o.totalPrice, status: o.status, employee_id: o.employeeId || null,
       employee_name: o.employeeName || null, branch_id: o.branchId, notes: o.notes || null,
+      shop_id: requireShopId(),
     });
     await refreshAll();
   };
@@ -206,6 +234,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       is_active: s.isActive ?? true,
       category: s.category || 'standard',
       starting_from: s.startingFrom ?? false,
+      shop_id: requireShopId(),
     } as any);
     await refreshAll();
   };
@@ -235,6 +264,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       order_id: i.orderId, customer_name: i.customerName,
       services: i.services as any, total_amount: i.totalAmount,
       paid_amount: i.paidAmount, is_paid: i.isPaid, branch_id: i.branchId,
+      shop_id: requireShopId(),
     });
     await refreshAll();
   };
@@ -288,6 +318,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       branches, currentBranch, setCurrentBranch,
       customers, employees, orders, services, invoices, shops, tenantShops, createTenantShop,
+      currentShopId, setCurrentShopId,
       addBranch, updateBranch, deleteBranch,
       addCustomer, updateCustomer, deleteCustomer,
       addEmployee, updateEmployee, deleteEmployee,
