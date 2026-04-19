@@ -94,6 +94,12 @@ export function Layout({ children }: { children: ReactNode }) {
             </div>
           </main>
 
+          <footer className="hidden md:block border-t border-border bg-background/60 backdrop-blur-sm py-3 px-6 text-center">
+            <p className="text-xs text-muted-foreground">
+              © {new Date().getFullYear()} <span className="font-semibold text-primary">مجموعة HN للبرمجيات والتصميم</span>
+            </p>
+          </footer>
+
           <MobileBottomNav />
         </div>
       </div>
