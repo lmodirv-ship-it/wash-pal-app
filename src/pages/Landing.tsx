@@ -67,7 +67,7 @@ export default function Landing() {
                 تسجيل الدخول
               </Button>
             </Link>
-            <Link to="/login">
+            <Link to="/start">
               <Button size="sm" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-95 shadow-md shadow-blue-500/25 rounded-xl">
                 ابدأ مجاناً
               </Button>
@@ -102,7 +102,7 @@ export default function Landing() {
               تابع الإيرادات، أدر فريقك، ونمِّ أعمالك بسلاسة مع CarwashPro — منصة واحدة لكل ما تحتاجه.
             </motion.p>
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-3">
-              <Link to="/login">
+              <Link to="/start">
                 <Button size="lg" className="h-13 px-7 text-base font-semibold rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-95 shadow-lg shadow-blue-500/30 group">
                   ابدأ مجاناً
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"} transition-transform`} />
@@ -375,7 +375,7 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/login" className="block">
+                <Link to="/start" className="block">
                   <Button className={`w-full h-12 font-bold rounded-xl ${
                     p.highlight
                       ? "bg-white text-blue-600 hover:bg-white/90"
@@ -446,7 +446,7 @@ export default function Landing() {
             <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">جاهز لتغيير طريقة إدارتك؟</h2>
             <p className="text-white/80 mb-8 max-w-xl mx-auto">انضم لمئات أصحاب المغاسل الذين يثقون في CarwashPro. ابدأ مجاناً اليوم.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/login">
+              <Link to="/start">
                 <Button size="lg" className="h-13 px-8 text-base font-bold rounded-2xl bg-white text-blue-600 hover:bg-white/90 shadow-xl">
                   ابدأ مجاناً الآن
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
