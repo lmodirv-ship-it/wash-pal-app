@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      b2b_partners: {
+        Row: {
+          address: string
+          city: string
+          created_at: string
+          email: string | null
+          expiry_date: string
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          owner_name: string
+          package_name: string
+          phone: string
+          reference: string | null
+          registration_date: string
+          remaining_points: number | null
+          shop_id: string | null
+          total_points: number
+          used_points: number
+        }
+        Insert: {
+          address: string
+          city?: string
+          created_at?: string
+          email?: string | null
+          expiry_date?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          owner_name: string
+          package_name?: string
+          phone: string
+          reference?: string | null
+          registration_date?: string
+          remaining_points?: number | null
+          shop_id?: string | null
+          total_points?: number
+          used_points?: number
+        }
+        Update: {
+          address?: string
+          city?: string
+          created_at?: string
+          email?: string | null
+          expiry_date?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          owner_name?: string
+          package_name?: string
+          phone?: string
+          reference?: string | null
+          registration_date?: string
+          remaining_points?: number | null
+          shop_id?: string | null
+          total_points?: number
+          used_points?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "b2b_partners_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       branches: {
         Row: {
           address: string
@@ -447,61 +518,28 @@ export type Database = {
       }
       shops: {
         Row: {
-          address: string
-          city: string
           created_at: string
-          email: string | null
-          expiry_date: string
+          created_by: string
           id: string
-          is_active: boolean
           name: string
-          notes: string | null
-          owner_name: string
-          package_name: string
-          phone: string
-          reference: string | null
-          registration_date: string
-          remaining_points: number | null
-          total_points: number
-          used_points: number
+          owner_id: string
+          updated_at: string
         }
         Insert: {
-          address: string
-          city?: string
           created_at?: string
-          email?: string | null
-          expiry_date?: string
+          created_by: string
           id?: string
-          is_active?: boolean
           name: string
-          notes?: string | null
-          owner_name: string
-          package_name?: string
-          phone: string
-          reference?: string | null
-          registration_date?: string
-          remaining_points?: number | null
-          total_points?: number
-          used_points?: number
+          owner_id: string
+          updated_at?: string
         }
         Update: {
-          address?: string
-          city?: string
           created_at?: string
-          email?: string | null
-          expiry_date?: string
+          created_by?: string
           id?: string
-          is_active?: boolean
           name?: string
-          notes?: string | null
-          owner_name?: string
-          package_name?: string
-          phone?: string
-          reference?: string | null
-          registration_date?: string
-          remaining_points?: number | null
-          total_points?: number
-          used_points?: number
+          owner_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
