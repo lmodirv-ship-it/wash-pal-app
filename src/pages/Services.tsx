@@ -5,19 +5,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit, Droplets, Clock } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, Edit, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+
+type CarSize = "small" | "large" | "both";
+
+// Detect car size from service name
+const detectCarSize = (name: string): CarSize => {
+  const n = name.toLowerCase();
+  if (n.includes("4x4") || n.includes("grand véhicule") || n.includes("grand vehicule") || n.includes("كبير")) return "large";
+  if (n.includes("standard") || n.includes("عادي") || n.includes("صغير")) return "small";
+  return "both";
+};
+
+const sizeMap: Record<CarSize, { label: string; cls: string }> = {
+  small: { label: "صغيرة", cls: "bg-primary/10 text-primary border-primary/20" },
+  large: { label: "كبيرة", cls: "bg-warning/10 text-warning border-warning/30" },
+  both: { label: "الجميع", cls: "bg-muted text-muted-foreground" },
+};
 
 export default function Services() {
   const { services, addService, updateService, deleteService } = useApp();
   const { isAdmin } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
-  const [form, setForm] = useState({ name: "", price: "", duration: "", description: "" });
+  const [form, setForm] = useState({ name: "", price: "", duration: "", description: "", carSize: "both" as CarSize });
+  const [search, setSearch] = useState("");
+  const [sizeFilter, setSizeFilter] = useState<string>("all");
 
   const handleSubmit = async () => {
     if (!form.name || !form.price) { toast.error("الاسم والسعر مطلوبان"); return; }
@@ -31,9 +50,9 @@ export default function Services() {
     resetForm();
   };
 
-  const resetForm = () => { setForm({ name: "", price: "", duration: "", description: "" }); setEditing(null); setDialogOpen(false); };
+  const resetForm = () => { setForm({ name: "", price: "", duration: "", description: "", carSize: "both" }); setEditing(null); setDialogOpen(false); };
   const startEdit = (s: Service) => {
-    setForm({ name: s.name, price: s.price.toString(), duration: s.duration.toString(), description: s.description });
+    setForm({ name: s.name, price: s.price.toString(), duration: s.duration.toString(), description: s.description, carSize: detectCarSize(s.name) });
     setEditing(s); setDialogOpen(true);
   };
 
@@ -42,17 +61,21 @@ export default function Services() {
     toast.success(s.isActive ? "تم تعطيل الخدمة" : "تم تفعيل الخدمة");
   };
 
+  const filtered = services
+    .filter((s) => s.name.toLowerCase().includes(search.toLowerCase()))
+    .filter((s) => sizeFilter === "all" || detectCarSize(s.name) === sizeFilter || (sizeFilter === "both" && detectCarSize(s.name) === "both"));
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold">إدارة الخدمات</h1>
-          <p className="text-sm text-muted-foreground">الخدمات المعطّلة لن تظهر للموظفين</p>
+          <p className="text-sm text-muted-foreground">جدول شامل لجميع الخدمات والأثمنة</p>
         </div>
         {isAdmin && (
           <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
             <DialogTrigger asChild>
-              <Button className="rounded-xl" style={{ background: "var(--gradient-primary)" }}>
+              <Button className="rounded-xl lavage-btn">
                 <Plus className="w-4 h-4 ml-1" />خدمة جديدة
               </Button>
             </DialogTrigger>
@@ -65,7 +88,7 @@ export default function Services() {
                   <Input type="number" placeholder="المدة (دقيقة)" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
                 </div>
                 <Textarea placeholder="الوصف (اختياري)" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-                <Button className="w-full rounded-xl" onClick={handleSubmit} style={{ background: "var(--gradient-primary)" }}>
+                <Button className="w-full rounded-xl lavage-btn" onClick={handleSubmit}>
                   {editing ? "حفظ التعديلات" : "إضافة"}
                 </Button>
               </div>
@@ -74,44 +97,81 @@ export default function Services() {
         )}
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {services.map((s) => (
-          <Card key={s.id} className={`p-5 rounded-2xl transition-all ${s.isActive ? "" : "opacity-60 bg-muted/30"}`}>
-            <div className="flex items-start justify-between mb-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Droplets className="w-5 h-5" />
-              </div>
-              {s.isActive
-                ? <Badge className="bg-success/10 text-success border-success/20">مفعّلة</Badge>
-                : <Badge variant="outline" className="text-muted-foreground">معطّلة</Badge>}
-            </div>
-            <h3 className="font-bold text-lg mb-1">{s.name}</h3>
-            {s.description && <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{s.description}</p>}
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-2xl font-bold text-primary">{s.price} <span className="text-sm font-medium text-muted-foreground">DH</span></span>
-              {s.duration > 0 && (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="w-3.5 h-3.5" />{s.duration}د</span>
-              )}
-            </div>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input className="pr-9" placeholder="بحث عن خدمة..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        </div>
+        <Select value={sizeFilter} onValueChange={setSizeFilter}>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">جميع الأنواع</SelectItem>
+            <SelectItem value="small">سيارة صغيرة</SelectItem>
+            <SelectItem value="large">سيارة كبيرة (4x4)</SelectItem>
+            <SelectItem value="both">للجميع</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-            {isAdmin && (
-              <div className="flex items-center justify-between pt-3 border-t">
-                <div className="flex items-center gap-2">
-                  <Switch checked={s.isActive} onCheckedChange={() => toggleActive(s)} />
-                  <span className="text-xs text-muted-foreground">{s.isActive ? "نشطة" : "معطّلة"}</span>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => startEdit(s)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success("تم الحذف"); }}>
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </Card>
-        ))}
+      <div className="lavage-card overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-secondary/50">
+              <TableHead className="text-muted-foreground">#</TableHead>
+              <TableHead className="text-muted-foreground">الخدمة</TableHead>
+              <TableHead className="text-muted-foreground">نوع السيارة</TableHead>
+              <TableHead className="text-muted-foreground">الثمن</TableHead>
+              <TableHead className="text-muted-foreground">المدة</TableHead>
+              <TableHead className="text-muted-foreground">الحالة</TableHead>
+              {isAdmin && <TableHead className="text-muted-foreground">إجراءات</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
+              <TableRow><TableCell colSpan={isAdmin ? 7 : 6} className="text-center py-8 text-muted-foreground">لا توجد خدمات</TableCell></TableRow>
+            ) : filtered.map((s, idx) => {
+              const size = detectCarSize(s.name);
+              return (
+                <TableRow key={s.id} className={`lavage-table-row border-border ${!s.isActive ? "opacity-50" : ""}`}>
+                  <TableCell className="text-xs text-muted-foreground font-mono">{idx + 1}</TableCell>
+                  <TableCell>
+                    <div className="font-medium text-foreground">{s.name}</div>
+                    {s.description && <div className="text-xs text-muted-foreground mt-0.5">{s.description}</div>}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={sizeMap[size].cls}>{sizeMap[size].label}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-bold text-primary text-lg">{s.price}</span>
+                    <span className="text-xs text-muted-foreground mr-1">DH</span>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{s.duration > 0 ? `${s.duration} د` : "-"}</TableCell>
+                  <TableCell>
+                    {isAdmin ? (
+                      <Switch checked={s.isActive} onCheckedChange={() => toggleActive(s)} />
+                    ) : (
+                      <Badge className={s.isActive ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}>
+                        {s.isActive ? "مفعّلة" : "معطّلة"}
+                      </Badge>
+                    )}
+                  </TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => startEdit(s)} className="lavage-glow">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success("تم الحذف"); }} className="lavage-glow">
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
