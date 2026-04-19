@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList,
 } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { NavLink } from "@/components/NavLink";
@@ -79,6 +79,7 @@ export function AppSidebar() {
   ];
   const supervisorManage = [
     { title: t("nav.services"), url: "/services", icon: Droplets },
+    { title: "المداخل", url: "/entries", icon: ClipboardList },
     { title: t("nav.employees"), url: "/employees", icon: UserCog },
     { title: t("nav.customers"), url: "/customers", icon: Users },
     { title: "فريق العمل", url: "/team", icon: UserPlus },
@@ -95,6 +96,7 @@ export function AppSidebar() {
   const managerOverview = supervisorOverview;
   const managerManage = [
     { title: t("nav.services"), url: "/services", icon: Droplets },
+    { title: "المداخل", url: "/entries", icon: ClipboardList },
     { title: t("nav.employees"), url: "/employees", icon: UserCog },
     { title: t("nav.customers"), url: "/customers", icon: Users },
   ];
