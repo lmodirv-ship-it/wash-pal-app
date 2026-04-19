@@ -96,7 +96,8 @@ export default function AdminPricingPlans() {
   };
 
   const toggle = async (p: PricingPlan, field: "is_active" | "is_featured") => {
-    const { error } = await supabase.from("pricing_plans").update({ [field]: !p[field] }).eq("id", p.id);
+    const update = field === "is_active" ? { is_active: !p.is_active } : { is_featured: !p.is_featured };
+    const { error } = await supabase.from("pricing_plans").update(update).eq("id", p.id);
     if (error) { toast.error(error.message); return; }
     load();
   };
