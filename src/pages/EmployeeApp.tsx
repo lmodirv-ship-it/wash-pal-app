@@ -269,7 +269,7 @@ function DailyOrdersTable({
   services: ReturnType<typeof useApp>["services"];
   myName: string; branchId?: string; locale: string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const todayOrders = useMemo(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     return orders.filter(o => {
