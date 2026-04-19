@@ -290,6 +290,7 @@ export type Database = {
           id: string
           is_active: boolean
           last_snapshot_at: string | null
+          shop_id: string | null
           updated_at: string
         }
         Insert: {
@@ -301,6 +302,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_snapshot_at?: string | null
+          shop_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -312,6 +314,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_snapshot_at?: string | null
+          shop_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -320,6 +323,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imou_devices_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
             referencedColumns: ["id"]
           },
         ]
