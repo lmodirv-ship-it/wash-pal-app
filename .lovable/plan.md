@@ -1,39 +1,55 @@
 
-المستخدم يريد إضافة زر "توليد ذكي" في صفحة المالك (Owner/Admin) يستخدم AI للبحث عن أصحاب محلات غسل السيارات حول العالم (لا المغرب فقط) وجلب معلوماتهم (الاسم، المالك، الإيميل، واتساب، الهاتف، المدينة، البلد، العنوان) وعرضها في جدول، وكل محل يُضاف تلقائياً لقاعدة البيانات مع reference خاص.
+المستخدم يريد إكمال صفحة `/admin/leads` + إضافة قوالب رسائل (Email + WhatsApp) لإرسالها للمحلات المُكتشفة لشرح المنصة ودعوتهم للتسجيل.
 
-## التحليل
-- الجدول الموجود `b2b_partners` يحتوي على: name, owner_name, email, phone, address, city, reference, package_name, total_points... — مناسب جداً.
-- يجب إضافة عمود `country` و `whatsapp` للجدول.
-- سنستخدم Lovable AI Gateway (`google/gemini-2.5-pro` مع Google Search grounding) لتوليد leads حقيقية.
-- سننشئ edge function `generate-leads` يستقبل (country, city, count) ويرجع قائمة محلات مع معلومات تواصل.
-- سنضيف الزر في صفحة `AdminDashboard.tsx` (صفحة المالك) — أو نبني صفحة جديدة `/admin/leads`.
+## ما هو موجود فعلاً
+- ✅ Edge function `generate-leads` (يستخدم Lovable AI)
+- ✅ Migration: أعمدة `country, whatsapp, website, source` + trigger للـ reference `B-XXXXXX`
+- ❌ صفحة `/admin/leads` (لم تُكمل — تم إلغاؤها)
+- ❌ Route + رابط في Sidebar
+- ❌ قوالب الرسائل
 
 ## الخطة
 
-### 1. Migration
-- إضافة `country TEXT` و `whatsapp TEXT` لجدول `b2b_partners`.
-- إضافة دالة + trigger لتوليد reference بصيغة `B-XXXXXX` تلقائياً (إن لم يكن موجود).
+### 1. صفحة `src/pages/AdminLeads.tsx`
+- **Header** + إحصائيات سريعة (عدد leads المحفوظة، عدد المُتواصل معهم)
+- **نموذج توليد**: اختيار البلد (dropdown شامل + "كل العالم") + المدينة + العدد (5/10/20)
+- **زر "🌍 توليد ذكي"** → يستدعي edge function مع loading
+- **جدول النتائج** مع أعمدة: ✓ | الاسم | المالك | البلد | المدينة | إيميل | واتساب | هاتف | موقع | إجراءات
+- **إجراءات لكل صف**:
+  - زر **واتساب** → يفتح wa.me برسالة دعوة جاهزة
+  - زر **إيميل** → يفتح mailto: برسالة دعوة جاهزة
+  - زر **حفظ في DB**
+- **أزرار جماعية**: حفظ المحدد | تصدير Excel | تصدير CSV
+- **جدول leads المحفوظة سابقاً** (من `b2b_partners` حيث `source = 'ai_generated'`)
 
-### 2. Edge Function `generate-leads`
-- Input: `{ country?: string, city?: string, count: number }` (إذا لم يحدد البلد → عالمياً)
-- يستخدم Lovable AI (`google/gemini-2.5-pro`) مع prompt يطلب JSON structured output بقائمة محلات حقيقية مع: name, owner_name, email, whatsapp, phone, city, country, address, website, notes.
-- Returns: قائمة JSON.
+### 2. قوالب الرسائل (`src/lib/leadMessages.ts`)
+ملف جديد يحتوي على:
+- `buildInviteWhatsAppMessage(lead, lang)` — رسالة قصيرة جذابة بالعربية/الإنجليزية/الفرنسية حسب البلد
+- `buildInviteEmailSubject(lead, lang)` 
+- `buildInviteEmailBody(lead, lang)` — يشرح المنصة + المميزات + رابط التسجيل
+- اللغة تُختار تلقائياً حسب البلد (المغرب/الجزائر→عربي/فرنسي، فرنسا→فرنسي، باقي العالم→إنجليزي)
 
-### 3. صفحة جديدة `/admin/leads` (LeadsGenerator.tsx)
-- زر "🌍 توليد ذكي" + اختيار البلد (أو "كل العالم") + المدينة (اختياري) + عدد المحلات.
-- Loading state مع spinner.
-- جدول يعرض النتائج مع checkbox لاختيار من يُضاف.
-- زر "حفظ المحدد في قاعدة البيانات" → يُدخل في `b2b_partners` (reference يُولّد تلقائياً).
-- زر "تصدير Excel".
-- زر "إرسال دعوة" لكل صف (يفتح WhatsApp/Email مع رسالة جاهزة لدعوتهم للتسجيل).
+محتوى الرسالة سيشمل:
+- تحية شخصية باسم المحل
+- تعريف بـ H&Lavage
+- 3 مميزات رئيسية (إدارة الطلبات، الفواتير، التقارير)
+- عرض تجريبي مجاني 15 يوم
+- رابط: https://hn-carwash.online
+- توقيع
 
-### 4. ربط في Sidebar/AdminDashboard
-- إضافة رابط/زر "توليد leads" في صفحة الأدمن.
+### 3. Route + Sidebar
+- إضافة `/admin/leads` في `src/App.tsx` (داخل block super_admin/admin)
+- إضافة عنصر "🌍 توليد عملاء" في `src/components/AppSidebar.tsx` (يظهر فقط للأدمن)
 
-### التكلفة
-- 1 migration
-- 1 edge function جديد
-- 1 صفحة جديدة + رابط في Sidebar أو زر في AdminDashboard
-- ~5 دقائق
+### 4. ملاحظة بسيطة
+- استخدام `B-XXXXXX` reference تلقائياً (الـ trigger موجود)
+- التحقق من عدم تكرار الإيميل عند الحفظ
 
-اضغط **Approve** للبدء.
+## الملفات
+1. ✏️ `src/pages/AdminLeads.tsx` (إنشاء)
+2. ✏️ `src/lib/leadMessages.ts` (إنشاء)
+3. ✏️ `src/App.tsx` (إضافة route)
+4. ✏️ `src/components/AppSidebar.tsx` (إضافة رابط)
+
+## التكلفة
+~4 ملفات، ~5 دقائق. لا migration جديد ولا edge function جديد.
