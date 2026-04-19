@@ -19,7 +19,7 @@ const PLANS = [
 
 export default function CreateShop() {
   const { user, loading: authLoading } = useAuth();
-  const { setCurrentShopId, refreshAll } = useApp();
+  const { setCurrentShopId, refreshAll, tenantShops, loading: appLoading } = useApp();
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
@@ -34,7 +34,11 @@ export default function CreateShop() {
   });
   const [loading, setLoading] = useState(false);
 
-  if (!authLoading && !user) return <Navigate to="/login" replace />;
+  if (!authLoading && !user) return <Navigate to="/login?next=/create-shop" replace />;
+  // Edge case: already has shops → straight to dashboard
+  if (!authLoading && !appLoading && user && tenantShops.length > 0) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
