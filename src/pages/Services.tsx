@@ -142,7 +142,7 @@ export default function Services() {
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="grid grid-cols-5 w-full h-auto">
+        <TabsList className="grid grid-cols-6 w-full h-auto">
           {CATEGORIES.map(c => {
             const Icon = c.icon;
             const count = counts[c.id as keyof typeof counts];
