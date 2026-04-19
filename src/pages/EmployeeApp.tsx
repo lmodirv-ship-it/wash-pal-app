@@ -280,7 +280,7 @@ function DailyOrdersTable({
   }, [orders, myName, branchId]);
 
   const totalRevenue = todayOrders.reduce((sum, o) => sum + o.totalPrice, 0);
-  const serviceName = (id: string) => services.find(s => s.id === id)?.name || "—";
+  const serviceName = (id: string) => { const sv = services.find(s => s.id === id); return sv ? getServiceName(sv, i18n.language) : "—"; };
 
   return (
     <Card className="p-3 rounded-2xl shadow-soft">

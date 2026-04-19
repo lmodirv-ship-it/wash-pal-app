@@ -72,7 +72,7 @@ export default function Orders() {
     if (status === "completed" && order) {
       await addInvoice({
         orderId: order.id, customerName: order.customerName,
-        services: order.services.map((sid) => { const svc = services.find((s) => s.id === sid); return { name: svc?.name || "", price: svc?.price || 0 }; }),
+        services: order.services.map((sid) => { const svc = services.find((s) => s.id === sid); return { name: svc ? getServiceName(svc, i18n.language) : "", price: svc?.price || 0 }; }),
         totalAmount: order.totalPrice, paidAmount: order.totalPrice, isPaid: true,
         createdAt: new Date().toISOString(), branchId: order.branchId,
       });
@@ -189,7 +189,7 @@ export default function Orders() {
                   <TableCell><Badge variant="outline" className={carSizeBadge(o.carType)}>{carSizeLabel(o.carType)}</Badge></TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1 max-w-[200px]">
-                      {o.services.map((sid) => <Badge key={sid} variant="secondary" className="text-xs">{services.find((s) => s.id === sid)?.name || sid}</Badge>)}
+                      {o.services.map((sid) => { const sv = services.find((s) => s.id === sid); return <Badge key={sid} variant="secondary" className="text-xs">{sv ? getServiceName(sv, i18n.language) : sid}</Badge>; })}
                     </div>
                   </TableCell>
                   <TableCell>

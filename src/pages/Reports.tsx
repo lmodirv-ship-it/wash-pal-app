@@ -24,7 +24,10 @@ export default function Reports() {
   const serviceCount: Record<string, number> = {};
   branchOrders.forEach((o) => o.services.forEach((sid) => {
     const svc = services.find((s) => s.id === sid);
-    if (svc) serviceCount[svc.name] = (serviceCount[svc.name] || 0) + 1;
+    if (svc) {
+      const nm = getServiceName(svc, i18n.language);
+      serviceCount[nm] = (serviceCount[nm] || 0) + 1;
+    }
   }));
   const pieData = Object.entries(serviceCount).map(([name, value]) => ({ name, value }));
 
