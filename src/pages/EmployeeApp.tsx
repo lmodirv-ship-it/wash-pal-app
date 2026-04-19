@@ -199,14 +199,22 @@ export default function EmployeeApp() {
       </Card>
 
       {picked && (
-        <Card className="p-3 rounded-xl bg-primary/10 border-primary/30 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">الخدمة المختارة</p>
-            <p className="font-bold text-sm">{picked.name}</p>
+        <Card className="p-3 rounded-xl bg-primary/10 border-primary/30">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">الخدمة المختارة</p>
+              <p className="font-bold text-sm truncate">{picked.name}</p>
+            </div>
+            <Badge className="bg-primary text-primary-foreground text-base font-bold shrink-0">
+              {picked.startingFrom && "≥ "}{finalPrice} DH
+            </Badge>
           </div>
-          <Badge className="bg-primary text-primary-foreground text-base font-bold">
-            {picked.startingFrom && "≥ "}{picked.price} DH
-          </Badge>
+          {carSize === "4x4" && (
+            <div className="mt-2 pt-2 border-t border-primary/20 flex justify-between text-[11px] text-muted-foreground">
+              <span>{picked.price} DH + 10 DH (4×4)</span>
+              <span className="text-warning font-bold">= {finalPrice} DH</span>
+            </div>
+          )}
         </Card>
       )}
 
