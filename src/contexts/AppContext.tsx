@@ -150,7 +150,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Branch CRUD
   const addBranch = async (b: Omit<Branch, 'id'>) => {
-    await supabase.from('branches').insert({ name: b.name, address: b.address, phone: b.phone, is_active: b.isActive });
+    await supabase.from('branches').insert({ name: b.name, address: b.address, phone: b.phone, is_active: b.isActive, shop_id: requireShopId() });
     await refreshAll();
   };
   const updateBranch = async (id: string, b: Partial<Branch>) => {
@@ -166,7 +166,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Customer CRUD
   const addCustomer = async (c: Omit<Customer, 'id' | 'totalVisits' | 'createdAt' | 'reference'>) => {
-    await supabase.from('customers').insert({ name: c.name, phone: c.phone, email: c.email, car_type: c.carType, car_plate: c.carPlate, role: c.role || 'customer' });
+    await supabase.from('customers').insert({ name: c.name, phone: c.phone, email: c.email, car_type: c.carType, car_plate: c.carPlate, role: c.role || 'customer', shop_id: requireShopId() });
     await refreshAll();
   };
   const updateCustomer = async (id: string, c: Partial<Customer>) => {
@@ -184,7 +184,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Employee CRUD
   const addEmployee = async (e: Omit<Employee, 'id' | 'hireDate' | 'reference'>) => {
-    await supabase.from('employees').insert({ name: e.name, phone: e.phone, role: e.role, role_type: e.roleType || 'employee', branch_id: e.branchId, is_active: e.isActive });
+    await supabase.from('employees').insert({ name: e.name, phone: e.phone, role: e.role, role_type: e.roleType || 'employee', branch_id: e.branchId, is_active: e.isActive, shop_id: requireShopId() });
     await refreshAll();
   };
   const updateEmployee = async (id: string, e: Partial<Employee>) => {
@@ -207,6 +207,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       car_type: o.carType, car_plate: o.carPlate, services: o.services,
       total_price: o.totalPrice, status: o.status, employee_id: o.employeeId || null,
       employee_name: o.employeeName || null, branch_id: o.branchId, notes: o.notes || null,
+      shop_id: requireShopId(),
     });
     await refreshAll();
   };
@@ -233,6 +234,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       is_active: s.isActive ?? true,
       category: s.category || 'standard',
       starting_from: s.startingFrom ?? false,
+      shop_id: requireShopId(),
     } as any);
     await refreshAll();
   };
@@ -262,6 +264,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       order_id: i.orderId, customer_name: i.customerName,
       services: i.services as any, total_amount: i.totalAmount,
       paid_amount: i.paidAmount, is_paid: i.isPaid, branch_id: i.branchId,
+      shop_id: requireShopId(),
     });
     await refreshAll();
   };
@@ -315,6 +318,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       branches, currentBranch, setCurrentBranch,
       customers, employees, orders, services, invoices, shops, tenantShops, createTenantShop,
+      currentShopId, setCurrentShopId,
       addBranch, updateBranch, deleteBranch,
       addCustomer, updateCustomer, deleteCustomer,
       addEmployee, updateEmployee, deleteEmployee,
