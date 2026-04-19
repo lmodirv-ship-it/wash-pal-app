@@ -22,23 +22,27 @@ export default function Orders() {
   const { orders, services, employees, currentBranch, addOrder, updateOrder, deleteOrder, addInvoice } = useApp();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [carSizeFilter, setCarSizeFilter] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({
-    customerName: "", carType: "", carPlate: "", selectedServices: [] as string[],
-    employeeId: "", notes: "",
+    customerName: "", carType: "small", carPlate: "", selectedServices: [] as string[],
+    employeeId: "", notes: "", customPrice: "",
   });
+  const [priceEdits, setPriceEdits] = useState<Record<string, string>>({});
 
   const branchId = currentBranch?.id || "";
   const branchOrders = orders
     .filter((o) => o.branchId === branchId)
     .filter((o) => statusFilter === "all" || o.status === statusFilter)
+    .filter((o) => carSizeFilter === "all" || o.carType === carSizeFilter)
     .filter((o) => o.customerName.includes(search) || o.carPlate.includes(search) || o.reference?.includes(search));
 
   const toggleService = (id: string) => {
     setForm((f) => ({ ...f, selectedServices: f.selectedServices.includes(id) ? f.selectedServices.filter((s) => s !== id) : [...f.selectedServices, id] }));
   };
 
-  const totalPrice = form.selectedServices.reduce((s, id) => s + (services.find((sv) => sv.id === id)?.price || 0), 0);
+  const baseTotal = form.selectedServices.reduce((s, id) => s + (services.find((sv) => sv.id === id)?.price || 0), 0);
+  const totalPrice = form.customPrice ? Number(form.customPrice) : baseTotal;
 
   const handleSubmit = async () => {
     if (!form.customerName || !form.carType || !form.carPlate || form.selectedServices.length === 0) {
