@@ -23,6 +23,7 @@ function StartFreeLink({ children, className }: { children: React.ReactNode; cla
   );
 }
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { BrandLogo } from "@/components/BrandLogo";
 import { useTranslation } from "react-i18next";
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -113,9 +114,7 @@ export default function Landing() {
       <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "bg-black/60 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]" : "bg-transparent"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-              <span className="text-sm font-black text-white">H&L</span>
-            </div>
+            <BrandLogo size={36} />
             <span className="font-bold text-white tracking-tight">CarwashPro</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
