@@ -258,7 +258,7 @@ export default function Entries() {
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-3">
           <div>
             <label className="text-xs text-muted-foreground">الموظف</label>
             <Select value={empFilter} onValueChange={(v) => { setEmpFilter(v); setPage(1); }}>
@@ -268,7 +268,20 @@ export default function Entries() {
                 {employees.map((e) => (
                   <SelectItem key={e.id} value={e.id}>
                     {e.reference ? `${e.reference} — ` : ""}{e.name}
+                    {e.branchId && branchById.get(e.branchId) ? ` (${branchById.get(e.branchId)})` : ""}
                   </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">الفرع</label>
+            <Select value={branchFilter} onValueChange={(v) => { setBranchFilter(v); setPage(1); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">كل الفروع</SelectItem>
+                {branches.map((b) => (
+                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
