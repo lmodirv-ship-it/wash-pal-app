@@ -251,14 +251,15 @@ export default function EmployeeApp() {
       <Button
         onClick={submit}
         disabled={saving}
-        className="w-full h-14 rounded-xl text-base font-bold sticky bottom-20"
+        className="w-full h-14 rounded-xl text-base font-bold sticky bottom-3 z-10"
         style={{ background: "var(--gradient-primary)" }}
       >
         <Save className="w-5 h-5 mx-2" />
         {saving ? t("common.saving") : t("employeeApp.saveOrder")}
       </Button>
 
-      <DailyOrdersTable orders={orders} services={services} myName={myName} branchId={currentBranch?.id} locale={i18n.language === "ar" ? "ar-MA" : "fr-FR"} />
+        <DailyOrdersTable orders={orders} services={services} myName={myName} branchId={currentBranch?.id} locale={i18n.language === "ar" ? "ar-MA" : "fr-FR"} />
+      </div>
     </div>
   );
 }
