@@ -27,6 +27,7 @@ import CustomerApp from "./pages/CustomerApp";
 import CreateShop from "./pages/CreateShop";
 import Team from "./pages/Team";
 import AcceptInvite from "./pages/AcceptInvite";
+import StartFree from "./pages/StartFree";
 import NotFound from "./pages/NotFound";
 import { useApp } from "@/contexts/AppContext";
 
@@ -132,6 +133,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/post-login" element={<PostLoginRedirect />} />
+            <Route path="/start" element={<StartFree />} />
             <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/invite/:token" element={<AcceptInvite />} />
             <Route path="/team" element={<ProtectedRoutes />} />
