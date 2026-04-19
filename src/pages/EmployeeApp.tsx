@@ -24,9 +24,12 @@ export default function EmployeeApp() {
 
   const [plate, setPlate] = useState("");
   const [carType, setCarType] = useState("");
+  const [carSize, setCarSize] = useState<"normal" | "4x4">("normal");
   const [serviceId, setServiceId] = useState<string>("");
   const [tab, setTab] = useState<ServiceCategory>("standard");
   const [saving, setSaving] = useState(false);
+
+  const SURCHARGE_4X4 = 10;
 
   const activeServices = useMemo(() => services.filter(s => s.isActive), [services]);
   const picked = activeServices.find(s => s.id === serviceId);
@@ -37,6 +40,8 @@ export default function EmployeeApp() {
     activeServices.forEach(s => out[s.category]?.push(s));
     return out;
   }, [activeServices]);
+
+  const finalPrice = picked ? picked.price + (carSize === "4x4" ? SURCHARGE_4X4 : 0) : 0;
 
   const submit = async () => {
     if (!plate.trim()) { toast.error("رقم اللوحة مطلوب"); return; }
@@ -49,16 +54,17 @@ export default function EmployeeApp() {
       await addOrder({
         customerId: "",
         customerName: "عميل مباشر",
-        carType: carType.trim(),
+        carType: `${carType.trim()} (${carSize === "4x4" ? "4x4" : "Normal"})`,
         carPlate: plate.trim().toUpperCase(),
         services: [picked.id],
-        totalPrice: picked.price,
+        totalPrice: finalPrice,
         status: "waiting",
         employeeName: myName,
         branchId: currentBranch.id,
+        notes: carSize === "4x4" ? `+${SURCHARGE_4X4} DH زيادة 4x4` : undefined,
       });
-      toast.success(`✓ تم الحفظ - ${picked.price} DH`);
-      setPlate(""); setCarType(""); setServiceId("");
+      toast.success(`✓ تم الحفظ - ${finalPrice} DH`);
+      setPlate(""); setCarType(""); setServiceId(""); setCarSize("normal");
     } catch (e: any) {
       toast.error("فشل الحفظ: " + (e?.message || ""));
     } finally {
