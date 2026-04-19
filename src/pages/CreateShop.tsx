@@ -111,6 +111,26 @@ export default function CreateShop() {
         });
       }
 
+      // Seed default services so the new shop has something to start with.
+      // The owner can edit names/prices or delete them from the Services page.
+      const DEFAULT_SERVICES = [
+        { name: "غسيل خارجي",                 name_ar: "غسيل خارجي",            name_fr: "Lavage extérieur",        name_en: "Exterior wash",       price: 30,  duration: 15, category: "standard" },
+        { name: "غسيل داخلي",                 name_ar: "غسيل داخلي",            name_fr: "Nettoyage intérieur",     name_en: "Interior cleaning",   price: 40,  duration: 20, category: "standard" },
+        { name: "غسيل شامل (داخلي + خارجي)",  name_ar: "غسيل شامل",             name_fr: "Lavage complet",          name_en: "Full wash",           price: 60,  duration: 30, category: "standard" },
+        { name: "تلميع الكاروسري",            name_ar: "تلميع الكاروسري",       name_fr: "Polissage carrosserie",   name_en: "Body polish",         price: 120, duration: 45, category: "premium"  },
+        { name: "تنظيف المحرك",               name_ar: "تنظيف المحرك",          name_fr: "Nettoyage moteur",        name_en: "Engine cleaning",     price: 80,  duration: 30, category: "premium"  },
+        { name: "تشميع",                      name_ar: "تشميع",                 name_fr: "Cirage",                  name_en: "Waxing",              price: 100, duration: 30, category: "premium"  },
+        { name: "تنظيف المقاعد بالبخار",      name_ar: "تنظيف المقاعد بالبخار", name_fr: "Nettoyage sièges vapeur", name_en: "Steam seat cleaning", price: 150, duration: 60, category: "premium"  },
+      ];
+      await supabase.from("services").insert(
+        DEFAULT_SERVICES.map((s) => ({
+          shop_id: shop.id,
+          name: s.name, name_ar: s.name_ar, name_fr: s.name_fr, name_en: s.name_en,
+          price: s.price, duration: s.duration, category: s.category,
+          description: "", is_active: true, starting_from: false,
+        }))
+      );
+
       // Update auto-created trial subscription with chosen plan + correct price
       const PRICE_MAP: Record<string, { monthly: number; yearly: number }> = {
         starter:  { monthly: 0,   yearly: 0 },
