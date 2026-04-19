@@ -146,6 +146,13 @@ export default function Login() {
                 )}
               </span>
             </Button>
+
+            <div className="text-center text-xs text-muted-foreground pt-2">
+              ليس لديك حساب؟{" "}
+              <Link to={`/signup${redirectParam ? `?redirect=${redirectParam}` : ""}`} className="text-primary hover:underline font-semibold">
+                إنشاء حساب جديد
+              </Link>
+            </div>
           </form>
         </div>
       </div>
