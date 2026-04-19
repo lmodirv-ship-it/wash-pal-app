@@ -90,6 +90,7 @@ export default function Services() {
     vip: services.filter(s => s.category === "vip").length,
     extra: services.filter(s => s.category === "extra").length,
     packs: services.filter(s => s.category === "packs").length,
+    motor: services.filter(s => s.category === "motor").length,
   }), [services]);
 
   return (
