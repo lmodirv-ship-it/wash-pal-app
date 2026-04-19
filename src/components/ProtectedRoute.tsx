@@ -62,15 +62,21 @@ export default function ProtectedRoute({ children, allowedRoles }: Props) {
     resolveUserRoles(user.id, profile.role).then(setUserRoles);
   }, [user, profile]);
 
+  // 1. Still loading auth or profile
   if (loading || (user && !profile)) return <LoadingScreen />;
+
+  // 2. Not authenticated → login
   if (!user) return <Navigate to="/login" replace />;
+
+  // 3. Resolving roles
   if (userRoles === null) return <LoadingScreen />;
 
-  // admin & super_admin can access everything
-  if (userRoles.includes("admin") || userRoles.includes("super_admin")) {
-    return <>{children}</>;
-  }
+  // 4. SUPER ADMIN OVERRIDE — bypasses all restrictions
+  const isSuperAdmin =
+    userRoles.includes("super_admin") || userRoles.includes("admin");
+  if (isSuperAdmin) return <>{children}</>;
 
+  // 5. Role-based check
   const hasAccess = userRoles.some((r) => allowedRoles.includes(r));
   if (!hasAccess) return <Navigate to="/unauthorized" replace />;
 
