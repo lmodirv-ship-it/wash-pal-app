@@ -24,7 +24,7 @@ export default function EmployeeApp() {
 
   const [plate, setPlate] = useState("");
   const [carType, setCarType] = useState("");
-  const [carSize, setCarSize] = useState<"normal" | "4x4">("normal");
+  const [carSize, setCarSize] = useState<"normal" | "4x4" | "motor">("normal");
   const [serviceId, setServiceId] = useState<string>("");
   const [tab, setTab] = useState<ServiceCategory>("standard");
   const [saving, setSaving] = useState(false);
@@ -51,17 +51,18 @@ export default function EmployeeApp() {
 
     setSaving(true);
     try {
+      const sizeLabel = carSize === "4x4" ? "4x4" : carSize === "motor" ? "Motor" : "Normal";
       await addOrder({
         customerId: "",
         customerName: "عميل مباشر",
-        carType: `${carType.trim()} (${carSize === "4x4" ? "4x4" : "Normal"})`,
+        carType: `${carType.trim()} (${sizeLabel})`,
         carPlate: plate.trim().toUpperCase(),
         services: [picked.id],
         totalPrice: finalPrice,
         status: "waiting",
         employeeName: myName,
         branchId: currentBranch.id,
-        notes: carSize === "4x4" ? `+${SURCHARGE_4X4} DH زيادة 4x4` : undefined,
+        notes: carSize === "4x4" ? `+${SURCHARGE_4X4} DH زيادة 4x4` : carSize === "motor" ? "دراجة نارية" : undefined,
       });
       toast.success(`✓ تم الحفظ - ${finalPrice} DH`);
       setPlate(""); setCarType(""); setServiceId(""); setCarSize("normal");
