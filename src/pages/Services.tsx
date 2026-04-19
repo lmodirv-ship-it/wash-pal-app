@@ -120,6 +120,7 @@ export default function Services() {
                     <SelectItem value="vip">VIP - مميزة</SelectItem>
                     <SelectItem value="extra">Extra - إضافية</SelectItem>
                     <SelectItem value="packs">Packs - باكات</SelectItem>
+                    <SelectItem value="motor">Moto - دراجات نارية</SelectItem>
                   </SelectContent>
                 </Select>
                 <label className="flex items-center justify-between p-3 rounded-lg bg-secondary/40">
