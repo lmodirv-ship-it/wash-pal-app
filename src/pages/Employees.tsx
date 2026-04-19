@@ -60,6 +60,14 @@ export default function Employees() {
                   <SelectItem value="employee">{t("common.employee")}</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={form.branchId || branchId} onValueChange={(v) => setForm((f) => ({ ...f, branchId: v }))}>
+                <SelectTrigger><SelectValue placeholder="الفرع" /></SelectTrigger>
+                <SelectContent>
+                  {branches.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button className="w-full lavage-btn" onClick={handleSubmit}>{editing ? t("common.save") : t("common.add")}</Button>
             </div>
           </DialogContent>
