@@ -24,9 +24,12 @@ export default function EmployeeApp() {
 
   const [plate, setPlate] = useState("");
   const [carType, setCarType] = useState("");
+  const [carSize, setCarSize] = useState<"normal" | "4x4">("normal");
   const [serviceId, setServiceId] = useState<string>("");
   const [tab, setTab] = useState<ServiceCategory>("standard");
   const [saving, setSaving] = useState(false);
+
+  const SURCHARGE_4X4 = 10;
 
   const activeServices = useMemo(() => services.filter(s => s.isActive), [services]);
   const picked = activeServices.find(s => s.id === serviceId);
@@ -37,6 +40,8 @@ export default function EmployeeApp() {
     activeServices.forEach(s => out[s.category]?.push(s));
     return out;
   }, [activeServices]);
+
+  const finalPrice = picked ? picked.price + (carSize === "4x4" ? SURCHARGE_4X4 : 0) : 0;
 
   const submit = async () => {
     if (!plate.trim()) { toast.error("رقم اللوحة مطلوب"); return; }
@@ -49,16 +54,17 @@ export default function EmployeeApp() {
       await addOrder({
         customerId: "",
         customerName: "عميل مباشر",
-        carType: carType.trim(),
+        carType: `${carType.trim()} (${carSize === "4x4" ? "4x4" : "Normal"})`,
         carPlate: plate.trim().toUpperCase(),
         services: [picked.id],
-        totalPrice: picked.price,
+        totalPrice: finalPrice,
         status: "waiting",
         employeeName: myName,
         branchId: currentBranch.id,
+        notes: carSize === "4x4" ? `+${SURCHARGE_4X4} DH زيادة 4x4` : undefined,
       });
-      toast.success(`✓ تم الحفظ - ${picked.price} DH`);
-      setPlate(""); setCarType(""); setServiceId("");
+      toast.success(`✓ تم الحفظ - ${finalPrice} DH`);
+      setPlate(""); setCarType(""); setServiceId(""); setCarSize("normal");
     } catch (e: any) {
       toast.error("فشل الحفظ: " + (e?.message || ""));
     } finally {
@@ -88,12 +94,42 @@ export default function EmployeeApp() {
         </div>
         <div>
           <Label className="text-sm font-semibold mb-2 block">نوع السيارة</Label>
-          <Input
-            placeholder="مثال: تويوتا كامري"
-            value={carType}
-            onChange={e => setCarType(e.target.value)}
-            className="h-11"
-          />
+          <div className="flex gap-2">
+            <div className="flex gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setCarSize("normal")}
+                className={`px-3 h-11 rounded-lg text-xs font-bold border-2 transition-all ${
+                  carSize === "normal"
+                    ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                Normal
+              </button>
+              <button
+                type="button"
+                onClick={() => setCarSize("4x4")}
+                className={`px-3 h-11 rounded-lg text-xs font-bold border-2 transition-all flex items-center gap-1 ${
+                  carSize === "4x4"
+                    ? "border-warning bg-warning text-warning-foreground shadow-glow"
+                    : "border-border bg-card text-muted-foreground hover:border-warning/50"
+                }`}
+              >
+                4×4
+                <span className="text-[9px] opacity-80">+10</span>
+              </button>
+            </div>
+            <Input
+              placeholder="مثال: تويوتا كامري"
+              value={carType}
+              onChange={e => setCarType(e.target.value)}
+              className="h-11 flex-1"
+            />
+          </div>
+          {carSize === "4x4" && (
+            <p className="text-[11px] text-warning mt-1.5">⚡ زيادة +10 DH للسيارات الكبيرة (4×4)</p>
+          )}
         </div>
       </Card>
 
@@ -163,14 +199,22 @@ export default function EmployeeApp() {
       </Card>
 
       {picked && (
-        <Card className="p-3 rounded-xl bg-primary/10 border-primary/30 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">الخدمة المختارة</p>
-            <p className="font-bold text-sm">{picked.name}</p>
+        <Card className="p-3 rounded-xl bg-primary/10 border-primary/30">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">الخدمة المختارة</p>
+              <p className="font-bold text-sm truncate">{picked.name}</p>
+            </div>
+            <Badge className="bg-primary text-primary-foreground text-base font-bold shrink-0">
+              {picked.startingFrom && "≥ "}{finalPrice} DH
+            </Badge>
           </div>
-          <Badge className="bg-primary text-primary-foreground text-base font-bold">
-            {picked.startingFrom && "≥ "}{picked.price} DH
-          </Badge>
+          {carSize === "4x4" && (
+            <div className="mt-2 pt-2 border-t border-primary/20 flex justify-between text-[11px] text-muted-foreground">
+              <span>{picked.price} DH + 10 DH (4×4)</span>
+              <span className="text-warning font-bold">= {finalPrice} DH</span>
+            </div>
+          )}
         </Card>
       )}
 
