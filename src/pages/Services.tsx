@@ -14,6 +14,7 @@ import { Plus, Trash2, Edit, Search, Crown, Sparkles, Package, Droplets, Bike } 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
+import { getServiceName, getServiceDescription } from "@/lib/serviceI18n";
 
 const catBadge: Record<ServiceCategory, string> = {
   standard: "bg-primary/10 text-primary border-primary/20",
@@ -26,11 +27,14 @@ const catBadge: Record<ServiceCategory, string> = {
 export default function Services() {
   const { services, addService, updateService, deleteService } = useApp();
   const { isAdmin } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [form, setForm] = useState({
-    name: "", price: "", duration: "", description: "",
+    nameAr: "", nameFr: "", nameEn: "",
+    price: "", duration: "",
+    descriptionAr: "", descriptionFr: "", descriptionEn: "",
     category: "standard" as ServiceCategory, startingFrom: false,
   });
   const [search, setSearch] = useState("");
@@ -46,10 +50,14 @@ export default function Services() {
   ];
 
   const handleSubmit = async () => {
-    if (!form.name || !form.price) { toast.error(t("services.nameAndPriceRequired")); return; }
+    if (!form.nameAr || !form.price) { toast.error(t("services.nameAndPriceRequired")); return; }
     const payload = {
-      name: form.name, price: Number(form.price), duration: Number(form.duration) || 0,
-      description: form.description, category: form.category, startingFrom: form.startingFrom,
+      name: form.nameAr,
+      nameAr: form.nameAr, nameFr: form.nameFr, nameEn: form.nameEn,
+      price: Number(form.price), duration: Number(form.duration) || 0,
+      description: form.descriptionAr,
+      descriptionAr: form.descriptionAr, descriptionFr: form.descriptionFr, descriptionEn: form.descriptionEn,
+      category: form.category, startingFrom: form.startingFrom,
     };
     if (editing) {
       await updateService(editing.id, payload);
@@ -62,13 +70,15 @@ export default function Services() {
   };
 
   const resetForm = () => {
-    setForm({ name: "", price: "", duration: "", description: "", category: "standard", startingFrom: false });
+    setForm({ nameAr: "", nameFr: "", nameEn: "", price: "", duration: "", descriptionAr: "", descriptionFr: "", descriptionEn: "", category: "standard", startingFrom: false });
     setEditing(null); setDialogOpen(false);
   };
   const startEdit = (s: Service) => {
     setForm({
-      name: s.name, price: s.price.toString(), duration: s.duration.toString(),
-      description: s.description, category: s.category, startingFrom: s.startingFrom,
+      nameAr: s.nameAr || s.name, nameFr: s.nameFr || "", nameEn: s.nameEn || "",
+      price: s.price.toString(), duration: s.duration.toString(),
+      descriptionAr: s.descriptionAr || s.description || "", descriptionFr: s.descriptionFr || "", descriptionEn: s.descriptionEn || "",
+      category: s.category, startingFrom: s.startingFrom,
     });
     setEditing(s); setDialogOpen(true);
   };
@@ -79,9 +89,9 @@ export default function Services() {
   };
 
   const filtered = useMemo(() => services
-    .filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
+    .filter(s => getServiceName(s, lang).toLowerCase().includes(search.toLowerCase()))
     .filter(s => tab === "all" || s.category === tab),
-    [services, search, tab]);
+    [services, search, tab, lang]);
 
   const counts = useMemo(() => ({
     all: services.length,
