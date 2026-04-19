@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Branch, Customer, Employee, Order, Service, Invoice, Shop } from '@/types';
+import { Branch, Customer, Employee, Order, Service, Invoice, Shop, B2BPartner } from '@/types';
 
 interface AppContextType {
   branches: Branch[];
@@ -11,7 +11,9 @@ interface AppContextType {
   orders: Order[];
   services: Service[];
   invoices: Invoice[];
-  shops: Shop[];
+  shops: B2BPartner[];
+  tenantShops: Shop[];
+  createTenantShop: (name: string) => Promise<Shop | null>;
   addBranch: (b: Omit<Branch, 'id'>) => Promise<void>;
   updateBranch: (id: string, b: Partial<Branch>) => Promise<void>;
   deleteBranch: (id: string) => Promise<void>;
@@ -28,8 +30,8 @@ interface AppContextType {
   updateService: (id: string, s: Partial<Service>) => Promise<void>;
   deleteService: (id: string) => Promise<void>;
   addInvoice: (i: Omit<Invoice, 'id'>) => Promise<void>;
-  addShop: (s: Omit<Shop, 'id' | 'createdAt' | 'reference' | 'remainingPoints'>) => Promise<void>;
-  updateShop: (id: string, s: Partial<Shop>) => Promise<void>;
+  addShop: (s: Omit<B2BPartner, 'id' | 'createdAt' | 'reference' | 'remainingPoints'>) => Promise<void>;
+  updateShop: (id: string, s: Partial<B2BPartner>) => Promise<void>;
   deleteShop: (id: string) => Promise<void>;
   refreshAll: () => Promise<void>;
   loading: boolean;
@@ -45,7 +47,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [shops, setShops] = useState<Shop[]>([]);
+  const [shops, setShops] = useState<B2BPartner[]>([]);
+  const [tenantShops, setTenantShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
 
   const mapBranch = (r: any): Branch => ({ id: r.id, name: r.name, address: r.address, phone: r.phone, isActive: r.is_active });
@@ -79,23 +82,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     services: r.services as any || [], totalAmount: Number(r.total_amount),
     paidAmount: Number(r.paid_amount), isPaid: r.is_paid, createdAt: r.created_at, branchId: r.branch_id,
   });
-  const mapShop = (r: any): Shop => ({
+  const mapShop = (r: any): B2BPartner => ({
     id: r.id, reference: r.reference, name: r.name, ownerName: r.owner_name,
     address: r.address, city: r.city, phone: r.phone, email: r.email,
     registrationDate: r.registration_date, packageName: r.package_name,
     totalPoints: r.total_points, usedPoints: r.used_points,
     remainingPoints: r.remaining_points, expiryDate: r.expiry_date,
     isActive: r.is_active, notes: r.notes, createdAt: r.created_at,
+    shopId: r.shop_id || undefined,
+  });
+  const mapTenantShop = (r: any): Shop => ({
+    id: r.id, name: r.name, ownerId: r.owner_id, createdBy: r.created_by, createdAt: r.created_at,
   });
 
   const refreshAll = useCallback(async () => {
-    const [bRes, cRes, eRes, oRes, sRes, iRes, shRes] = await Promise.all([
+    const [bRes, cRes, eRes, oRes, sRes, iRes, shRes, tRes] = await Promise.all([
       supabase.from('branches').select('*').order('created_at'),
       supabase.from('customers').select('*').order('created_at', { ascending: false }),
       supabase.from('employees').select('*').order('created_at', { ascending: false }),
       supabase.from('orders').select('*').order('created_at', { ascending: false }),
       supabase.from('services').select('*').order('created_at'),
       supabase.from('invoices').select('*').order('created_at', { ascending: false }),
+      supabase.from('b2b_partners').select('*').order('created_at', { ascending: false }),
       supabase.from('shops').select('*').order('created_at', { ascending: false }),
     ]);
     const mappedBranches = (bRes.data || []).map(mapBranch);
@@ -107,6 +115,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setServices((sRes.data || []).map(mapService));
     setInvoices((iRes.data || []).map(mapInvoice));
     setShops((shRes.data || []).map(mapShop));
+    setTenantShops((tRes.data || []).map(mapTenantShop));
     setLoading(false);
   }, [currentBranch]);
 
@@ -230,17 +239,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await refreshAll();
   };
 
-  // Shop CRUD
-  const addShop = async (s: Omit<Shop, 'id' | 'createdAt' | 'reference' | 'remainingPoints'>) => {
-    await supabase.from('shops').insert({
+  // B2B Partner CRUD (formerly "shops" — subscription/B2B logic)
+  const addShop = async (s: Omit<B2BPartner, 'id' | 'createdAt' | 'reference' | 'remainingPoints'>) => {
+    await supabase.from('b2b_partners').insert({
       name: s.name, owner_name: s.ownerName, address: s.address, city: s.city,
       phone: s.phone, email: s.email || null, package_name: s.packageName,
       total_points: s.totalPoints, used_points: s.usedPoints,
       expiry_date: s.expiryDate, is_active: s.isActive, notes: s.notes || null,
+      shop_id: s.shopId || null,
     });
     await refreshAll();
   };
-  const updateShop = async (id: string, s: Partial<Shop>) => {
+  const updateShop = async (id: string, s: Partial<B2BPartner>) => {
     const u: any = {};
     if (s.name !== undefined) u.name = s.name;
     if (s.ownerName !== undefined) u.owner_name = s.ownerName;
@@ -254,15 +264,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (s.expiryDate !== undefined) u.expiry_date = s.expiryDate;
     if (s.isActive !== undefined) u.is_active = s.isActive;
     if (s.notes !== undefined) u.notes = s.notes;
-    await supabase.from('shops').update(u).eq('id', id);
+    if (s.shopId !== undefined) u.shop_id = s.shopId;
+    await supabase.from('b2b_partners').update(u).eq('id', id);
     await refreshAll();
   };
-  const deleteShop = async (id: string) => { await supabase.from('shops').delete().eq('id', id); await refreshAll(); };
+  const deleteShop = async (id: string) => { await supabase.from('b2b_partners').delete().eq('id', id); await refreshAll(); };
+
+  // Tenant Shop creation (multi-tenant SaaS)
+  const createTenantShop = async (name: string): Promise<Shop | null> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data, error } = await supabase
+      .from('shops')
+      .insert({ name, owner_id: user.id, created_by: user.id })
+      .select()
+      .single();
+    if (error || !data) return null;
+    await refreshAll();
+    return mapTenantShop(data);
+  };
 
   return (
     <AppContext.Provider value={{
       branches, currentBranch, setCurrentBranch,
-      customers, employees, orders, services, invoices, shops,
+      customers, employees, orders, services, invoices, shops, tenantShops, createTenantShop,
       addBranch, updateBranch, deleteBranch,
       addCustomer, updateCustomer, deleteCustomer,
       addEmployee, updateEmployee, deleteEmployee,
