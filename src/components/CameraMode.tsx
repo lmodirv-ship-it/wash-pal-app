@@ -28,7 +28,7 @@ function cleanPlate(raw: string): string {
 }
 
 export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: CameraModeProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
