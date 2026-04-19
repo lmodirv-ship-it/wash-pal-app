@@ -1,22 +1,23 @@
 import { NavLink } from "react-router-dom";
 import { LayoutDashboard, Receipt, Droplets, BarChart3, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
-const adminItems = [
-  { title: "الرئيسية", url: "/", icon: LayoutDashboard },
-  { title: "العمليات", url: "/orders", icon: Receipt },
-  { title: "الخدمات", url: "/services", icon: Droplets },
-  { title: "التقارير", url: "/reports", icon: BarChart3 },
-  { title: "الإعدادات", url: "/settings", icon: Settings },
-];
-
-const employeeItems = [
-  { title: "الخدمات", url: "/services", icon: Droplets },
-  { title: "الفواتير", url: "/invoices", icon: Receipt },
-];
+import { useTranslation } from "react-i18next";
 
 export function MobileBottomNav() {
   const { isAdmin } = useAuth();
+  const { t } = useTranslation();
+
+  const adminItems = [
+    { title: t("nav.home"), url: "/", icon: LayoutDashboard },
+    { title: t("nav.operations"), url: "/orders", icon: Receipt },
+    { title: t("nav.services"), url: "/services", icon: Droplets },
+    { title: t("nav.reports"), url: "/reports", icon: BarChart3 },
+    { title: t("nav.settings"), url: "/settings", icon: Settings },
+  ];
+  const employeeItems = [
+    { title: t("nav.services"), url: "/services", icon: Droplets },
+    { title: t("nav.invoices"), url: "/invoices", icon: Receipt },
+  ];
   const items = isAdmin ? adminItems : employeeItems;
 
   return (

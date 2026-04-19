@@ -10,34 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
-
-const overviewItems = [
-  { title: "لوحة التحكم", url: "/", icon: LayoutDashboard },
-  { title: "العمليات", url: "/orders", icon: Receipt },
-];
-
-const manageItems = [
-  { title: "الخدمات", url: "/services", icon: Droplets },
-  { title: "الموظفين", url: "/employees", icon: UserCog },
-  { title: "العملاء", url: "/customers", icon: Users },
-];
-
-const businessItems = [
-  { title: "الفواتير", url: "/invoices", icon: FileText },
-  { title: "المالية", url: "/finance", icon: Wallet },
-  { title: "التقارير", url: "/reports", icon: BarChart3 },
-  { title: "الفروع", url: "/branches", icon: Building2 },
-  { title: "المحلات", url: "/shops", icon: Store },
-];
-
-const settingsItems = [
-  { title: "الإعدادات", url: "/settings", icon: Settings },
-];
-
-const employeeItems = [
-  { title: "الخدمات", url: "/services", icon: Droplets },
-  { title: "الفواتير", url: "/invoices", icon: FileText },
-];
+import { useTranslation } from "react-i18next";
 
 function NavItem({ item, collapsed, isActive }: { item: { title: string; url: string; icon: any }; collapsed: boolean; isActive: boolean }) {
   return (
@@ -53,10 +26,10 @@ function NavItem({ item, collapsed, isActive }: { item: { title: string; url: st
             }`}
           activeClassName=""
         >
-          <item.icon className={`ml-2 h-[18px] w-[18px] flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
+          <item.icon className={`mx-2 h-[18px] w-[18px] flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
           {!collapsed && <span className="text-sm">{item.title}</span>}
           {isActive && !collapsed && (
-            <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-l-full" />
+            <span className="absolute end-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-l-full" />
           )}
         </NavLink>
       </SidebarMenuButton>
@@ -70,13 +43,36 @@ export function AppSidebar() {
   const location = useLocation();
   const { currentBranch } = useApp();
   const { isAdmin, profile, signOut } = useAuth();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
+
+  const overviewItems = [
+    { title: t("nav.dashboard"), url: "/", icon: LayoutDashboard },
+    { title: t("nav.operations"), url: "/orders", icon: Receipt },
+  ];
+  const manageItems = [
+    { title: t("nav.services"), url: "/services", icon: Droplets },
+    { title: t("nav.employees"), url: "/employees", icon: UserCog },
+    { title: t("nav.customers"), url: "/customers", icon: Users },
+  ];
+  const businessItems = [
+    { title: t("nav.invoices"), url: "/invoices", icon: FileText },
+    { title: t("nav.finance"), url: "/finance", icon: Wallet },
+    { title: t("nav.reports"), url: "/reports", icon: BarChart3 },
+    { title: t("nav.branches"), url: "/branches", icon: Building2 },
+    { title: t("nav.shops"), url: "/shops", icon: Store },
+  ];
+  const settingsItems = [{ title: t("nav.settings"), url: "/settings", icon: Settings }];
+  const employeeItems = [
+    { title: t("nav.services"), url: "/services", icon: Droplets },
+    { title: t("nav.invoices"), url: "/invoices", icon: FileText },
+  ];
 
   const isPathActive = (url: string) => url === "/" ? location.pathname === "/" : location.pathname.startsWith(url);
 
   return (
-    <Sidebar collapsible="icon" side="right" className="border-l border-sidebar-border bg-sidebar">
+    <Sidebar collapsible="icon" side={isRtl ? "right" : "left"} className={`${isRtl ? "border-l" : "border-r"} border-sidebar-border bg-sidebar`}>
       <SidebarContent className="bg-sidebar">
-        {/* Brand */}
         <div className="px-4 py-5 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black"
@@ -95,7 +91,7 @@ export function AppSidebar() {
         {isAdmin ? (
           <>
             <SidebarGroup>
-              {!collapsed && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-3 mt-3">نظرة عامة</SidebarGroupLabel>}
+              {!collapsed && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-3 mt-3">{t("nav.overview")}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu className="space-y-0.5 px-2">
                   {overviewItems.map((item) => <NavItem key={item.url} item={item} collapsed={collapsed} isActive={isPathActive(item.url)} />)}
@@ -104,7 +100,7 @@ export function AppSidebar() {
             </SidebarGroup>
 
             <SidebarGroup>
-              {!collapsed && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-3 mt-3">الإدارة</SidebarGroupLabel>}
+              {!collapsed && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-3 mt-3">{t("nav.management")}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu className="space-y-0.5 px-2">
                   {manageItems.map((item) => <NavItem key={item.url} item={item} collapsed={collapsed} isActive={isPathActive(item.url)} />)}
@@ -113,7 +109,7 @@ export function AppSidebar() {
             </SidebarGroup>
 
             <SidebarGroup>
-              {!collapsed && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-3 mt-3">الأعمال</SidebarGroupLabel>}
+              {!collapsed && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-3 mt-3">{t("nav.business")}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu className="space-y-0.5 px-2">
                   {businessItems.map((item) => <NavItem key={item.url} item={item} collapsed={collapsed} isActive={isPathActive(item.url)} />)}
@@ -139,7 +135,6 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {/* User card */}
         <div className="mt-auto p-3 border-t border-sidebar-border">
           {!collapsed ? (
             <div className="flex items-center gap-3 p-2 rounded-xl bg-sidebar-accent">
@@ -147,10 +142,10 @@ export function AppSidebar() {
                 {(profile?.name || 'U').charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-foreground truncate">{profile?.name || 'مستخدم'}</p>
-                <p className="text-[10px] text-muted-foreground truncate">{isAdmin ? 'مدير' : 'موظف'}</p>
+                <p className="text-xs font-semibold text-foreground truncate">{profile?.name || t("common.user")}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{isAdmin ? t("common.admin") : t("common.employee")}</p>
               </div>
-              <button onClick={signOut} className="p-1.5 rounded-lg hover:bg-background text-muted-foreground hover:text-destructive transition-colors" title="خروج">
+              <button onClick={signOut} className="p-1.5 rounded-lg hover:bg-background text-muted-foreground hover:text-destructive transition-colors" title={t("nav.logout")}>
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
