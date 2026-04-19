@@ -84,32 +84,33 @@ function ProtectedRoutes() {
       <ShopGate role={role}>
       <Layout>
         <Routes>
-          <Route path="/" element={<Navigate to={homeFor(role)} replace />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
-          {/* Relative variants (matched when parent route uses /admin/*) */}
+          {/* Index for nested parent (/admin/*, /dashboard/*, ...) */}
+          <Route index element={<RoleHome role={role} />} />
+
+          {/* Admin pages — relative paths so they work under any parent */}
           <Route path="admin" element={<AdminDashboard />} />
           <Route path="admin/subscriptions" element={<AdminSubscriptions />} />
           <Route path="subscriptions" element={<AdminSubscriptions />} />
+
           {(isSuperAdmin || isShopManager) && (
             <>
-              <Route path="/dashboard" element={<Index />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/employees" element={<Employees />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/invoices" element={<Invoices />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/finance" element={<Finance />} />
-              <Route path="/branches" element={<Branches />} />
-              <Route path="/shops" element={<Shops />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/team" element={<Team />} />
+              <Route path="dashboard" element={<Index />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="customers" element={<Customers />} />
+              <Route path="employees" element={<Employees />} />
+              <Route path="services" element={<Services />} />
+              <Route path="invoices" element={<Invoices />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="finance" element={<Finance />} />
+              <Route path="branches" element={<Branches />} />
+              <Route path="shops" element={<Shops />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="team" element={<Team />} />
             </>
           )}
-          <Route path="/employee" element={<EmployeeApp />} />
-          <Route path="/work" element={<Navigate to="/employee" replace />} />
-          <Route path="/app" element={<CustomerApp />} />
+          <Route path="employee" element={<EmployeeApp />} />
+          <Route path="work" element={<Navigate to="/employee" replace />} />
+          <Route path="app" element={<CustomerApp />} />
           {isEmployee && <Route path="*" element={<Navigate to="/employee" replace />} />}
           {isCustomer && <Route path="*" element={<Navigate to="/app" replace />} />}
           <Route path="*" element={<NotFound />} />
