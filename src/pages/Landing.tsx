@@ -6,12 +6,13 @@ import { useAuth } from "@/contexts/AuthContext";
 function StartFreeLink({ children, className }: { children: React.ReactNode; className?: string }) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const target = user ? "/create-shop" : "/signup?redirect=create-shop";
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate(user ? "/create-shop" : "/login?redirect=create-shop");
+    navigate(target);
   };
   return (
-    <a href={user ? "/create-shop" : "/login?redirect=create-shop"} onClick={handleClick} className={className}>
+    <a href={target} onClick={handleClick} className={className}>
       {children}
     </a>
   );
