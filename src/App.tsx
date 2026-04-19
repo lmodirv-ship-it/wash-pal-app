@@ -25,6 +25,8 @@ import Finance from "./pages/Finance";
 import EmployeeApp from "./pages/EmployeeApp";
 import CustomerApp from "./pages/CustomerApp";
 import CreateShop from "./pages/CreateShop";
+import Team from "./pages/Team";
+import AcceptInvite from "./pages/AcceptInvite";
 import NotFound from "./pages/NotFound";
 import { useApp } from "@/contexts/AppContext";
 
@@ -79,6 +81,7 @@ function ProtectedRoutes() {
               <Route path="/branches" element={<Branches />} />
               <Route path="/shops" element={<Shops />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/team" element={<Team />} />
             </>
           )}
           <Route path="/employee" element={<EmployeeApp />} />
@@ -130,6 +133,8 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/post-login" element={<PostLoginRedirect />} />
             <Route path="/create-shop" element={<AuthedCreateShop />} />
+            <Route path="/invite/:token" element={<AcceptInvite />} />
+            <Route path="/team" element={<ProtectedRoutes />} />
             <Route path="/dashboard/*" element={<ProtectedRoutes />} />
             <Route path="/employee" element={<ProtectedRoutes />} />
             <Route path="/app" element={<ProtectedRoutes />} />

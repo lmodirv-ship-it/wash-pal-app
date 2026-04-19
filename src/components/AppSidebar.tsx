@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Sparkles, Wallet,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Sparkles, Wallet, UserPlus,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -54,6 +54,7 @@ export function AppSidebar() {
     { title: t("nav.services"), url: "/services", icon: Droplets },
     { title: t("nav.employees"), url: "/employees", icon: UserCog },
     { title: t("nav.customers"), url: "/customers", icon: Users },
+    { title: "فريق العمل", url: "/team", icon: UserPlus },
   ];
   const businessItems = [
     { title: t("nav.invoices"), url: "/invoices", icon: FileText },
