@@ -5,7 +5,16 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Unauthorized() {
   const navigate = useNavigate();
-  const { signOut, user } = useAuth();
+  const { signOut, user, profile } = useAuth();
+
+  const homeFor = (r?: string) => {
+    if (r === "admin") return "/admin";
+    if (r === "manager" || r === "supervisor") return "/dashboard";
+    if (r === "customer") return "/app";
+    if (r === "employee") return "/employee";
+    return "/post-login";
+  };
+  const homePath = homeFor(profile?.role);
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-6" dir="rtl">
@@ -20,11 +29,14 @@ export default function Unauthorized() {
         <h1 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">
           غير مصرّح بالدخول
         </h1>
-        <p className="text-slate-600 leading-relaxed mb-8">
+        <p className="text-slate-600 leading-relaxed mb-2">
           ليس لديك الصلاحية للوصول إلى هذه الصفحة.
-          <br />
-          تواصل مع المسؤول إذا كنت تعتقد أن هذا خطأ.
         </p>
+        {profile?.role && (
+          <p className="text-sm text-slate-500 mb-8">
+            دورك الحالي: <span className="font-bold text-slate-700">{profile.role}</span>
+          </p>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button
@@ -35,10 +47,10 @@ export default function Unauthorized() {
             <ArrowLeft className="w-4 h-4 rotate-180" />
             رجوع
           </Button>
-          <Link to="/post-login">
+          <Link to={homePath}>
             <Button className="h-12 rounded-xl px-6 bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-95 shadow-lg shadow-blue-500/25 w-full sm:w-auto">
               <Home className="w-4 h-4" />
-              الصفحة الرئيسية
+              صفحتي الرئيسية
             </Button>
           </Link>
         </div>
