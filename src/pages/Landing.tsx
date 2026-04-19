@@ -1,5 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+
+/* ---------- Auth-aware Start Free wrapper ---------- */
+function StartFreeLink({ children, className }: { children: React.ReactNode; className?: string }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(user ? "/create-shop" : "/login?redirect=create-shop");
+  };
+  return (
+    <a href={user ? "/create-shop" : "/login?redirect=create-shop"} onClick={handleClick} className={className}>
+      {children}
+    </a>
+  );
+}
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
