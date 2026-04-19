@@ -17,12 +17,19 @@ type SortKey = "date" | "empName" | "price" | "status";
 type SortDir = "asc" | "desc";
 
 export default function Entries() {
-  const { orders, employees, services } = useApp();
+  const { orders, employees, services, branches } = useApp();
   const [search, setSearch] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [empFilter, setEmpFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [branchFilter, setBranchFilter] = useState<string>("all");
+
+  const branchById = useMemo(() => {
+    const m = new Map<string, string>();
+    branches.forEach((b) => m.set(b.id, b.name));
+    return m;
+  }, [branches]);
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
