@@ -175,7 +175,7 @@ export default function Services() {
         <TabsContent value={tab} className="mt-4">
           {filtered.length === 0 ? (
             <div className="lavage-card p-10 text-center text-muted-foreground">{t("services.noServices")}</div>
-          ) : tab === "all" ? (
+          ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map(s => {
                 const isVip = s.category === "vip";
