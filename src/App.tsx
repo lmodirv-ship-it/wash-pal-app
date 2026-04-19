@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -79,47 +79,49 @@ function ProtectedRoutes() {
     return '/employee';
   };
 
+  // Map absolute pathname → component (works regardless of which parent /xxx/* matched)
+  const PageRouter = () => {
+    const location = useLocation();
+    const path = location.pathname.replace(/\/+$/, "") || "/";
+
+    // Admin pages
+    if (path === "/admin") return <AdminDashboard />;
+    if (path === "/admin/subscriptions") return <AdminSubscriptions />;
+
+    // Shop manager pages
+    if (isSuperAdmin || isShopManager) {
+      if (path === "/dashboard") return <Index />;
+      if (path === "/orders") return <Orders />;
+      if (path === "/customers") return <Customers />;
+      if (path === "/employees") return <Employees />;
+      if (path === "/services") return <Services />;
+      if (path === "/invoices") return <Invoices />;
+      if (path === "/reports") return <Reports />;
+      if (path === "/finance") return <Finance />;
+      if (path === "/branches") return <Branches />;
+      if (path === "/shops") return <Shops />;
+      if (path === "/settings") return <SettingsPage />;
+      if (path === "/team") return <Team />;
+    }
+
+    if (path === "/employee") return <EmployeeApp />;
+    if (path === "/work") return <Navigate to="/employee" replace />;
+    if (path === "/app") return <CustomerApp />;
+    if (path === "/" || path === "") return <Navigate to={homeFor(role)} replace />;
+
+    if (isEmployee) return <Navigate to="/employee" replace />;
+    if (isCustomer) return <Navigate to="/app" replace />;
+    return <NotFound />;
+  };
+
   return (
     <AppProvider>
       <ShopGate role={role}>
-      <Layout>
-        <Routes>
-          {/* Index for nested parent — render the role's home page directly to avoid redirect loops */}
-          <Route index element={
-            role === 'admin' ? <AdminDashboard /> :
-            (role === 'manager' || role === 'supervisor') ? <Index /> :
-            role === 'customer' ? <CustomerApp /> : <EmployeeApp />
-          } />
-
-          {/* Admin pages — relative paths so they work under any parent */}
-          <Route path="admin" element={<AdminDashboard />} />
-          <Route path="admin/subscriptions" element={<AdminSubscriptions />} />
-          <Route path="subscriptions" element={<AdminSubscriptions />} />
-
-          {(isSuperAdmin || isShopManager) && (
-            <>
-              <Route path="dashboard" element={<Index />} />
-              <Route path="orders" element={<Orders />} />
-              <Route path="customers" element={<Customers />} />
-              <Route path="employees" element={<Employees />} />
-              <Route path="services" element={<Services />} />
-              <Route path="invoices" element={<Invoices />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="finance" element={<Finance />} />
-              <Route path="branches" element={<Branches />} />
-              <Route path="shops" element={<Shops />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route path="team" element={<Team />} />
-            </>
-          )}
-          <Route path="employee" element={<EmployeeApp />} />
-          <Route path="work" element={<Navigate to="/employee" replace />} />
-          <Route path="app" element={<CustomerApp />} />
-          {isEmployee && <Route path="*" element={<Navigate to="/employee" replace />} />}
-          {isCustomer && <Route path="*" element={<Navigate to="/app" replace />} />}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Layout>
+        <Layout>
+          <Routes>
+            <Route path="*" element={<PageRouter />} />
+          </Routes>
+        </Layout>
       </ShopGate>
     </AppProvider>
   );
