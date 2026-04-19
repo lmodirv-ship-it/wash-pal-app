@@ -117,7 +117,9 @@ export default function Services() {
             <DialogContent>
               <DialogHeader><DialogTitle>{editing ? t("services.editService") : t("services.addNew")}</DialogTitle></DialogHeader>
               <div className="space-y-3">
-                <Input placeholder={t("services.serviceName")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input placeholder={t("services.nameAr")} value={form.nameAr} onChange={(e) => setForm({ ...form, nameAr: e.target.value })} dir="rtl" />
+                <Input placeholder={t("services.nameFr")} value={form.nameFr} onChange={(e) => setForm({ ...form, nameFr: e.target.value })} dir="ltr" />
+                <Input placeholder={t("services.nameEn")} value={form.nameEn} onChange={(e) => setForm({ ...form, nameEn: e.target.value })} dir="ltr" />
                 <div className="grid grid-cols-2 gap-3">
                   <Input type="number" placeholder={t("services.priceMad")} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
                   <Input type="number" placeholder={t("services.durationMin")} value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
@@ -136,7 +138,9 @@ export default function Services() {
                   <span className="text-sm">{t("services.startingFromLabel")}</span>
                   <Switch checked={form.startingFrom} onCheckedChange={(v) => setForm({ ...form, startingFrom: v })} />
                 </label>
-                <Textarea placeholder={t("services.descOptional")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <Textarea placeholder={t("services.descAr")} value={form.descriptionAr} onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })} dir="rtl" />
+                <Textarea placeholder={t("services.descFr")} value={form.descriptionFr} onChange={(e) => setForm({ ...form, descriptionFr: e.target.value })} dir="ltr" />
+                <Textarea placeholder={t("services.descEn")} value={form.descriptionEn} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} dir="ltr" />
                 <Button className="w-full rounded-xl lavage-btn" onClick={handleSubmit}>
                   {editing ? t("common.saveChanges") : t("common.add")}
                 </Button>
