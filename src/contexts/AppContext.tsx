@@ -174,6 +174,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (o.completedAt !== undefined) u.completed_at = o.completedAt;
     if (o.employeeId !== undefined) u.employee_id = o.employeeId;
     if (o.employeeName !== undefined) u.employee_name = o.employeeName;
+    if (o.totalPrice !== undefined) u.total_price = o.totalPrice;
+    if (o.carType !== undefined) u.car_type = o.carType;
+    if (o.notes !== undefined) u.notes = o.notes;
     await supabase.from('orders').update(u).eq('id', id);
     await refreshAll();
   };
