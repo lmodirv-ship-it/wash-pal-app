@@ -4,13 +4,14 @@
 export const PAYMENT_WHATSAPP = "212668546358"; // intl format, no '+'
 export const PAYMENT_WHATSAPP_DISPLAY = "0668546358";
 
-export type PlanId = "starter" | "pro" | "business";
+export type PlanId = "starter" | "pro" | "business" | "enterprise";
 export type Cycle = "monthly" | "yearly";
 
 const PLAN_LABELS: Record<PlanId, string> = {
-  starter: "Starter (مجاني)",
-  pro: "Pro",
-  business: "Business",
+  starter: "Starter (بداية)",
+  pro: "Pro (احترافي)",
+  business: "Business (متقدم)",
+  enterprise: "Enterprise (شركات)",
 };
 
 export function buildUpgradeMessage(opts: {
