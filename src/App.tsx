@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -23,7 +24,9 @@ import SettingsPage from "./pages/Settings";
 import Finance from "./pages/Finance";
 import EmployeeApp from "./pages/EmployeeApp";
 import CustomerApp from "./pages/CustomerApp";
+import CreateShop from "./pages/CreateShop";
 import NotFound from "./pages/NotFound";
+import { useApp } from "@/contexts/AppContext";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +39,15 @@ function LoadingScreen() {
       </div>
     </div>
   );
+}
+
+function ShopGate({ children, role }: { children: ReactNode; role: string }) {
+  const { tenantShops, loading } = useApp();
+  if (loading) return <LoadingScreen />;
+  // Customers/employees don't need to own a shop
+  const needsShop = role === 'admin' || role === 'manager' || role === 'supervisor';
+  if (needsShop && tenantShops.length === 0) return <Navigate to="/create-shop" replace />;
+  return <>{children}</>;
 }
 
 function ProtectedRoutes() {
@@ -51,6 +63,7 @@ function ProtectedRoutes() {
 
   return (
     <AppProvider>
+      <ShopGate role={role}>
       <Layout>
         <Routes>
           <Route path="/" element={isAdmin ? <Index /> : <Navigate to={isEmployee ? "/employee" : "/app"} replace />} />
@@ -76,6 +89,7 @@ function ProtectedRoutes() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
+      </ShopGate>
     </AppProvider>
   );
 }
@@ -91,6 +105,17 @@ function PostLoginRedirect() {
   return <Navigate to="/app" replace />;
 }
 
+function AuthedCreateShop() {
+  const { user, profile, loading } = useAuth();
+  if (loading || (user && !profile)) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  return (
+    <AppProvider>
+      <CreateShop />
+    </AppProvider>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -104,6 +129,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/post-login" element={<PostLoginRedirect />} />
+            <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/dashboard/*" element={<ProtectedRoutes />} />
             <Route path="/employee" element={<ProtectedRoutes />} />
             <Route path="/app" element={<ProtectedRoutes />} />
