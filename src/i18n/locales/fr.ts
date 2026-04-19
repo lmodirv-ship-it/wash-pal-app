@@ -188,7 +188,7 @@ const fr = {
     time: "Heure", car: "Voiture", service: "Service",
   },
   notFound: { title: "Page introuvable", returnHome: "Retour à l'accueil" },
-  language: { ar: "العربية", fr: "Français", switchTo: "Changer la langue" },
+  language: { ar: "العربية", fr: "Français", en: "English", switchTo: "Changer la langue" },
   camera: {
     permissionDenied: "Accès à la caméra refusé. Veuillez autoriser l'accès.",
     cantOpen: "Impossible d'ouvrir la caméra.",
