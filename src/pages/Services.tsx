@@ -12,15 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2, Edit, Search, Crown, Sparkles, Package, Droplets, Bike } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-
-const CATEGORIES: { id: ServiceCategory | "all"; label: string; icon: any; cls: string }[] = [
-  { id: "all", label: "الكل", icon: Droplets, cls: "" },
-  { id: "standard", label: "Standard", icon: Droplets, cls: "text-primary" },
-  { id: "vip", label: "VIP", icon: Crown, cls: "text-warning" },
-  { id: "extra", label: "Extra", icon: Sparkles, cls: "text-accent-foreground" },
-  { id: "packs", label: "Packs", icon: Package, cls: "text-success" },
-  { id: "motor", label: "Moto", icon: Bike, cls: "text-success" },
-];
+import { useTranslation } from "react-i18next";
 
 const catBadge: Record<ServiceCategory, string> = {
   standard: "bg-primary/10 text-primary border-primary/20",
@@ -33,6 +25,7 @@ const catBadge: Record<ServiceCategory, string> = {
 export default function Services() {
   const { services, addService, updateService, deleteService } = useApp();
   const { isAdmin } = useAuth();
+  const { t } = useTranslation();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [form, setForm] = useState({
@@ -42,22 +35,27 @@ export default function Services() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<string>("all");
 
+  const CATEGORIES: { id: ServiceCategory | "all"; label: string; icon: any; cls: string }[] = [
+    { id: "all", label: t("services.cats.all"), icon: Droplets, cls: "" },
+    { id: "standard", label: t("services.cats.standard"), icon: Droplets, cls: "text-primary" },
+    { id: "vip", label: t("services.cats.vip"), icon: Crown, cls: "text-warning" },
+    { id: "extra", label: t("services.cats.extra"), icon: Sparkles, cls: "text-accent-foreground" },
+    { id: "packs", label: t("services.cats.packs"), icon: Package, cls: "text-success" },
+    { id: "motor", label: t("services.cats.motor"), icon: Bike, cls: "text-success" },
+  ];
+
   const handleSubmit = async () => {
-    if (!form.name || !form.price) { toast.error("الاسم والسعر مطلوبان"); return; }
+    if (!form.name || !form.price) { toast.error(t("services.nameAndPriceRequired")); return; }
     const payload = {
-      name: form.name,
-      price: Number(form.price),
-      duration: Number(form.duration) || 0,
-      description: form.description,
-      category: form.category,
-      startingFrom: form.startingFrom,
+      name: form.name, price: Number(form.price), duration: Number(form.duration) || 0,
+      description: form.description, category: form.category, startingFrom: form.startingFrom,
     };
     if (editing) {
       await updateService(editing.id, payload);
-      toast.success("تم تعديل الخدمة");
+      toast.success(t("services.serviceUpdated"));
     } else {
       await addService({ ...payload, isActive: true });
-      toast.success("تم إضافة الخدمة");
+      toast.success(t("services.serviceAdded"));
     }
     resetForm();
   };
@@ -76,7 +74,7 @@ export default function Services() {
 
   const toggleActive = async (s: Service) => {
     await updateService(s.id, { isActive: !s.isActive });
-    toast.success(s.isActive ? "تم تعطيل الخدمة" : "تم تفعيل الخدمة");
+    toast.success(s.isActive ? t("services.serviceDisabled") : t("services.serviceEnabled"));
   };
 
   const filtered = useMemo(() => services
@@ -97,39 +95,39 @@ export default function Services() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold">إدارة الخدمات</h1>
-          <p className="text-sm text-muted-foreground">قائمة الخدمات مصنّفة حسب الفئة</p>
+          <h1 className="text-2xl font-bold">{t("services.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("services.subtitle")}</p>
         </div>
         {isAdmin && (
           <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
             <DialogTrigger asChild>
-              <Button className="rounded-xl lavage-btn"><Plus className="w-4 h-4 ml-1" />خدمة جديدة</Button>
+              <Button className="rounded-xl lavage-btn"><Plus className="w-4 h-4 mx-1" />{t("services.newService")}</Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>{editing ? "تعديل الخدمة" : "إضافة خدمة جديدة"}</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{editing ? t("services.editService") : t("services.addNew")}</DialogTitle></DialogHeader>
               <div className="space-y-3">
-                <Input placeholder="اسم الخدمة" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input placeholder={t("services.serviceName")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 <div className="grid grid-cols-2 gap-3">
-                  <Input type="number" placeholder="السعر (DH)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
-                  <Input type="number" placeholder="المدة (دقيقة)" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
+                  <Input type="number" placeholder={t("services.priceMad")} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+                  <Input type="number" placeholder={t("services.durationMin")} value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
                 </div>
                 <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as ServiceCategory })}>
-                  <SelectTrigger><SelectValue placeholder="الفئة" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t("services.category")} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="standard">Standard - عادية</SelectItem>
-                    <SelectItem value="vip">VIP - مميزة</SelectItem>
-                    <SelectItem value="extra">Extra - إضافية</SelectItem>
-                    <SelectItem value="packs">Packs - باكات</SelectItem>
-                    <SelectItem value="motor">Moto - دراجات نارية</SelectItem>
+                    <SelectItem value="standard">{t("services.catSelect.standard")}</SelectItem>
+                    <SelectItem value="vip">{t("services.catSelect.vip")}</SelectItem>
+                    <SelectItem value="extra">{t("services.catSelect.extra")}</SelectItem>
+                    <SelectItem value="packs">{t("services.catSelect.packs")}</SelectItem>
+                    <SelectItem value="motor">{t("services.catSelect.motor")}</SelectItem>
                   </SelectContent>
                 </Select>
                 <label className="flex items-center justify-between p-3 rounded-lg bg-secondary/40">
-                  <span className="text-sm">سعر "ابتداءً من" (Dès)</span>
+                  <span className="text-sm">{t("services.startingFromLabel")}</span>
                   <Switch checked={form.startingFrom} onCheckedChange={(v) => setForm({ ...form, startingFrom: v })} />
                 </label>
-                <Textarea placeholder="الوصف (اختياري)" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <Textarea placeholder={t("services.descOptional")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
                 <Button className="w-full rounded-xl lavage-btn" onClick={handleSubmit}>
-                  {editing ? "حفظ التعديلات" : "إضافة"}
+                  {editing ? t("common.saveChanges") : t("common.add")}
                 </Button>
               </div>
             </DialogContent>
@@ -138,8 +136,8 @@ export default function Services() {
       </div>
 
       <div className="relative">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input className="pr-9" placeholder="بحث عن خدمة..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input className="pe-9" placeholder={t("services.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
@@ -161,31 +159,20 @@ export default function Services() {
 
         <TabsContent value={tab} className="mt-4">
           {filtered.length === 0 ? (
-            <div className="lavage-card p-10 text-center text-muted-foreground">لا توجد خدمات في هذه الفئة</div>
+            <div className="lavage-card p-10 text-center text-muted-foreground">{t("services.noServices")}</div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map(s => {
                 const isVip = s.category === "vip";
                 const isPack = s.category === "packs";
                 return (
-                  <div
-                    key={s.id}
-                    className={`lavage-card p-4 transition-all relative overflow-hidden ${
+                  <div key={s.id} className={`lavage-card p-4 transition-all relative overflow-hidden ${
                       isVip ? "ring-1 ring-warning/40 bg-gradient-to-br from-warning/5 to-transparent" : ""
                     } ${isPack ? "ring-1 ring-success/40 bg-gradient-to-br from-success/5 to-transparent" : ""} ${
                       !s.isActive ? "opacity-50" : ""
-                    }`}
-                  >
-                    {isVip && (
-                      <div className="absolute top-2 left-2">
-                        <Crown className="w-4 h-4 text-warning" />
-                      </div>
-                    )}
-                    {isPack && (
-                      <div className="absolute top-2 left-2">
-                        <Package className="w-4 h-4 text-success" />
-                      </div>
-                    )}
+                    }`}>
+                    {isVip && <div className="absolute top-2 start-2"><Crown className="w-4 h-4 text-warning" /></div>}
+                    {isPack && <div className="absolute top-2 start-2"><Package className="w-4 h-4 text-success" /></div>}
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex-1 min-w-0">
                         <div className="text-[10px] font-mono text-primary mb-1">{s.reference || "—"}</div>
@@ -197,29 +184,29 @@ export default function Services() {
                     </div>
                     <div className="flex items-end justify-between mt-3">
                       <div>
-                        {s.startingFrom && <span className="text-[10px] text-muted-foreground block">ابتداءً من</span>}
+                        {s.startingFrom && <span className="text-[10px] text-muted-foreground block">{t("services.startingFrom")}</span>}
                         <span className="font-bold text-primary text-2xl">{s.price}</span>
-                        <span className="text-xs text-muted-foreground mr-1">DH</span>
+                        <span className="text-xs text-muted-foreground mx-1">{t("common.currency")}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {isAdmin ? (
                           <Switch checked={s.isActive} onCheckedChange={() => toggleActive(s)} />
                         ) : (
                           <Badge className={s.isActive ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}>
-                            {s.isActive ? "مفعّلة" : "معطّلة"}
+                            {s.isActive ? t("services.enabled") : t("services.disabled")}
                           </Badge>
                         )}
                       </div>
                     </div>
                     {s.duration > 0 && (
-                      <div className="text-xs text-muted-foreground mt-2">⏱ {s.duration} دقيقة</div>
+                      <div className="text-xs text-muted-foreground mt-2">⏱ {s.duration} {t("common.minutes")}</div>
                     )}
                     {isAdmin && (
                       <div className="flex gap-1 mt-3 pt-3 border-t border-border">
                         <Button variant="ghost" size="sm" onClick={() => startEdit(s)} className="flex-1">
-                          <Edit className="w-3.5 h-3.5 ml-1" />تعديل
+                          <Edit className="w-3.5 h-3.5 mx-1" />{t("common.edit")}
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={async () => { await deleteService(s.id); toast.success("تم الحذف"); }}>
+                        <Button variant="ghost" size="sm" onClick={async () => { await deleteService(s.id); toast.success(t("services.serviceDeleted")); }}>
                           <Trash2 className="w-3.5 h-3.5 text-destructive" />
                         </Button>
                       </div>
