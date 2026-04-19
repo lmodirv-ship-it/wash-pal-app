@@ -84,8 +84,12 @@ function ProtectedRoutes() {
       <ShopGate role={role}>
       <Layout>
         <Routes>
-          {/* Index for nested parent (/admin/*, /dashboard/*, ...) */}
-          <Route index element={<RoleHome role={role} />} />
+          {/* Index for nested parent — render the role's home page directly to avoid redirect loops */}
+          <Route index element={
+            role === 'admin' ? <AdminDashboard /> :
+            (role === 'manager' || role === 'supervisor') ? <Index /> :
+            role === 'customer' ? <CustomerApp /> : <EmployeeApp />
+          } />
 
           {/* Admin pages — relative paths so they work under any parent */}
           <Route path="admin" element={<AdminDashboard />} />
