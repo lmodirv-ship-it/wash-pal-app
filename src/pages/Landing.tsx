@@ -1,5 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+
+/* ---------- Auth-aware Start Free wrapper ---------- */
+function StartFreeLink({ children, className }: { children: React.ReactNode; className?: string }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(user ? "/create-shop" : "/login?redirect=create-shop");
+  };
+  return (
+    <a href={user ? "/create-shop" : "/login?redirect=create-shop"} onClick={handleClick} className={className}>
+      {children}
+    </a>
+  );
+}
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
@@ -67,11 +83,11 @@ export default function Landing() {
                 تسجيل الدخول
               </Button>
             </Link>
-            <Link to="/start">
+            <StartFreeLink>
               <Button size="sm" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-95 shadow-md shadow-blue-500/25 rounded-xl">
                 ابدأ مجاناً
               </Button>
-            </Link>
+            </StartFreeLink>
           </div>
         </div>
       </nav>
@@ -102,12 +118,12 @@ export default function Landing() {
               تابع الإيرادات، أدر فريقك، ونمِّ أعمالك بسلاسة مع CarwashPro — منصة واحدة لكل ما تحتاجه.
             </motion.p>
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-3">
-              <Link to="/start">
+              <StartFreeLink>
                 <Button size="lg" className="h-13 px-7 text-base font-semibold rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-95 shadow-lg shadow-blue-500/30 group">
                   ابدأ مجاناً
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"} transition-transform`} />
                 </Button>
-              </Link>
+              </StartFreeLink>
               <Link to="/login">
                 <Button size="lg" variant="outline" className="h-13 px-7 text-base font-semibold rounded-2xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50">
                   <Play className="w-4 h-4" />
@@ -375,7 +391,7 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/start" className="block">
+                <StartFreeLink className="block">
                   <Button className={`w-full h-12 font-bold rounded-xl ${
                     p.highlight
                       ? "bg-white text-blue-600 hover:bg-white/90"
@@ -383,7 +399,7 @@ export default function Landing() {
                   }`}>
                     اختر {p.name}
                   </Button>
-                </Link>
+                </StartFreeLink>
               </motion.div>
             ))}
           </div>
@@ -446,12 +462,12 @@ export default function Landing() {
             <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">جاهز لتغيير طريقة إدارتك؟</h2>
             <p className="text-white/80 mb-8 max-w-xl mx-auto">انضم لمئات أصحاب المغاسل الذين يثقون في CarwashPro. ابدأ مجاناً اليوم.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/start">
+              <StartFreeLink>
                 <Button size="lg" className="h-13 px-8 text-base font-bold rounded-2xl bg-white text-blue-600 hover:bg-white/90 shadow-xl">
                   ابدأ مجاناً الآن
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
                 </Button>
-              </Link>
+              </StartFreeLink>
               <Link to="/login">
                 <Button size="lg" variant="outline" className="h-13 px-8 text-base font-bold rounded-2xl border-white/20 bg-white/5 text-white hover:bg-white/10 backdrop-blur">
                   تحدث مع المبيعات
