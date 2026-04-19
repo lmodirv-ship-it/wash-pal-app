@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { Shop } from "@/types";
+import { B2BPartner } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +24,7 @@ export default function Shops() {
   const locale = i18n.language === "ar" ? "ar-MA" : "fr-FR";
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Shop | null>(null);
+  const [editing, setEditing] = useState<B2BPartner | null>(null);
   const [form, setForm] = useState({
     name: "", ownerName: "", address: "", city: "", phone: "", email: "",
     packageName: "basic", totalPoints: 100, usedPoints: 0, expiryDays: 30, notes: "",

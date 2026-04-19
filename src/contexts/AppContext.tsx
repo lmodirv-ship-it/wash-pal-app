@@ -239,17 +239,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await refreshAll();
   };
 
-  // Shop CRUD
-  const addShop = async (s: Omit<Shop, 'id' | 'createdAt' | 'reference' | 'remainingPoints'>) => {
-    await supabase.from('shops').insert({
+  // B2B Partner CRUD (formerly "shops" — subscription/B2B logic)
+  const addShop = async (s: Omit<B2BPartner, 'id' | 'createdAt' | 'reference' | 'remainingPoints'>) => {
+    await supabase.from('b2b_partners').insert({
       name: s.name, owner_name: s.ownerName, address: s.address, city: s.city,
       phone: s.phone, email: s.email || null, package_name: s.packageName,
       total_points: s.totalPoints, used_points: s.usedPoints,
       expiry_date: s.expiryDate, is_active: s.isActive, notes: s.notes || null,
+      shop_id: s.shopId || null,
     });
     await refreshAll();
   };
-  const updateShop = async (id: string, s: Partial<Shop>) => {
+  const updateShop = async (id: string, s: Partial<B2BPartner>) => {
     const u: any = {};
     if (s.name !== undefined) u.name = s.name;
     if (s.ownerName !== undefined) u.owner_name = s.ownerName;
@@ -263,15 +264,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (s.expiryDate !== undefined) u.expiry_date = s.expiryDate;
     if (s.isActive !== undefined) u.is_active = s.isActive;
     if (s.notes !== undefined) u.notes = s.notes;
-    await supabase.from('shops').update(u).eq('id', id);
+    if (s.shopId !== undefined) u.shop_id = s.shopId;
+    await supabase.from('b2b_partners').update(u).eq('id', id);
     await refreshAll();
   };
-  const deleteShop = async (id: string) => { await supabase.from('shops').delete().eq('id', id); await refreshAll(); };
+  const deleteShop = async (id: string) => { await supabase.from('b2b_partners').delete().eq('id', id); await refreshAll(); };
+
+  // Tenant Shop creation (multi-tenant SaaS)
+  const createTenantShop = async (name: string): Promise<Shop | null> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data, error } = await supabase
+      .from('shops')
+      .insert({ name, owner_id: user.id, created_by: user.id })
+      .select()
+      .single();
+    if (error || !data) return null;
+    await refreshAll();
+    return mapTenantShop(data);
+  };
 
   return (
     <AppContext.Provider value={{
       branches, currentBranch, setCurrentBranch,
-      customers, employees, orders, services, invoices, shops,
+      customers, employees, orders, services, invoices, shops, tenantShops, createTenantShop,
       addBranch, updateBranch, deleteBranch,
       addCustomer, updateCustomer, deleteCustomer,
       addEmployee, updateEmployee, deleteEmployee,
