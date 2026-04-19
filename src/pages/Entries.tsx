@@ -364,7 +364,7 @@ export default function Entries() {
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center text-muted-foreground py-10">
+                <TableCell colSpan={11} className="text-center text-muted-foreground py-10">
                   لا توجد مداخل لعرضها
                 </TableCell>
               </TableRow>
