@@ -237,7 +237,7 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
                                 : "border-border hover:border-primary/40"
                             }`}
                           >
-                            <p className="text-xs font-bold line-clamp-1">{s.name}</p>
+                            <p className="text-xs font-bold line-clamp-1">{getServiceName(s, i18n.language)}</p>
                             <p className="text-[11px] opacity-70">{s.price} DH</p>
                           </button>
                         ))}

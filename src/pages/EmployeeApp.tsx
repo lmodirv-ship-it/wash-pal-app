@@ -154,7 +154,7 @@ export default function EmployeeApp() {
                         <Check className="w-3 h-3" />
                       </div>
                     ) : <Bike className="w-3.5 h-3.5 text-success absolute top-1.5 start-1.5" />}
-                    <p className="font-bold text-sm line-clamp-2 leading-tight">{s.name}</p>
+                    <p className="font-bold text-sm line-clamp-2 leading-tight">{getServiceName(s, i18n.language)}</p>
                     <div className="mt-1.5">
                       <p className={`text-lg font-bold ${selected ? "text-success" : "text-foreground"}`}>
                         {s.price} <span className="text-[10px] text-muted-foreground">DH</span>
@@ -204,7 +204,7 @@ export default function EmployeeApp() {
                         )}
                         {isVip && !selected && <Crown className="w-3.5 h-3.5 text-warning absolute top-1.5 start-1.5" />}
                         {isPack && !selected && <Package className="w-3.5 h-3.5 text-success absolute top-1.5 start-1.5" />}
-                        <p className="font-bold text-sm line-clamp-2 leading-tight">{s.name}</p>
+                        <p className="font-bold text-sm line-clamp-2 leading-tight">{getServiceName(s, i18n.language)}</p>
                         <div className="mt-1.5">
                           {s.startingFrom && <span className="text-[9px] text-muted-foreground block leading-none">{t("services.startingFrom")}</span>}
                           <p className={`text-lg font-bold ${selected ? "text-primary" : "text-foreground"}`}>
@@ -232,7 +232,7 @@ export default function EmployeeApp() {
           <div className="flex items-center justify-between">
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">{t("employeeApp.selectedService")}</p>
-              <p className="font-bold text-sm truncate">{picked.name}</p>
+              <p className="font-bold text-sm truncate">{getServiceName(picked, i18n.language)}</p>
             </div>
             <Badge className="bg-primary text-primary-foreground text-base font-bold shrink-0">
               {picked.startingFrom && "≥ "}{finalPrice} DH
