@@ -399,6 +399,12 @@ export default function CreateShop() {
                         </label>
                       );
                     })}
+                    {form.plan !== "starter" && (
+                      <div className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 leading-relaxed">
+                        💬 سيتم إنشاء محلك بـ <strong>15 يوم تجربة مجانية</strong>. لتفعيل باقة <strong>{form.plan === "pro" ? "Pro" : "Business"}</strong> بشكل دائم، تواصل معنا عبر WhatsApp:{" "}
+                        <span dir="ltr" className="font-bold">0668546358</span>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, X, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
+import { Check, X, Sparkles, Zap, Crown, ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { openWhatsAppUpgrade, PAYMENT_WHATSAPP_DISPLAY } from "@/lib/whatsapp";
 
 type Cycle = "monthly" | "yearly";
 type PlanId = "starter" | "pro" | "business";
@@ -124,7 +125,12 @@ export default function Pricing() {
     try {
       localStorage.setItem("selectedPlan", JSON.stringify({ plan: planId, cycle }));
     } catch {}
-    navigate(`/login?redirect=create-shop`);
+    // Free plan → onboarding directly. Paid → WhatsApp the platform owner.
+    if (planId === "starter") {
+      navigate(`/login?redirect=create-shop`);
+    } else {
+      openWhatsAppUpgrade({ plan: planId, cycle });
+    }
   };
 
   const yearlySavingsPct = (p: Plan) => {
@@ -245,15 +251,31 @@ export default function Pricing() {
                   onClick={() => handleSelect(plan.id)}
                   size="lg"
                   className={cn(
-                    "w-full rounded-xl font-semibold mb-6 group",
-                    plan.highlight
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
-                      : "bg-foreground text-background hover:bg-foreground/90"
+                    "w-full rounded-xl font-semibold mb-3 group",
+                    plan.id !== "starter"
+                      ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg"
+                      : plan.highlight
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                        : "bg-foreground text-background hover:bg-foreground/90"
                   )}
                 >
-                  {plan.cta}
-                  <ArrowRight className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform rtl:rotate-180" />
+                  {plan.id !== "starter" ? (
+                    <>
+                      <MessageCircle className="w-4 h-4 ml-2" />
+                      اشترك عبر WhatsApp
+                    </>
+                  ) : (
+                    <>
+                      {plan.cta}
+                      <ArrowRight className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform rtl:rotate-180" />
+                    </>
+                  )}
                 </Button>
+                {plan.id !== "starter" && (
+                  <p className="text-[11px] text-muted-foreground text-center mb-4">
+                    📞 الدفع عبر WhatsApp: <span dir="ltr" className="font-semibold">{PAYMENT_WHATSAPP_DISPLAY}</span>
+                  </p>
+                )}
 
                 <ul className="space-y-3">
                   {plan.features.map((f, i) => (
