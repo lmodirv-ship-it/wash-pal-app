@@ -844,6 +844,24 @@ export type Database = {
         }
         Relationships: []
       }
+      visitor_stats: {
+        Row: {
+          id: number
+          total_visits: number
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          total_visits?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          total_visits?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -857,6 +875,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_visitor: { Args: never; Returns: number }
       is_shop_manager: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_member: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_readonly: { Args: { _shop_id: string }; Returns: boolean }
