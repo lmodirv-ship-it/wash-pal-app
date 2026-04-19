@@ -19,10 +19,15 @@ const PLANS = [
 
 export default function CreateShop() {
   const { user, loading: authLoading } = useAuth();
-  const { setCurrentShopId, refreshAll } = useApp();
+  const { setCurrentShopId, refreshAll, tenantShops, loading: appLoading } = useApp();
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
+
+  // Edge case: already has shops → straight to dashboard
+  if (!authLoading && !appLoading && user && tenantShops.length > 0) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const [form, setForm] = useState({
     shop_name: "",
