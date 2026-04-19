@@ -1,39 +1,58 @@
 
-## إنشاء نسخة ZIP كاملة (بدون استثناءات)
+## إنشاء ZIP شامل لكل المنصة + قاعدة البيانات
 
-سأجمع **كل شيء** في ملف ZIP واحد كما طلبت، دون استبعاد أي ملف.
+سأجمع **كل شيء** بدون استثناء في ملف ZIP واحد، بما في ذلك نسخة كاملة من قاعدة البيانات.
 
-### ما سيتم تضمينه (كل شيء)
+### 📦 محتويات الـ ZIP
 
-| المجلد/الملف | الحجم التقريبي |
-|--------------|----------------|
-| `src/` (الكود المصدري) | ~2 MB |
-| `public/` (الأصول العامة) | ~0.5 MB |
-| `supabase/` (migrations + functions + config) | ~0.5 MB |
-| `.lovable/` (الذاكرة والخطط) | < 0.1 MB |
-| `node_modules/` (كل المكتبات) | ~380 MB |
-| `.env` (متغيرات البيئة) | < 1 KB |
-| `.git/` (سجل Git إن وُجد) | متغير |
-| `dist/` / `build/` (إن وُجدت) | متغير |
-| كل ملفات الإعداد (`package.json`, `vite.config.ts`, `tailwind.config.ts`, `tsconfig*.json`, `index.html`, `components.json`, `postcss.config.js`, `eslint.config.js`, `vitest.config.ts`, `playwright.config.ts`, `playwright-fixture.ts`, `README.md`, `.gitignore`) | ~1 MB |
-| ملفات القفل (`bun.lock`, `bun.lockb`, `package-lock.json`) | ~2 MB |
+| المحتوى | الوصف | الحجم التقريبي |
+|---------|-------|----------------|
+| `src/` | كل الكود المصدري (110 ملفات، 28 صفحة، مكونات، contexts, hooks, types, i18n) | ~2 MB |
+| `public/` | الأصول العامة (الشعار، robots.txt، placeholder) | ~0.5 MB |
+| `src/assets/` | الفيديو الترويجي + الصور | ~11 MB |
+| `supabase/` | كل الـ migrations + edge functions + config.toml | ~0.5 MB |
+| `.lovable/` | ملفات الذاكرة والخطط | < 0.1 MB |
+| `node_modules/` | كل المكتبات المثبتة | ~380 MB |
+| `.env` | متغيرات البيئة (Supabase URL + Key) | < 1 KB |
+| `.git/` | سجل Git (إن وُجد) | متغير |
+| ملفات الإعداد الجذرية | `package.json`, `vite.config.ts`, `tailwind.config.ts`, `tsconfig*.json`, `index.html`, `components.json`, `postcss.config.js`, `eslint.config.js`, `vitest.config.ts`, `playwright.config.ts`, `playwright-fixture.ts`, `README.md`, `.gitignore` | ~1 MB |
+| ملفات القفل | `bun.lock`, `bun.lockb`, `package-lock.json` | ~2 MB |
 
-### الحجم المتوقع للـ ZIP
+### 🗄️ نسخة قاعدة البيانات (الجزء الجديد المهم)
 
-- **قبل الضغط**: ~395 MB
-- **بعد الضغط ZIP**: ~120-150 MB (لأن `node_modules` يُضغط جيداً)
+سأُصدِّر **محتوى قاعدة البيانات الفعلي** من Supabase وأُضيفه داخل مجلد `database-backup/` في الـ ZIP:
 
-### ⚠️ تنبيه أمني مهم
+| الملف | المحتوى |
+|-------|---------|
+| `database-backup/schema.sql` | بنية كل الجداول الـ 19 + الفهارس |
+| `database-backup/rls-policies.sql` | كل سياسات RLS |
+| `database-backup/functions.sql` | كل الدوال (has_role, handle_new_user, accept_invite, ...) |
+| `database-backup/data/*.json` | بيانات كل جدول (services, customers, orders, employees, branches, invoices, b2b_partners, shops, shop_members, profiles, user_roles, subscriptions, pricing_plans, expenses, invites, notifications, notification_settings, login_attempts, imou_devices, visitor_stats) |
+| `database-backup/README.md` | تعليمات الاستعادة |
 
-ملف `.env` يحتوي على مفاتيح حساسة (Supabase URL + Publishable Key). بما أنك طلبت تضمين كل شيء، سأضمّنه — **لكن لا تشارك ملف الـ ZIP علنياً** (لا ترفعه على GitHub عام أو منتديات).
+### 📊 الجداول التي ستُصدَّر (19 جدول)
 
-### الخطوات التنفيذية
+`b2b_partners`, `branches`, `customers`, `employees`, `expenses`, `imou_devices`, `invites`, `invoices`, `login_attempts`, `notification_settings`, `notifications`, `orders`, `pricing_plans`, `profiles`, `services`, `shop_members`, `shops`, `subscriptions`, `user_roles`, `visitor_stats`
 
-1. التحقق من وجود `node_modules/`، `.git/`، `dist/` في بيئة العمل
-2. إنشاء أرشيف ZIP شامل باسم: `HLavage-Platform-Complete.zip`
-3. حفظه في `/mnt/documents/` ليكون قابلاً للتحميل
-4. عرض الحجم النهائي وزر التحميل المباشر
+### ⚙️ خطوات التنفيذ
 
-### ما ستحصل عليه
+1. قراءة كل بيانات الجداول الـ 19 عبر Supabase وحفظها كـ JSON
+2. تصدير schema.sql + functions.sql + RLS policies
+3. نسخ كل ملفات المشروع (بدون استثناء أي مجلد)
+4. إنشاء ملف README داخل النسخة لتوضيح كيفية الاستعادة
+5. ضغط كل شيء في `HLavage-Complete-Backup.zip`
+6. حفظه في `/mnt/documents/`
+7. عرض رابط التحميل + الحجم النهائي
 
-ملف ZIP واحد يحوي **نسخة طبق الأصل** من المنصة كاملة بكل ملفاتها ومكتباتها — جاهزة للاستخدام مباشرة بعد فك الضغط دون الحاجة لـ `npm install`.
+### 📏 الحجم المتوقع
+
+- **قبل الضغط**: ~395 MB + بيانات DB
+- **بعد الضغط**: ~120-150 MB
+
+### ⚠️ تنبيه أمني
+
+الـ ZIP سيحوي `.env` ومفاتيح Supabase وبيانات المستخدمين الحقيقية. **احتفظ به في مكان آمن ولا تشاركه علناً**.
+
+### ✅ النتيجة النهائية
+
+ملف ZIP واحد = نسخة كاملة 100% من المنصة (كود + قاعدة بيانات + إعدادات + مكتبات) قابلة للاستعادة الكاملة في أي وقت.
