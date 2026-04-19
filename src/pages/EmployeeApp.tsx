@@ -251,6 +251,7 @@ export default function EmployeeApp() {
             </TabsContent>
           ))}
         </Tabs>
+        )}
       </Card>
 
       {picked && (
