@@ -24,11 +24,6 @@ export default function CreateShop() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
 
-  // Edge case: already has shops → straight to dashboard
-  if (!authLoading && !appLoading && user && tenantShops.length > 0) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   const [form, setForm] = useState({
     shop_name: "",
     manager_name: "",
@@ -39,7 +34,11 @@ export default function CreateShop() {
   });
   const [loading, setLoading] = useState(false);
 
-  if (!authLoading && !user) return <Navigate to="/login" replace />;
+  if (!authLoading && !user) return <Navigate to="/login?next=/create-shop" replace />;
+  // Edge case: already has shops → straight to dashboard
+  if (!authLoading && !appLoading && user && tenantShops.length > 0) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
