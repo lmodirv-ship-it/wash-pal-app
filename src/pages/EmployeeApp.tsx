@@ -207,8 +207,13 @@ export default function EmployeeApp() {
                         <div className="mt-1.5">
                           {s.startingFrom && <span className="text-[9px] text-muted-foreground block leading-none">{t("services.startingFrom")}</span>}
                           <p className={`text-lg font-bold ${selected ? "text-primary" : "text-foreground"}`}>
-                            {s.price} <span className="text-[10px] text-muted-foreground">DH</span>
+                            {s.price + (carSize === "4x4" ? SURCHARGE_4X4 : 0)} <span className="text-[10px] text-muted-foreground">DH</span>
                           </p>
+                          {carSize === "4x4" && (
+                            <span className="text-[9px] text-warning font-semibold block leading-none mt-0.5">
+                              {s.price} + {SURCHARGE_4X4} (4×4)
+                            </span>
+                          )}
                         </div>
                       </button>
                     );
