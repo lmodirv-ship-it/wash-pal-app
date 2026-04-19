@@ -188,7 +188,7 @@ const ar = {
     time: "الوقت", car: "السيارة", service: "الخدمة",
   },
   notFound: { title: "الصفحة غير موجودة", returnHome: "العودة للرئيسية" },
-  language: { ar: "العربية", fr: "Français", switchTo: "تغيير اللغة" },
+  language: { ar: "العربية", fr: "Français", en: "English", switchTo: "تغيير اللغة" },
   camera: {
     permissionDenied: "تم رفض إذن الكاميرا. الرجاء السماح بالوصول.",
     cantOpen: "تعذّر فتح الكاميرا.",
