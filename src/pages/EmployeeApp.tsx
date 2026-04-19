@@ -149,7 +149,47 @@ export default function EmployeeApp() {
       </Card>
 
       <Card className="p-3 rounded-2xl shadow-soft">
-        <Label className="text-sm font-semibold mb-3 block px-1">اختر الخدمة</Label>
+        <Label className="text-sm font-semibold mb-3 block px-1">
+          {carSize === "motor" ? "🏍 خدمات الدراجات النارية" : "اختر الخدمة"}
+        </Label>
+        {carSize === "motor" ? (
+          // Motor mode: show only motor services as a simple grid (no tabs)
+          grouped.motor.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground py-6">لا توجد خدمات دراجات نارية</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {grouped.motor.map(s => {
+                const selected = s.id === serviceId;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setServiceId(s.id)}
+                    className={`relative p-3 rounded-xl border-2 text-right transition-all active:scale-[0.97] min-h-[88px] ${
+                      selected
+                        ? "border-success bg-success/15 shadow-glow"
+                        : "border-success/30 bg-gradient-to-br from-success/5 to-transparent hover:border-success"
+                    }`}
+                  >
+                    {selected ? (
+                      <div className="absolute top-1.5 left-1.5 w-5 h-5 rounded-full bg-success text-success-foreground flex items-center justify-center">
+                        <Check className="w-3 h-3" />
+                      </div>
+                    ) : (
+                      <Bike className="w-3.5 h-3.5 text-success absolute top-1.5 left-1.5" />
+                    )}
+                    <p className="font-bold text-sm line-clamp-2 leading-tight">{s.name}</p>
+                    <div className="mt-1.5">
+                      <p className={`text-lg font-bold ${selected ? "text-success" : "text-foreground"}`}>
+                        {s.price} <span className="text-[10px] text-muted-foreground">DH</span>
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )
+        ) : (
         <Tabs value={tab} onValueChange={(v) => setTab(v as ServiceCategory)}>
           <TabsList className="grid grid-cols-4 w-full h-auto mb-3">
             {CATS.map(c => {
