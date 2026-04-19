@@ -67,20 +67,29 @@ function ProtectedRoutes() {
   if (!user) return <Navigate to="/login" replace />;
 
   const role = profile?.role || 'employee';
-  const isAdmin = role === 'admin' || role === 'manager';
+  const isSuperAdmin = role === 'admin';
+  const isShopManager = role === 'manager' || role === 'supervisor';
   const isCustomer = role === 'customer';
   const isEmployee = role === 'employee';
+
+  const homeFor = (r: string) => {
+    if (r === 'admin') return '/admin';
+    if (r === 'manager' || r === 'supervisor') return '/dashboard';
+    if (r === 'customer') return '/app';
+    return '/employee';
+  };
 
   return (
     <AppProvider>
       <ShopGate role={role}>
       <Layout>
         <Routes>
-          <Route path="/" element={isAdmin ? <Index /> : <Navigate to={isEmployee ? "/employee" : "/app"} replace />} />
+          <Route path="/" element={<Navigate to={homeFor(role)} replace />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
-          {isAdmin && (
+          {(isSuperAdmin || isShopManager) && (
             <>
+              <Route path="/dashboard" element={<Index />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/employees" element={<Employees />} />
