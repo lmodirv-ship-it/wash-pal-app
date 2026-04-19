@@ -13,6 +13,8 @@ interface AppContextType {
   invoices: Invoice[];
   shops: B2BPartner[];
   tenantShops: Shop[];
+  currentShopId: string | null;
+  setCurrentShopId: (id: string) => void;
   createTenantShop: (name: string) => Promise<Shop | null>;
   addBranch: (b: Omit<Branch, 'id'>) => Promise<void>;
   updateBranch: (id: string, b: Partial<Branch>) => Promise<void>;
@@ -39,6 +41,8 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null);
 
+const SHOP_STORAGE_KEY = 'currentShopId';
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [currentBranch, setCurrentBranch] = useState<Branch | null>(null);
@@ -49,7 +53,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [shops, setShops] = useState<B2BPartner[]>([]);
   const [tenantShops, setTenantShops] = useState<Shop[]>([]);
+  const [currentShopId, setCurrentShopIdState] = useState<string | null>(() => localStorage.getItem(SHOP_STORAGE_KEY));
   const [loading, setLoading] = useState(true);
+
+  const setCurrentShopId = (id: string) => {
+    localStorage.setItem(SHOP_STORAGE_KEY, id);
+    setCurrentShopIdState(id);
+  };
+
+  const requireShopId = () => {
+    if (!currentShopId) throw new Error('No active shop selected. Please create or select a shop first.');
+    return currentShopId;
+  };
 
   const mapBranch = (r: any): Branch => ({ id: r.id, name: r.name, address: r.address, phone: r.phone, isActive: r.is_active });
   const mapCustomer = (r: any): Customer => ({
