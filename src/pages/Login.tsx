@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 
 export default function Login() {
   const { signIn, user, loading: authLoading } = useAuth();
-  if (!authLoading && user) return <Navigate to="/" replace />;
   const { t, i18n } = useTranslation();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -22,6 +21,8 @@ export default function Login() {
   const [verifying, setVerifying] = useState(false);
 
   useEffect(() => () => { if (stream) stream.getTracks().forEach(t => t.stop()); }, [stream]);
+
+  if (!authLoading && user) return <Navigate to="/" replace />;
 
   const stopCamera = () => {
     if (stream) stream.getTracks().forEach(t => t.stop());
