@@ -28,7 +28,7 @@ function SmartRedirect() {
 export default function StartFree() {
   const { user, profile, loading } = useAuth();
   if (loading || (user && !profile)) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login?next=/start" replace />;
+  if (!user) return <Navigate to="/login?redirect=create-shop" replace />;
   return (
     <AppProvider>
       <SmartRedirect />

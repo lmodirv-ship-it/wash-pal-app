@@ -13,7 +13,10 @@ export default function Login() {
   const { signIn, user, loading: authLoading } = useAuth();
   const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
+  // Support both ?next=/path and ?redirect=create-shop
   const nextParam = searchParams.get("next");
+  const redirectParam = searchParams.get("redirect");
+  const redirectTo = nextParam || (redirectParam === "create-shop" ? "/create-shop" : redirectParam ? `/${redirectParam}` : null);
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
@@ -24,7 +27,7 @@ export default function Login() {
 
   useEffect(() => () => { if (stream) stream.getTracks().forEach(t => t.stop()); }, [stream]);
 
-  if (!authLoading && user) return <Navigate to={nextParam || "/post-login"} replace />;
+  if (!authLoading && user) return <Navigate to={redirectTo || "/post-login"} replace />;
 
   const stopCamera = () => {
     if (stream) stream.getTracks().forEach(t => t.stop());
