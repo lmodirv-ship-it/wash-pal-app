@@ -94,12 +94,42 @@ export default function EmployeeApp() {
         </div>
         <div>
           <Label className="text-sm font-semibold mb-2 block">نوع السيارة</Label>
-          <Input
-            placeholder="مثال: تويوتا كامري"
-            value={carType}
-            onChange={e => setCarType(e.target.value)}
-            className="h-11"
-          />
+          <div className="flex gap-2">
+            <div className="flex gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setCarSize("normal")}
+                className={`px-3 h-11 rounded-lg text-xs font-bold border-2 transition-all ${
+                  carSize === "normal"
+                    ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                Normal
+              </button>
+              <button
+                type="button"
+                onClick={() => setCarSize("4x4")}
+                className={`px-3 h-11 rounded-lg text-xs font-bold border-2 transition-all flex items-center gap-1 ${
+                  carSize === "4x4"
+                    ? "border-warning bg-warning text-warning-foreground shadow-glow"
+                    : "border-border bg-card text-muted-foreground hover:border-warning/50"
+                }`}
+              >
+                4×4
+                <span className="text-[9px] opacity-80">+10</span>
+              </button>
+            </div>
+            <Input
+              placeholder="مثال: تويوتا كامري"
+              value={carType}
+              onChange={e => setCarType(e.target.value)}
+              className="h-11 flex-1"
+            />
+          </div>
+          {carSize === "4x4" && (
+            <p className="text-[11px] text-warning mt-1.5">⚡ زيادة +10 DH للسيارات الكبيرة (4×4)</p>
+          )}
         </div>
       </Card>
 
