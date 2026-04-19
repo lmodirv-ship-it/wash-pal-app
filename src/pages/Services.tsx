@@ -176,61 +176,6 @@ export default function Services() {
           {filtered.length === 0 ? (
             <div className="lavage-card p-10 text-center text-muted-foreground">{t("services.noServices")}</div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map(s => {
-                const isVip = s.category === "vip";
-                const isPack = s.category === "packs";
-                return (
-                  <div key={s.id} className={`lavage-card p-4 transition-all relative overflow-hidden ${
-                      isVip ? "ring-1 ring-warning/40 bg-gradient-to-br from-warning/5 to-transparent" : ""
-                    } ${isPack ? "ring-1 ring-success/40 bg-gradient-to-br from-success/5 to-transparent" : ""} ${
-                      !s.isActive ? "opacity-50" : ""
-                    }`}>
-                    {isVip && <div className="absolute top-2 start-2"><Crown className="w-4 h-4 text-warning" /></div>}
-                    {isPack && <div className="absolute top-2 start-2"><Package className="w-4 h-4 text-success" /></div>}
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[10px] font-mono text-primary mb-1">{s.reference || "—"}</div>
-                        <div className="font-bold text-foreground line-clamp-2">{getServiceName(s, lang)}</div>
-                      </div>
-                      <Badge variant="outline" className={`${catBadge[s.category]} text-[10px] shrink-0`}>
-                        {s.category.toUpperCase()}
-                      </Badge>
-                    </div>
-                    <div className="flex items-end justify-between mt-3">
-                      <div>
-                        {s.startingFrom && <span className="text-[10px] text-muted-foreground block">{t("services.startingFrom")}</span>}
-                        <span className="font-bold text-primary text-2xl">{s.price}</span>
-                        <span className="text-xs text-muted-foreground mx-1">{t("common.currency")}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {isAdmin ? (
-                          <Switch checked={s.isActive} onCheckedChange={() => toggleActive(s)} />
-                        ) : (
-                          <Badge className={s.isActive ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}>
-                            {s.isActive ? t("services.enabled") : t("services.disabled")}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    {s.duration > 0 && (
-                      <div className="text-xs text-muted-foreground mt-2">⏱ {s.duration} {t("common.minutes")}</div>
-                    )}
-                    {isAdmin && (
-                      <div className="flex gap-1 mt-3 pt-3 border-t border-border">
-                        <Button variant="ghost" size="sm" onClick={() => startEdit(s)} className="flex-1">
-                          <Edit className="w-3.5 h-3.5 mx-1" />{t("common.edit")}
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={async () => { await deleteService(s.id); toast.success(t("services.serviceDeleted")); }}>
-                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
             <div className="lavage-card overflow-hidden">
               <Table>
                 <TableHeader>
