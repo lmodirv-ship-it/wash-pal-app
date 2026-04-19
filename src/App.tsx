@@ -81,8 +81,8 @@ function ProtectedRoutes() {
 
   // Map absolute pathname → component (works regardless of which parent /xxx/* matched)
   const PageRouter = () => {
-    const { pathname } = window.location;
-    const path = pathname.replace(/\/+$/, "") || "/";
+    const location = useLocation();
+    const path = location.pathname.replace(/\/+$/, "") || "/";
 
     // Admin pages
     if (path === "/admin") return <AdminDashboard />;
