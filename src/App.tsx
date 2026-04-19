@@ -189,8 +189,7 @@ const App = () => (
             <Route path="/invite/:token" element={<AcceptInvite />} />
 
             {/* Super-admin only */}
-            <Route path="/admin" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
-            <Route path="/admin/subscriptions" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
+            <Route path="/admin/*" element={<ProtectedRoute allowedRoles={["super_admin", "admin"]}><ProtectedRoutes /></ProtectedRoute>} />
 
             {/* Supervisor + Manager + Admin (admin has full access) */}
             {[
