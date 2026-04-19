@@ -42,19 +42,21 @@ function ProtectedRoutes() {
   const isCustomer = role === 'customer';
   const isEmployee = role === 'employee';
 
-  const path = window.location.pathname;
-  if (path === '/') {
-    if (isEmployee) return <Navigate to="/work" replace />;
-    if (isCustomer) return <Navigate to="/app" replace />;
-  }
+  const homeElement = isAdmin
+    ? <Index />
+    : isEmployee
+      ? <Navigate to="/work" replace />
+      : isCustomer
+        ? <Navigate to="/app" replace />
+        : <Navigate to="/login" replace />;
 
   return (
     <AppProvider>
       <Layout>
         <Routes>
+          <Route path="/" element={homeElement} />
           {isAdmin && (
             <>
-              <Route path="/" element={<Index />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/employees" element={<Employees />} />
