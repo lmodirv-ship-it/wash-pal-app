@@ -12,15 +12,16 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 export default function Employees() {
-  const { employees, currentBranch, addEmployee, updateEmployee, deleteEmployee } = useApp();
+  const { employees, branches, currentBranch, addEmployee, updateEmployee, deleteEmployee } = useApp();
   const { t, i18n } = useTranslation();
   const locale = i18n.language === "ar" ? "ar-MA" : "fr-FR";
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
-  const [form, setForm] = useState({ name: "", phone: "", role: "", roleType: "employee" });
+  const [form, setForm] = useState({ name: "", phone: "", role: "", roleType: "employee", branchId: "" });
 
   const branchId = currentBranch?.id || "";
   const branchEmployees = employees.filter((e) => e.branchId === branchId);
+  const branchById = new Map(branches.map((b) => [b.id, b.name]));
 
   const handleSubmit = async () => {
     if (!form.name || !form.phone || !form.role) { toast.error(t("common.fillRequired")); return; }
