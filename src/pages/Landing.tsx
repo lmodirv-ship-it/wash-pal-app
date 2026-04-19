@@ -83,11 +83,11 @@ export default function Landing() {
                 تسجيل الدخول
               </Button>
             </Link>
-            <Link to="/start">
+            <StartFreeLink>
               <Button size="sm" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-95 shadow-md shadow-blue-500/25 rounded-xl">
                 ابدأ مجاناً
               </Button>
-            </Link>
+            </StartFreeLink>
           </div>
         </div>
       </nav>
@@ -118,12 +118,12 @@ export default function Landing() {
               تابع الإيرادات، أدر فريقك، ونمِّ أعمالك بسلاسة مع CarwashPro — منصة واحدة لكل ما تحتاجه.
             </motion.p>
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-3">
-              <Link to="/start">
+              <StartFreeLink>
                 <Button size="lg" className="h-13 px-7 text-base font-semibold rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-95 shadow-lg shadow-blue-500/30 group">
                   ابدأ مجاناً
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"} transition-transform`} />
                 </Button>
-              </Link>
+              </StartFreeLink>
               <Link to="/login">
                 <Button size="lg" variant="outline" className="h-13 px-7 text-base font-semibold rounded-2xl border-slate-200 bg-white text-slate-700 hover:bg-slate-50">
                   <Play className="w-4 h-4" />
