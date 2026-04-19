@@ -31,7 +31,7 @@ function ProtectedRoutes() {
 
   if (loading || (user && !profile)) return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-lg text-muted-foreground animate-pulse">جاري التحميل...</p>
+      <p className="text-lg text-muted-foreground animate-pulse">...</p>
     </div>
   );
 
