@@ -133,6 +133,8 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/post-login" element={<PostLoginRedirect />} />
             <Route path="/create-shop" element={<AuthedCreateShop />} />
+            <Route path="/invite/:token" element={<AcceptInvite />} />
+            <Route path="/team" element={<ProtectedRoutes />} />
             <Route path="/dashboard/*" element={<ProtectedRoutes />} />
             <Route path="/employee" element={<ProtectedRoutes />} />
             <Route path="/app" element={<ProtectedRoutes />} />
