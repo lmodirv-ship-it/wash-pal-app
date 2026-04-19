@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, Search, Crown, Sparkles, Package, Droplets } from "lucide-react";
+import { Plus, Trash2, Edit, Search, Crown, Sparkles, Package, Droplets, Bike } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -19,6 +19,7 @@ const CATEGORIES: { id: ServiceCategory | "all"; label: string; icon: any; cls: 
   { id: "vip", label: "VIP", icon: Crown, cls: "text-warning" },
   { id: "extra", label: "Extra", icon: Sparkles, cls: "text-accent-foreground" },
   { id: "packs", label: "Packs", icon: Package, cls: "text-success" },
+  { id: "motor", label: "Moto", icon: Bike, cls: "text-success" },
 ];
 
 const catBadge: Record<ServiceCategory, string> = {
@@ -26,6 +27,7 @@ const catBadge: Record<ServiceCategory, string> = {
   vip: "bg-warning/15 text-warning border-warning/30",
   extra: "bg-accent text-accent-foreground border-border",
   packs: "bg-success/10 text-success border-success/20",
+  motor: "bg-success/10 text-success border-success/20",
 };
 
 export default function Services() {
