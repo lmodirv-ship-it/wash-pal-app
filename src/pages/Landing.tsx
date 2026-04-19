@@ -1,7 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+
+import heroCarwash from "@/assets/hero-carwash.jpg";
+import featureDetail from "@/assets/feature-detail.jpg";
+import featureFacility from "@/assets/feature-facility.jpg";
+import featureWash from "@/assets/feature-wash.jpg";
+import carwashVideo from "@/assets/carwash-hero.mp4.asset.json";
 
 /* ---------- Auth-aware Start Free wrapper ---------- */
 function StartFreeLink({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -43,14 +48,13 @@ function Counter({ to, prefix = "", suffix = "" }: { to: number; prefix?: string
   return <span ref={ref}>{val}</span>;
 }
 
-/* ---------- Section fade-up ---------- */
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.6, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } }),
 } as const;
 
 export default function Landing() {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
   const [scrolled, setScrolled] = useState(false);
   const [visitors, setVisitors] = useState<number | null>(null);
@@ -61,11 +65,9 @@ export default function Landing() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Visitor counter — increment once per browser session, then subscribe to live updates
   useEffect(() => {
     let mounted = true;
     const SESSION_KEY = "hl_visit_counted";
-
     const load = async () => {
       try {
         const alreadyCounted = sessionStorage.getItem(SESSION_KEY);
@@ -74,43 +76,24 @@ export default function Landing() {
           sessionStorage.setItem(SESSION_KEY, "1");
           if (mounted && typeof data === "number") setVisitors(data);
         } else {
-          const { data } = await supabase
-            .from("visitor_stats")
-            .select("total_visits")
-            .eq("id", 1)
-            .maybeSingle();
+          const { data } = await supabase.from("visitor_stats").select("total_visits").eq("id", 1).maybeSingle();
           if (mounted && data) setVisitors(Number(data.total_visits));
         }
-      } catch {
-        /* silently ignore — counter is non-critical */
-      }
+      } catch { /* ignore */ }
     };
     load();
-
     const channel = supabase
       .channel("visitor_stats_live")
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "visitor_stats" },
-        (payload) => {
-          const next = (payload.new as { total_visits?: number })?.total_visits;
-          if (mounted && typeof next === "number") setVisitors(next);
-        }
-      )
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "visitor_stats" }, (payload) => {
+        const next = (payload.new as { total_visits?: number })?.total_visits;
+        if (mounted && typeof next === "number") setVisitors(next);
+      })
       .subscribe();
-
-    return () => {
-      mounted = false;
-      supabase.removeChannel(channel);
-    };
+    return () => { mounted = false; supabase.removeChannel(channel); };
   }, []);
 
   return (
-    <div
-      className="min-h-screen bg-[#05060a] text-white overflow-x-hidden"
-      dir={isRtl ? "rtl" : "ltr"}
-      style={{ scrollBehavior: "smooth" }}
-    >
+    <div className="min-h-screen bg-[#05060a] text-white overflow-x-hidden" dir={isRtl ? "rtl" : "ltr"} style={{ scrollBehavior: "smooth" }}>
       {/* Glossy black ambient background */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(59,130,246,0.25),transparent_60%)]" />
@@ -127,13 +110,7 @@ export default function Landing() {
       </div>
 
       {/* ===== Sticky Nav ===== */}
-      <nav
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-black/60 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
-            : "bg-transparent"
-        }`}
-      >
+      <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "bg-black/60 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]" : "bg-transparent"}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.5)]">
@@ -142,13 +119,12 @@ export default function Landing() {
             <span className="font-bold text-white tracking-tight">CarwashPro</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
-            <a href="#features" className="hover:text-white transition-colors">الميزات</a>
             <a href="#pricing" className="hover:text-white transition-colors">الأسعار</a>
+            <a href="#features" className="hover:text-white transition-colors">الميزات</a>
             <a href="#how" className="hover:text-white transition-colors">كيف يعمل</a>
             <a href="#testimonials" className="hover:text-white transition-colors">الآراء</a>
           </div>
           <div className="flex items-center gap-2">
-            {/* Live visitor pill */}
             {visitors !== null && (
               <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
                 <span className="relative flex h-2 w-2">
@@ -156,168 +132,100 @@ export default function Landing() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                 </span>
                 <Eye className="w-3.5 h-3.5 text-white/70" />
-                <span className="text-xs font-semibold text-white tabular-nums">
-                  {visitors.toLocaleString()}
-                </span>
+                <span className="text-xs font-semibold text-white tabular-nums">{visitors.toLocaleString()}</span>
               </div>
             )}
-
-            {/* Language switcher — glossy chip */}
             <div className="rounded-full bg-white/5 border border-white/10 backdrop-blur-md px-1 py-1 hover:border-white/20 transition-colors">
               <LanguageSwitcher />
             </div>
-
             <Link to="/login" className="hidden sm:block">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white/80 hover:text-white hover:bg-white/10 rounded-xl"
-              >
-                تسجيل الدخول
-              </Button>
+              <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10 rounded-xl">تسجيل الدخول</Button>
             </Link>
             <StartFreeLink>
-              <Button
-                size="sm"
-                className="relative bg-gradient-to-r from-blue-500 to-cyan-400 text-white hover:opacity-95 shadow-[0_0_25px_rgba(59,130,246,0.5)] rounded-xl border border-white/20"
-              >
-                ابدأ مجاناً
-              </Button>
+              <Button size="sm" className="bg-gradient-to-r from-blue-500 to-cyan-400 text-white hover:opacity-95 shadow-[0_0_25px_rgba(59,130,246,0.5)] rounded-xl border border-white/20">ابدأ مجاناً</Button>
             </StartFreeLink>
           </div>
         </div>
       </nav>
 
-      {/* ===== Hero ===== */}
-      <section className="relative pt-32 pb-24 px-6 overflow-hidden">
+      {/* ===== Hero with REAL video ===== */}
+      <section className="relative pt-24 pb-16 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           {/* Left text */}
           <motion.div initial="hidden" animate="show" variants={fadeUp}>
-            <motion.div
-              variants={fadeUp}
-              custom={0}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6"
-            >
+            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6">
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               <span className="text-xs font-medium text-white/80">جديد · نظام إدارة المغاسل 2026</span>
             </motion.div>
-            <motion.h1
-              variants={fadeUp}
-              custom={1}
-              className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight text-white mb-6"
-            >
+            <motion.h1 variants={fadeUp} custom={1} className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight text-white mb-6">
               أدر مغسلتك
               <br />
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">
-                باحترافية كاملة 🚗
-              </span>
+              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">باحترافية كاملة 🚗</span>
             </motion.h1>
-            <motion.p
-              variants={fadeUp}
-              custom={2}
-              className="text-lg text-white/70 leading-relaxed mb-8 max-w-xl"
-            >
+            <motion.p variants={fadeUp} custom={2} className="text-lg text-white/70 leading-relaxed mb-8 max-w-xl">
               تابع الإيرادات، أدر فريقك، ونمِّ أعمالك بسلاسة مع CarwashPro — منصة واحدة لكل ما تحتاجه.
             </motion.p>
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-3">
               <StartFreeLink>
-                <Button
-                  size="lg"
-                  className="h-13 px-7 text-base font-semibold rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-400 text-white hover:opacity-95 shadow-[0_10px_40px_-5px_rgba(59,130,246,0.6)] border border-white/20 group transition-all hover:-translate-y-0.5"
-                >
+                <Button size="lg" className="h-13 px-7 text-base font-semibold rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-400 text-white hover:opacity-95 shadow-[0_10px_40px_-5px_rgba(59,130,246,0.6)] border border-white/20 group transition-all hover:-translate-y-0.5">
                   ابدأ مجاناً
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"} transition-transform`} />
                 </Button>
               </StartFreeLink>
-              <Link to="/login">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-13 px-7 text-base font-semibold rounded-2xl border-white/20 bg-white/5 text-white hover:bg-white/10 backdrop-blur-md"
-                >
+              <a href="#pricing">
+                <Button size="lg" variant="outline" className="h-13 px-7 text-base font-semibold rounded-2xl border-white/20 bg-white/5 text-white hover:bg-white/10 backdrop-blur-md">
                   <Play className="w-4 h-4" />
-                  شاهد العرض
+                  شاهد الباقات
                 </Button>
-              </Link>
+              </a>
             </motion.div>
             <motion.div variants={fadeUp} custom={4} className="flex flex-wrap items-center gap-6 mt-8 text-xs text-white/60">
+              <div className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-400" /> 15 يوم تجربة مجانية</div>
               <div className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-400" /> بدون بطاقة ائتمان</div>
-              <div className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-400" /> إعداد بدقيقتين</div>
               {visitors !== null && (
                 <div className="flex items-center gap-1.5">
                   <Eye className="w-4 h-4 text-cyan-400" />
-                  <span className="text-white/80 font-semibold tabular-nums">{visitors.toLocaleString()}</span> زائر إلى الآن
+                  <span className="text-white/80 font-semibold tabular-nums">{visitors.toLocaleString()}</span> زائر
                 </div>
               )}
             </motion.div>
           </motion.div>
 
-          {/* Right dashboard mockup */}
+          {/* Right: REAL VIDEO */}
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="relative"
           >
-            <div className="relative rounded-3xl bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(59,130,246,0.4)] p-3">
-              <div className="flex items-center gap-1.5 px-3 pb-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
-              </div>
-              <div className="rounded-2xl bg-black/40 border border-white/10 p-5 space-y-4 backdrop-blur-md">
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { label: "الإيرادات اليوم", value: "12,480 DH", trend: "+18%", color: "from-blue-400 to-cyan-300" },
-                    { label: "السيارات", value: "127", trend: "+12%", color: "from-emerald-400 to-teal-300" },
-                  ].map((k, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/10">
-                      <div className="text-[11px] text-white/60">{k.label}</div>
-                      <div className="text-xl font-black text-white mt-0.5">{k.value}</div>
-                      <div className={`text-[10px] font-bold bg-gradient-to-r ${k.color} bg-clip-text text-transparent`}>{k.trend} هذا الأسبوع</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="h-32 rounded-xl bg-gradient-to-t from-blue-500/20 to-transparent border border-white/10 flex items-end gap-1.5 p-3">
-                  {[30, 55, 40, 70, 50, 85, 65, 78, 60, 92, 72, 100].map((h, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ height: 0 }}
-                      animate={{ height: `${h}%` }}
-                      transition={{ delay: 0.6 + i * 0.04, duration: 0.5, ease: "easeOut" }}
-                      className="flex-1 rounded-t-md bg-gradient-to-t from-blue-500 to-cyan-300 shadow-[0_0_8px_rgba(59,130,246,0.6)]"
-                    />
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { car: "AB-123-45", svc: "غسيل شامل", price: "120 DH", status: "مكتمل" },
-                    { car: "CD-456-78", svc: "غسيل سريع", price: "60 DH", status: "قيد العمل" },
-                  ].map((r, i) => (
-                    <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 border border-white/10">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white text-[10px] font-bold shadow-[0_0_15px_rgba(59,130,246,0.5)]">{r.car.slice(0, 2)}</div>
-                        <div>
-                          <div className="text-xs font-semibold text-white">{r.car}</div>
-                          <div className="text-[10px] text-white/60">{r.svc}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-bold text-white">{r.price}</div>
-                        <div className="text-[10px] text-emerald-400">{r.status}</div>
-                      </div>
-                    </div>
-                  ))}
+            <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-[0_30px_80px_-20px_rgba(59,130,246,0.5)] aspect-video bg-black">
+              <video
+                src={(carwashVideo as { url: string }).url}
+                poster={heroCarwash}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/15">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                  </span>
+                  <span className="text-[11px] font-bold text-white">LIVE · غسيل احترافي</span>
                 </div>
               </div>
             </div>
 
-            {/* Floating cards */}
+            {/* Floating glassy stat cards */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.9, duration: 0.6 }}
-              className="absolute -left-6 top-20 hidden md:flex items-center gap-3 p-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-2xl"
+              className="absolute -left-4 -top-4 hidden md:flex items-center gap-3 p-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-2xl"
             >
               <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-emerald-400" />
@@ -331,7 +239,7 @@ export default function Landing() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.1, duration: 0.6 }}
-              className="absolute -right-4 bottom-16 hidden md:flex items-center gap-3 p-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-2xl"
+              className="absolute -right-4 -bottom-4 hidden md:flex items-center gap-3 p-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xl shadow-2xl"
             >
               <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center">
                 <Star className="w-5 h-5 text-blue-300 fill-blue-300" />
@@ -345,8 +253,95 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ===== PRICING (moved up) ===== */}
+      <section id="pricing" className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-bold text-primary">💳 باقاتنا</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">اختر الباقة المناسبة لك</h2>
+            <p className="text-white/60 max-w-2xl mx-auto">15 يوم تجربة مجانية لكل محل جديد · بدون بطاقة ائتمان · ألغِ متى شئت</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+            {[
+              { name: "Starter", arName: "بداية", price: "99", credits: "300 عملية / شهر", icon: Zap, features: ["فرع واحد", "حتى 3 موظفين", "300 عملية شهرياً", "تقارير أساسية"], highlight: false },
+              { name: "Pro", arName: "احترافي", price: "199", credits: "1000 عملية / شهر", icon: Sparkles, features: ["حتى 3 فروع", "حتى 10 موظفين", "1000 عملية شهرياً", "تقارير متقدمة", "Email + WhatsApp"], highlight: true },
+              { name: "Business", arName: "متقدم", price: "399", credits: "5000 عملية / شهر", icon: Shield, features: ["فروع غير محدودة", "موظفون غير محدودون", "5000 عملية شهرياً", "تحليلات متقدمة جداً"], highlight: false },
+            ].map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -6 }}
+                className={`relative p-8 rounded-3xl transition-all duration-300 flex flex-col backdrop-blur-md ${
+                  p.highlight
+                    ? "bg-gradient-to-br from-blue-500/30 via-cyan-400/20 to-blue-500/30 border-2 border-cyan-300/50 shadow-[0_30px_80px_-20px_rgba(59,130,246,0.6)] scale-[1.03]"
+                    : "bg-white/[0.04] border border-white/10 hover:border-white/20 hover:bg-white/[0.07]"
+                }`}
+              >
+                {p.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-cyan-300 to-blue-400 text-black text-[11px] font-black shadow-lg whitespace-nowrap">
+                    ⭐ الأكثر اختياراً
+                  </div>
+                )}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <p.icon className={`w-7 h-7 ${p.highlight ? "text-white" : "text-cyan-300"}`} />
+                    <div>
+                      <div className="text-base font-black text-white">{p.name}</div>
+                      <div className="text-[11px] text-white/60">{p.arName}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-5">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-5xl font-black tracking-tight text-white">{p.price}</span>
+                    <span className="text-sm text-white/70">DH / شهر</span>
+                  </div>
+                </div>
+                <div className={`flex items-center gap-2 rounded-lg px-3 py-2 mb-5 text-xs font-medium ${p.highlight ? "bg-white/15 text-white" : "bg-cyan-300/10 text-cyan-300"}`}>
+                  <Zap className="w-3.5 h-3.5" />
+                  {p.credits}
+                </div>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {p.features.map((f, j) => (
+                    <li key={j} className="flex items-start gap-2 text-sm">
+                      <Check className={`w-4 h-4 shrink-0 mt-0.5 ${p.highlight ? "text-white" : "text-cyan-300"}`} />
+                      <span className={p.highlight ? "text-white/95" : "text-white/75"}>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/pricing" className="block">
+                  <Button className={`w-full h-12 font-bold rounded-xl ${
+                    p.highlight
+                      ? "bg-white text-blue-600 hover:bg-white/90 shadow-xl"
+                      : "bg-white/10 border border-white/20 text-white hover:bg-white/15 backdrop-blur-md"
+                  }`}>
+                    اختر {p.name}
+                  </Button>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link to="/pricing">
+              <Button variant="outline" size="lg" className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 backdrop-blur-md h-12 px-6">
+                عرض كل الباقات بالتفصيل (بما فيها Enterprise)
+                <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ===== Trust bar ===== */}
-      <section className="py-12 px-6 border-y border-white/10 bg-white/[0.02] backdrop-blur-sm">
+      <section className="py-10 px-6 border-y border-white/10 bg-white/[0.02] backdrop-blur-sm">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-6">يستخدمها أكثر من 500 مغسلة في المغرب</p>
           <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-70">
@@ -357,7 +352,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ===== Features ===== */}
+      {/* ===== Features (with REAL images) ===== */}
       <section id="features" className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="text-center mb-16">
@@ -368,12 +363,48 @@ export default function Landing() {
             <p className="text-white/60 max-w-2xl mx-auto">أدوات قوية ومتكاملة مصممة بدقة لمساعدتك على إدارة مغسلتك بكفاءة تامة</p>
           </motion.div>
 
+          {/* Showcase grid with images */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            {[
+              { img: featureWash, title: "غسيل بالضغط العالي", desc: "تتبع كل عملية غسيل من بدايتها لنهايتها." },
+              { img: featureDetail, title: "تلميع وعناية احترافية", desc: "سجّل خدمات الـ detailing وضاعف هوامشك." },
+              { img: featureFacility, title: "إدارة عدة فروع", desc: "أدر كل فروعك ومحلاتك من لوحة واحدة." },
+            ].map((s, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+                whileHover={{ y: -6 }}
+                className="group relative rounded-3xl overflow-hidden border border-white/10 bg-white/[0.03] hover:border-cyan-300/40 hover:shadow-[0_20px_60px_-20px_rgba(59,130,246,0.5)] transition-all"
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src={s.img}
+                    alt={s.title}
+                    loading="lazy"
+                    width={1024}
+                    height={768}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                </div>
+                <div className="absolute bottom-0 inset-x-0 p-6">
+                  <h3 className="text-lg font-bold text-white mb-1">{s.title}</h3>
+                  <p className="text-sm text-white/80">{s.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Feature cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: BarChart3, title: "لوحة تحكم فورية", desc: "تابع أداء مغسلتك لحظة بلحظة مع بيانات حية ودقيقة." },
               { icon: Users, title: "تتبع الموظفين", desc: "قِس أداء كل موظف وحفّز فريقك لتحقيق أفضل النتائج." },
               { icon: TrendingUp, title: "تحليلات الإيرادات", desc: "تقارير مفصّلة وذكية لفهم نمو أعمالك واتجاهاتك." },
-              { icon: Brain, title: "رؤى ذكية", desc: "توصيات مدعومة بالذكاء الاصطناعي لتحسين عملياتك." },
+              { icon: Brain, title: "رؤى ذكية بالـ AI", desc: "توصيات مدعومة بالذكاء الاصطناعي لتحسين عملياتك." },
               { icon: Building2, title: "جاهز لعدة فروع", desc: "أدر فروعك المتعددة من لوحة واحدة وبكل سهولة." },
               { icon: Smartphone, title: "متوافق مع الجوال", desc: "تجربة سلسة على الهاتف والحاسوب — أينما كنت." },
             ].map((f, i) => (
@@ -452,78 +483,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ===== Pricing ===== */}
-      <section id="pricing" className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">أسعار شفافة، بدون مفاجآت</h2>
-            <p className="text-white/60">اختر الباقة المناسبة لحجم أعمالك — أو شاهد كل الباقات بالتفصيل</p>
-            <div className="mt-6">
-              <Link to="/pricing">
-                <Button variant="outline" size="sm" className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 backdrop-blur-md">
-                  عرض كل الباقات
-                  <ArrowRight className={`w-3.5 h-3.5 ${isRtl ? "rotate-180" : ""}`} />
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-          <div className="grid md:grid-cols-3 gap-6 items-stretch">
-            {[
-              { name: "Starter", price: "99", period: "/شهرياً", icon: Zap, features: ["فرع واحد", "حتى 3 موظفين", "300 عملية / شهر", "تقارير أساسية"], highlight: false },
-              { name: "Pro", price: "199", period: "/شهرياً", icon: Sparkles, features: ["حتى 3 فروع", "حتى 10 موظفين", "1000 عملية / شهر", "تقارير متقدمة", "Email + WhatsApp"], highlight: true },
-              { name: "Business", price: "399", period: "/شهرياً", icon: Shield, features: ["فروع غير محدودة", "موظفون غير محدودون", "5000 عملية / شهر", "تحليلات متقدمة جداً"], highlight: false },
-            ].map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -6 }}
-                className={`relative p-8 rounded-3xl transition-all duration-300 flex flex-col backdrop-blur-md ${
-                  p.highlight
-                    ? "bg-gradient-to-br from-blue-500/30 via-cyan-400/20 to-blue-500/30 border-2 border-cyan-300/50 shadow-[0_30px_80px_-20px_rgba(59,130,246,0.6)] scale-[1.03]"
-                    : "bg-white/[0.04] border border-white/10 hover:border-white/20 hover:bg-white/[0.07]"
-                }`}
-              >
-                {p.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-cyan-300 to-blue-400 text-black text-[11px] font-black shadow-lg">
-                    ⭐ الأكثر اختياراً
-                  </div>
-                )}
-                <div className="flex items-center justify-between mb-5">
-                  <p.icon className={`w-7 h-7 ${p.highlight ? "text-white" : "text-cyan-300"}`} />
-                  <span className={`text-xs font-bold ${p.highlight ? "text-white/90" : "text-white/50"}`}>{p.name}</span>
-                </div>
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-5xl font-black tracking-tight text-white">{p.price}</span>
-                    <span className="text-sm text-white/70">DH{p.period}</span>
-                  </div>
-                </div>
-                <ul className="space-y-3 mb-8 flex-1">
-                  {p.features.map((f, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm">
-                      <Check className={`w-4 h-4 shrink-0 mt-0.5 ${p.highlight ? "text-white" : "text-cyan-300"}`} />
-                      <span className={p.highlight ? "text-white/95" : "text-white/75"}>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/pricing" className="block">
-                  <Button className={`w-full h-12 font-bold rounded-xl ${
-                    p.highlight
-                      ? "bg-white text-blue-600 hover:bg-white/90 shadow-xl"
-                      : "bg-white/10 border border-white/20 text-white hover:bg-white/15 backdrop-blur-md"
-                  }`}>
-                    اختر {p.name}
-                  </Button>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ===== Testimonials ===== */}
       <section id="testimonials" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
@@ -573,9 +532,11 @@ export default function Landing() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="max-w-5xl mx-auto relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600/30 via-cyan-500/20 to-blue-600/30 border border-white/15 backdrop-blur-xl p-12 md:p-16 text-center text-white shadow-[0_30px_100px_-20px_rgba(59,130,246,0.5)]"
+          className="max-w-5xl mx-auto relative overflow-hidden rounded-3xl border border-white/15 backdrop-blur-xl p-12 md:p-16 text-center text-white shadow-[0_30px_100px_-20px_rgba(59,130,246,0.5)]"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(34,211,238,0.3),transparent_60%)]" />
+          {/* Background image */}
+          <img src={heroCarwash} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover -z-10 opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-black/70 to-cyan-900/80 -z-10" />
           <div className="relative">
             <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">جاهز لتغيير طريقة إدارتك؟</h2>
             <p className="text-white/80 mb-8 max-w-xl mx-auto">انضم لمئات أصحاب المغاسل الذين يثقون في CarwashPro. ابدأ مجاناً اليوم.</p>
