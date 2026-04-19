@@ -394,6 +394,7 @@ export type Database = {
           is_active: boolean
           name: string
           price: number
+          reference: string | null
         }
         Insert: {
           created_at?: string
@@ -403,6 +404,7 @@ export type Database = {
           is_active?: boolean
           name: string
           price: number
+          reference?: string | null
         }
         Update: {
           created_at?: string
@@ -412,6 +414,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           price?: number
+          reference?: string | null
         }
         Relationships: []
       }
