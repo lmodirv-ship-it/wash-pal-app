@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Branch, Customer, Employee, Order, Service, Invoice, Shop } from '@/types';
+import { Branch, Customer, Employee, Order, Service, Invoice, Shop, B2BPartner } from '@/types';
 
 interface AppContextType {
   branches: Branch[];
