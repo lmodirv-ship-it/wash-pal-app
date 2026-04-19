@@ -80,7 +80,7 @@ export default function Shops() {
     setEditing(null); setDialogOpen(false);
   };
 
-  const startEdit = (s: Shop) => {
+  const startEdit = (s: B2BPartner) => {
     const daysLeft = Math.max(1, Math.ceil((new Date(s.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
     setForm({
       name: s.name, ownerName: s.ownerName, address: s.address, city: s.city,
