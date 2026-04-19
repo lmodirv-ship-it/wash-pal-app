@@ -7,12 +7,13 @@ import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { branches, currentBranch, setCurrentBranch } = useApp();
-  const { profile, isAdmin } = useAuth();
+  const { profile, isAdmin, signOut } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
 
