@@ -84,7 +84,17 @@ export interface Branch {
   isActive: boolean;
 }
 
+// Tenant shop (multi-tenant SaaS)
 export interface Shop {
+  id: string;
+  name: string;
+  ownerId: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+// B2B partner subscription (formerly "shops")
+export interface B2BPartner {
   id: string;
   reference?: string;
   name: string;
@@ -102,6 +112,7 @@ export interface Shop {
   isActive: boolean;
   notes?: string;
   createdAt: string;
+  shopId?: string;
 }
 
 export interface DailyStats {
