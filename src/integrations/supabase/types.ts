@@ -453,6 +453,91 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_settings: {
+        Row: {
+          created_at: string
+          email: string | null
+          email_enabled: boolean
+          frequency: string
+          id: string
+          phone: string | null
+          shop_id: string
+          updated_at: string
+          whatsapp_enabled: boolean
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          email_enabled?: boolean
+          frequency?: string
+          id?: string
+          phone?: string | null
+          shop_id: string
+          updated_at?: string
+          whatsapp_enabled?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          email_enabled?: boolean
+          frequency?: string
+          id?: string
+          phone?: string | null
+          shop_id?: string
+          updated_at?: string
+          whatsapp_enabled?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: true
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          shop_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          shop_id?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          shop_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           branch_id: string
@@ -698,6 +783,7 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          billing_cycle: string
           created_at: string
           current_period_end: string
           current_period_start: string
@@ -710,6 +796,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          billing_cycle?: string
           created_at?: string
           current_period_end?: string
           current_period_start?: string
@@ -722,6 +809,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          billing_cycle?: string
           created_at?: string
           current_period_end?: string
           current_period_start?: string
