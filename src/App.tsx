@@ -29,7 +29,7 @@ const queryClient = new QueryClient();
 function ProtectedRoutes() {
   const { user, profile, loading } = useAuth();
 
-  if (loading) return (
+  if (loading || (user && !profile)) return (
     <div className="min-h-screen flex items-center justify-center">
       <p className="text-lg text-muted-foreground animate-pulse">جاري التحميل...</p>
     </div>
