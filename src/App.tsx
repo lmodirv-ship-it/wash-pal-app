@@ -105,6 +105,17 @@ function PostLoginRedirect() {
   return <Navigate to="/app" replace />;
 }
 
+function AuthedCreateShop() {
+  const { user, profile, loading } = useAuth();
+  if (loading || (user && !profile)) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  return (
+    <AppProvider>
+      <CreateShop />
+    </AppProvider>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
