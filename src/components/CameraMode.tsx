@@ -6,6 +6,7 @@ import { Camera, X, Loader2, Sparkles, Car, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import Tesseract from "tesseract.js";
 import { Order, Service } from "@/types";
+import { useTranslation } from "react-i18next";
 
 interface CameraModeProps {
   open: boolean;
@@ -26,6 +27,7 @@ function cleanPlate(raw: string): string {
 }
 
 export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: CameraModeProps) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -74,8 +76,8 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
       } catch (e: any) {
         setError(
           e?.name === "NotAllowedError"
-            ? "تم رفض إذن الكاميرا. الرجاء السماح بالوصول."
-            : "تعذّر فتح الكاميرا."
+            ? t("camera.permissionDenied")
+            : t("camera.cantOpen")
         );
       }
     })();
@@ -140,7 +142,7 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
         const sugg = findSuggestion(plate);
         if (sugg) {
           setSuggestedServiceId(sugg);
-          toast.success(`عميل سابق: ${plate} — اقترحنا خدمته المعتادة`);
+          toast.success(t("camera.pastClient", { plate }));
         } else if (activeServices[0]) {
           setSuggestedServiceId(activeServices[0].id);
         }
@@ -174,7 +176,7 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-white gap-3">
               <Camera className="w-12 h-12 opacity-50" />
               <p className="text-sm">{error}</p>
-              <Button variant="outline" onClick={onClose}>إغلاق</Button>
+              <Button variant="outline" onClick={onClose}>{t("common.close")}</Button>
             </div>
           ) : (
             <>
@@ -184,7 +186,7 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
               {/* Top bar */}
               <div className="absolute top-0 inset-x-0 p-3 flex items-center justify-between z-10">
                 <Badge className="bg-black/60 text-white border-0 backdrop-blur">
-                  <Sparkles className="w-3 h-3 ml-1" /> وضع الكاميرا الذكي
+                  <Sparkles className="w-3 h-3 ml-1" /> {t("camera.smartMode")}
                 </Badge>
                 <button
                   onClick={onClose}
@@ -198,11 +200,11 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 h-32 border-2 border-primary rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]" />
                 <p className="absolute top-14 inset-x-0 text-center text-white/80 text-xs">
-                  وجّه الكاميرا نحو لوحة السيارة
+                  {t("camera.aimAtPlate")}
                 </p>
                 {scanning && !detectedPlate && (
                   <div className="absolute top-1/2 -translate-y-1/2 inset-x-0 text-center text-white text-xs">
-                    <Loader2 className="w-4 h-4 inline animate-spin ml-1" /> يبحث عن لوحة...
+                    <Loader2 className="w-4 h-4 inline animate-spin ml-1" /> {t("camera.searchingPlate")}
                   </div>
                 )}
               </div>
@@ -213,16 +215,16 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
                   <div className="bg-card/95 backdrop-blur-xl rounded-2xl p-4 space-y-3 border border-border">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] text-muted-foreground">لوحة مكتشفة</p>
+                        <p className="text-[10px] text-muted-foreground">{t("camera.detectedPlate")}</p>
                         <p className="text-xl font-bold tracking-wider">{detectedPlate}</p>
                       </div>
                       <Badge className="bg-success/15 text-success border-success/30">
-                        <Car className="w-3 h-3 ml-1" /> جاهز
+                        <Car className="w-3 h-3 ml-1" /> {t("camera.ready")}
                       </Badge>
                     </div>
 
                     <div>
-                      <p className="text-[10px] text-muted-foreground mb-1.5">اختر الخدمة</p>
+                      <p className="text-[10px] text-muted-foreground mb-1.5">{t("camera.chooseService")}</p>
                       <div className="grid grid-cols-2 gap-1.5">
                         {activeServices.map(s => (
                           <button
@@ -243,7 +245,7 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
 
                     <div className="grid grid-cols-2 gap-2">
                       <Button variant="outline" onClick={reset} className="h-11 rounded-xl">
-                        إعادة المسح
+                        {t("camera.rescan")}
                       </Button>
                       <Button
                         onClick={confirm}
@@ -251,7 +253,7 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
                         className="h-11 rounded-xl font-bold"
                         style={{ background: "var(--gradient-primary)" }}
                       >
-                        <CheckCircle2 className="w-4 h-4 ml-1" /> تأكيد
+                        <CheckCircle2 className="w-4 h-4 ml-1" /> {t("common.confirm")}
                       </Button>
                     </div>
                   </div>
@@ -265,7 +267,7 @@ export function CameraMode({ open, onClose, services, pastOrders, onConfirm }: C
                           : "bg-black/50 text-white/70 border border-white/10"
                       }`}
                     >
-                      {autoScan ? "🤖 المسح التلقائي مفعّل" : "تفعيل المسح التلقائي"}
+                      {autoScan ? t("camera.autoScanOn") : t("camera.autoScanOff")}
                     </button>
                     <button
                       onClick={doScan}
