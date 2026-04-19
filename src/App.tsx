@@ -193,13 +193,13 @@ const App = () => (
 
             {/* Supervisor + Manager + Admin (admin has full access) */}
             {[
-              "/dashboard/*", "/orders", "/customers", "/employees", "/services",
+              "/dashboard", "/orders", "/customers", "/employees", "/services",
               "/invoices", "/reports", "/finance", "/branches", "/shops",
               "/settings", "/team",
             ].map((path) => (
               <Route
                 key={path}
-                path={path}
+                path={`${path}/*`}
                 element={
                   <ProtectedRoute allowedRoles={["admin", "supervisor", "manager"]}>
                     <ProtectedRoutes />
