@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2, Edit, Search, Crown, Sparkles, Package, Droplets, Bike } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -160,7 +161,7 @@ export default function Services() {
         <TabsContent value={tab} className="mt-4">
           {filtered.length === 0 ? (
             <div className="lavage-card p-10 text-center text-muted-foreground">{t("services.noServices")}</div>
-          ) : (
+          ) : tab === "all" ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map(s => {
                 const isVip = s.category === "vip";
@@ -214,6 +215,60 @@ export default function Services() {
                   </div>
                 );
               })}
+            </div>
+          ) : (
+            <div className="lavage-card overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border hover:bg-secondary/50">
+                    <TableHead className="text-muted-foreground">{t("common.reference")}</TableHead>
+                    <TableHead className="text-muted-foreground">{t("services.serviceName")}</TableHead>
+                    <TableHead className="text-muted-foreground">{t("common.price")}</TableHead>
+                    <TableHead className="text-muted-foreground">{t("common.duration")}</TableHead>
+                    <TableHead className="text-muted-foreground">{t("common.description")}</TableHead>
+                    <TableHead className="text-muted-foreground">{t("common.status")}</TableHead>
+                    {isAdmin && <TableHead className="text-muted-foreground">{t("common.actions")}</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map(s => (
+                    <TableRow key={s.id} className={`lavage-table-row border-border ${!s.isActive ? "opacity-50" : ""}`}>
+                      <TableCell className="font-mono text-xs text-primary">{s.reference || "—"}</TableCell>
+                      <TableCell className="font-medium text-foreground">{s.name}</TableCell>
+                      <TableCell>
+                        {s.startingFrom && <span className="text-[10px] text-muted-foreground block">{t("services.startingFrom")}</span>}
+                        <span className="font-bold text-primary">{s.price}</span>
+                        <span className="text-xs text-muted-foreground mx-1">{t("common.currency")}</span>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {s.duration > 0 ? `${s.duration} ${t("common.minutes")}` : "—"}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{s.description || "—"}</TableCell>
+                      <TableCell>
+                        {isAdmin ? (
+                          <Switch checked={s.isActive} onCheckedChange={() => toggleActive(s)} />
+                        ) : (
+                          <Badge className={s.isActive ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}>
+                            {s.isActive ? t("services.enabled") : t("services.disabled")}
+                          </Badge>
+                        )}
+                      </TableCell>
+                      {isAdmin && (
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => startEdit(s)} className="lavage-glow">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success(t("services.serviceDeleted")); }} className="lavage-glow">
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </TabsContent>
