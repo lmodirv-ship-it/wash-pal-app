@@ -17,12 +17,19 @@ type SortKey = "date" | "empName" | "price" | "status";
 type SortDir = "asc" | "desc";
 
 export default function Entries() {
-  const { orders, employees, services } = useApp();
+  const { orders, employees, services, branches } = useApp();
   const [search, setSearch] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [empFilter, setEmpFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [branchFilter, setBranchFilter] = useState<string>("all");
+
+  const branchById = useMemo(() => {
+    const m = new Map<string, string>();
+    branches.forEach((b) => m.set(b.id, b.name));
+    return m;
+  }, [branches]);
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
@@ -59,7 +66,7 @@ export default function Entries() {
   };
 
   const clearFilters = () => {
-    setSearch(""); setFrom(""); setTo(""); setEmpFilter("all"); setStatusFilter("all"); setPage(1);
+    setSearch(""); setFrom(""); setTo(""); setEmpFilter("all"); setStatusFilter("all"); setBranchFilter("all"); setPage(1);
   };
 
   const allRows = useMemo(() => {
@@ -73,6 +80,7 @@ export default function Entries() {
         if (ts < fromTs || ts > toTs) return false;
         if (empFilter !== "all" && o.employeeId !== empFilter) return false;
         if (statusFilter !== "all" && o.status !== statusFilter) return false;
+        if (branchFilter !== "all" && o.branchId !== branchFilter) return false;
         if (!q) return true;
         const empRef = (o.employeeId && empById.get(o.employeeId)?.reference) || "";
         return (
@@ -102,9 +110,11 @@ export default function Entries() {
           services: svcNames,
           price: Number(o.totalPrice || 0),
           status: o.status,
+          branchId: o.branchId || "",
+          branchName: (o.branchId && branchById.get(o.branchId)) || "—",
         };
       });
-  }, [orders, empById, svcById, search, from, to, empFilter, statusFilter]);
+  }, [orders, empById, svcById, branchById, search, from, to, empFilter, statusFilter, branchFilter]);
 
   const sortedRows = useMemo(() => {
     const arr = [...allRows];
@@ -167,6 +177,7 @@ export default function Entries() {
       "مرجع العملية": r.orderRef,
       "مرجع الموظف": r.empRef,
       "الموظف": r.empName,
+      "الفرع": r.branchName,
       "التاريخ": r.date,
       "الوقت": r.time,
       "الزبون": r.customer,
@@ -177,13 +188,13 @@ export default function Entries() {
       "الحالة": statusLabel[r.status] || r.status,
     }));
     data.push({
-      "مرجع العملية": "", "مرجع الموظف": "", "الموظف": "", "التاريخ": "",
+      "مرجع العملية": "", "مرجع الموظف": "", "الموظف": "", "الفرع": "", "التاريخ": "",
       "الوقت": "", "الزبون": "", "اللوحة": "", "نوع السيارة": "",
       "الخدمات": "المجموع", "السعر (DH)": kpis.total, "الحالة": "",
     } as any);
     const ws = XLSX.utils.json_to_sheet(data);
     ws["!cols"] = [
-      { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 8 },
+      { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 8 },
       { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 32 }, { wch: 12 }, { wch: 10 },
     ];
     const wb = XLSX.utils.book_new();
@@ -247,7 +258,7 @@ export default function Entries() {
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-3">
           <div>
             <label className="text-xs text-muted-foreground">الموظف</label>
             <Select value={empFilter} onValueChange={(v) => { setEmpFilter(v); setPage(1); }}>
@@ -257,7 +268,20 @@ export default function Entries() {
                 {employees.map((e) => (
                   <SelectItem key={e.id} value={e.id}>
                     {e.reference ? `${e.reference} — ` : ""}{e.name}
+                    {e.branchId && branchById.get(e.branchId) ? ` (${branchById.get(e.branchId)})` : ""}
                   </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">الفرع</label>
+            <Select value={branchFilter} onValueChange={(v) => { setBranchFilter(v); setPage(1); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">كل الفروع</SelectItem>
+                {branches.map((b) => (
+                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -320,6 +344,7 @@ export default function Entries() {
               <TableHead className="text-right cursor-pointer select-none" onClick={() => toggleSort("empName")}>
                 <SortIcon k="empName" />الموظف
               </TableHead>
+              <TableHead className="text-right">الفرع</TableHead>
               <TableHead className="text-right cursor-pointer select-none" onClick={() => toggleSort("date")}>
                 <SortIcon k="date" />التاريخ
               </TableHead>
@@ -339,7 +364,7 @@ export default function Entries() {
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center text-muted-foreground py-10">
+                <TableCell colSpan={11} className="text-center text-muted-foreground py-10">
                   لا توجد مداخل لعرضها
                 </TableCell>
               </TableRow>
@@ -348,6 +373,7 @@ export default function Entries() {
                 <TableRow key={r.id}>
                   <TableCell className="font-mono text-xs">{r.empRef}</TableCell>
                   <TableCell className="font-medium">{r.empName}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{r.branchName}</TableCell>
                   <TableCell className="whitespace-nowrap">{r.date}</TableCell>
                   <TableCell className="whitespace-nowrap text-muted-foreground">{r.time}</TableCell>
                   <TableCell>{r.customer}</TableCell>
