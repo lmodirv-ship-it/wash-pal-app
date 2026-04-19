@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, X, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
+import { Check, X, Sparkles, Zap, Crown, ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { openWhatsAppUpgrade, PAYMENT_WHATSAPP_DISPLAY } from "@/lib/whatsapp";
 
 type Cycle = "monthly" | "yearly";
 type PlanId = "starter" | "pro" | "business";
@@ -124,7 +125,12 @@ export default function Pricing() {
     try {
       localStorage.setItem("selectedPlan", JSON.stringify({ plan: planId, cycle }));
     } catch {}
-    navigate(`/login?redirect=create-shop`);
+    // Free plan → onboarding directly. Paid → WhatsApp the platform owner.
+    if (planId === "starter") {
+      navigate(`/login?redirect=create-shop`);
+    } else {
+      openWhatsAppUpgrade({ plan: planId, cycle });
+    }
   };
 
   const yearlySavingsPct = (p: Plan) => {
