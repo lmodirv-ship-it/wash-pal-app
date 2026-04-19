@@ -177,6 +177,7 @@ export default function Entries() {
       "مرجع العملية": r.orderRef,
       "مرجع الموظف": r.empRef,
       "الموظف": r.empName,
+      "الفرع": r.branchName,
       "التاريخ": r.date,
       "الوقت": r.time,
       "الزبون": r.customer,
@@ -187,13 +188,13 @@ export default function Entries() {
       "الحالة": statusLabel[r.status] || r.status,
     }));
     data.push({
-      "مرجع العملية": "", "مرجع الموظف": "", "الموظف": "", "التاريخ": "",
+      "مرجع العملية": "", "مرجع الموظف": "", "الموظف": "", "الفرع": "", "التاريخ": "",
       "الوقت": "", "الزبون": "", "اللوحة": "", "نوع السيارة": "",
       "الخدمات": "المجموع", "السعر (DH)": kpis.total, "الحالة": "",
     } as any);
     const ws = XLSX.utils.json_to_sheet(data);
     ws["!cols"] = [
-      { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 8 },
+      { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 8 },
       { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 32 }, { wch: 12 }, { wch: 10 },
     ];
     const wb = XLSX.utils.book_new();
