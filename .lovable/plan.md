@@ -1,55 +1,29 @@
 
-المستخدم يريد إكمال صفحة `/admin/leads` + إضافة قوالب رسائل (Email + WhatsApp) لإرسالها للمحلات المُكتشفة لشرح المنصة ودعوتهم للتسجيل.
+المستخدم يريد ربط دومين آخر بالمنصة. هذا إعداد إداري وليس تغيير كود.
 
-## ما هو موجود فعلاً
-- ✅ Edge function `generate-leads` (يستخدم Lovable AI)
-- ✅ Migration: أعمدة `country, whatsapp, website, source` + trigger للـ reference `B-XXXXXX`
-- ❌ صفحة `/admin/leads` (لم تُكمل — تم إلغاؤها)
-- ❌ Route + رابط في Sidebar
-- ❌ قوالب الرسائل
+## الخطوات (تتم في إعدادات Lovable لا في الكود):
 
-## الخطة
+1. **اشترِ أو احضر الدومين** الذي تريده
+2. افتح **Project Settings → Domains**:
+   - Desktop: اضغط على اسم المشروع (أعلى يسار) → Settings → تبويب Domains
+   - Mobile: زر `...` (أسفل يمين) → Settings → Domains
+3. اضغط **Connect Domain** وأدخل اسم الدومين (مثل `mynewdomain.com`)
+4. أضف سجلات DNS عند مزود الدومين:
+   - **A Record**: Name `@` → Value `185.158.133.1`
+   - **A Record**: Name `www` → Value `185.158.133.1`
+   - **TXT Record**: Name `_lovable` → Value يعطيك Lovable
+5. انتظر التحقق (دقائق إلى 72 ساعة)
+6. SSL يُفعّل تلقائياً
 
-### 1. صفحة `src/pages/AdminLeads.tsx`
-- **Header** + إحصائيات سريعة (عدد leads المحفوظة، عدد المُتواصل معهم)
-- **نموذج توليد**: اختيار البلد (dropdown شامل + "كل العالم") + المدينة + العدد (5/10/20)
-- **زر "🌍 توليد ذكي"** → يستدعي edge function مع loading
-- **جدول النتائج** مع أعمدة: ✓ | الاسم | المالك | البلد | المدينة | إيميل | واتساب | هاتف | موقع | إجراءات
-- **إجراءات لكل صف**:
-  - زر **واتساب** → يفتح wa.me برسالة دعوة جاهزة
-  - زر **إيميل** → يفتح mailto: برسالة دعوة جاهزة
-  - زر **حفظ في DB**
-- **أزرار جماعية**: حفظ المحدد | تصدير Excel | تصدير CSV
-- **جدول leads المحفوظة سابقاً** (من `b2b_partners` حيث `source = 'ai_generated'`)
+## ملاحظات:
+- الدومين الحالي `hn-carwash.online` يبقى يعمل بجانب الجديد (يمكنك جعل أحدهما Primary والآخر يحوّل إليه)
+- إذا اشتريت الدومين عبر Lovable نفسها (زر Buy new domain)، DNS يُضبط تلقائياً بدون أي عمل يدوي
+- إذا تستخدم Cloudflare، فعّل خيار **Domain uses Cloudflare** في الإعدادات المتقدمة
 
-### 2. قوالب الرسائل (`src/lib/leadMessages.ts`)
-ملف جديد يحتوي على:
-- `buildInviteWhatsAppMessage(lead, lang)` — رسالة قصيرة جذابة بالعربية/الإنجليزية/الفرنسية حسب البلد
-- `buildInviteEmailSubject(lead, lang)` 
-- `buildInviteEmailBody(lead, lang)` — يشرح المنصة + المميزات + رابط التسجيل
-- اللغة تُختار تلقائياً حسب البلد (المغرب/الجزائر→عربي/فرنسي، فرنسا→فرنسي، باقي العالم→إنجليزي)
+## ما لا يحتاج تغيير في الكود:
+لا توجد ملفات أو migrations لتعديلها — فقط إعدادات Lovable.
 
-محتوى الرسالة سيشمل:
-- تحية شخصية باسم المحل
-- تعريف بـ H&Lavage
-- 3 مميزات رئيسية (إدارة الطلبات، الفواتير، التقارير)
-- عرض تجريبي مجاني 15 يوم
-- رابط: https://hn-carwash.online
-- توقيع
-
-### 3. Route + Sidebar
-- إضافة `/admin/leads` في `src/App.tsx` (داخل block super_admin/admin)
-- إضافة عنصر "🌍 توليد عملاء" في `src/components/AppSidebar.tsx` (يظهر فقط للأدمن)
-
-### 4. ملاحظة بسيطة
-- استخدام `B-XXXXXX` reference تلقائياً (الـ trigger موجود)
-- التحقق من عدم تكرار الإيميل عند الحفظ
-
-## الملفات
-1. ✏️ `src/pages/AdminLeads.tsx` (إنشاء)
-2. ✏️ `src/lib/leadMessages.ts` (إنشاء)
-3. ✏️ `src/App.tsx` (إضافة route)
-4. ✏️ `src/components/AppSidebar.tsx` (إضافة رابط)
-
-## التكلفة
-~4 ملفات، ~5 دقائق. لا migration جديد ولا edge function جديد.
+**هل تريد:**
+- (أ) شراء دومين جديد عبر Lovable مباشرة (الأسهل)
+- (ب) ربط دومين تملكه من مزود خارجي (GoDaddy / Namecheap...)
+- (ج) شيء مختلف — اشرح أكثر
