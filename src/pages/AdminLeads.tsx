@@ -197,6 +197,16 @@ export default function AdminLeads() {
     toast({ title: "✉️ تم فتح Gmail / Mailbutler", description: `رسالة تشجيعية جاهزة لـ ${lead.name}` });
   };
 
+  // Opens Mailbutler Web composer directly with the engagement message
+  const sendViaMailbutler = (lead: Lead) => {
+    if (!lead.email) return toast({ title: "لا يوجد إيميل", variant: "destructive" });
+    const lang = detectLang(lead.country);
+    const subject = buildEngagementEmailSubject(lead, lang);
+    const body = buildEngagementEmailBody(lead, lang);
+    window.open(mailbutlerComposeLink(lead.email, subject, body), "_blank");
+    toast({ title: "📮 تم فتح Mailbutler", description: `رسالة جاهزة للإرسال إلى ${lead.name}` });
+  };
+
   return (
     <div className="p-6 space-y-6 min-h-screen bg-gradient-to-br from-background via-background to-muted/30" dir="rtl">
       {/* Header */}
