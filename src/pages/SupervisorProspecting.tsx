@@ -212,16 +212,16 @@ export default function SupervisorProspecting() {
                   <div className="flex gap-1">
                     {l.whatsapp && (
                       <Button asChild size="icon" variant="outline" className="h-8 w-8" title="واتساب">
-                        <a href={whatsappLink(l.whatsapp, msg.body)} target="_blank" rel="noopener"><MessageCircle className="w-4 h-4 text-emerald-500" /></a>
+                        <a href={whatsappLink(l.whatsapp, waMsg)} target="_blank" rel="noopener"><MessageCircle className="w-4 h-4 text-emerald-500" /></a>
                       </Button>
                     )}
                     {l.email && (
                       <>
                         <Button asChild size="icon" variant="outline" className="h-8 w-8" title="Gmail">
-                          <a href={gmailComposeLink(l.email, msg.subject, msg.body)} target="_blank" rel="noopener"><Mail className="w-4 h-4 text-rose-500" /></a>
+                          <a href={gmailComposeLink(l.email, emailSubject, emailBody)} target="_blank" rel="noopener"><Mail className="w-4 h-4 text-rose-500" /></a>
                         </Button>
                         <Button asChild size="icon" variant="outline" className="h-8 w-8 bg-gradient-to-r from-orange-500/20 to-amber-500/10" title="Mailbutler">
-                          <a href={mailbutlerComposeLink(l.email, msg.subject, msg.body)} target="_blank" rel="noopener"><MailPlus className="w-4 h-4 text-amber-500" /></a>
+                          <a href={mailbutlerComposeLink(l.email, emailSubject, emailBody)} target="_blank" rel="noopener"><MailPlus className="w-4 h-4 text-amber-500" /></a>
                         </Button>
                       </>
                     )}
