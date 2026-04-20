@@ -13,7 +13,7 @@ serve(async (req) => {
 
   try {
     const { country, city, count } = await req.json().catch(() => ({}));
-    const targetCount = Math.min(Math.max(Number(count) || 10, 1), 30);
+    const targetCount = Math.min(Math.max(Number(count) || 10, 1), 1000);
     const where =
       country && country !== "world"
         ? `in ${city ? city + ", " : ""}${country}`
@@ -23,9 +23,9 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const systemPrompt =
-      "You are a fast B2B lead-research assistant. Return real car wash / auto-detailing businesses with public contact info. If a field is unknown, use empty string. Output ONLY via the tool. Be concise.";
+      "You are a B2B lead-research assistant. Return ONLY real car wash / auto-detailing businesses that have a verifiable public EMAIL address. Skip any business without a real email. Email is mandatory — never invent emails. Output ONLY via the tool.";
 
-    const userPrompt = `List ${targetCount} car wash businesses ${where}. Fields: name, owner_name, email, whatsapp (with +), phone, city, country, address, website, notes (1 short line).`;
+    const userPrompt = `List ${targetCount} car wash businesses ${where} that have a public email address. Every entry MUST include a valid email. Fields: name, owner_name, email (REQUIRED, real), whatsapp (with +), phone, city, country, address, website, notes.`;
 
     const tool = {
       type: "function",
@@ -51,8 +51,8 @@ serve(async (req) => {
                   website: { type: "string" },
                   notes: { type: "string" },
                 },
-                required: ["name", "city", "country"],
-                additionalProperties: false,
+                  required: ["name", "email", "city", "country"],
+                  additionalProperties: false,
               },
             },
           },
@@ -111,6 +111,9 @@ serve(async (req) => {
         console.error("Parse error:", e);
       }
     }
+    // Filter: keep only entries with a plausible email
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    leads = leads.filter((l: any) => l && typeof l.email === "string" && emailRe.test(l.email.trim()));
 
     return new Response(JSON.stringify({ leads }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
