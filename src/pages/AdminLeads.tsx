@@ -7,12 +7,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, MessageCircle, Mail, Save, Download, Globe2, Users, CheckCircle2 } from "lucide-react";
+import { Loader2, Sparkles, MessageCircle, Mail, Save, Download, Globe2, Users, CheckCircle2, Send } from "lucide-react";
 import {
+  buildEngagementEmailBody,
+  buildEngagementEmailSubject,
   buildInviteEmailBody,
   buildInviteEmailSubject,
   buildInviteWhatsAppMessage,
   detectLang,
+  gmailComposeLink,
   mailtoLink,
   whatsappLink,
 } from "@/lib/leadMessages";
