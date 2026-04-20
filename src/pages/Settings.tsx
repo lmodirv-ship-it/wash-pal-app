@@ -145,14 +145,62 @@ export default function SettingsPage() {
         <div className="lavage-card p-4 text-center"><p className="text-2xl font-bold text-foreground">{employees.length}</p><p className="text-xs text-muted-foreground">{t("settings.employees")}</p></div>
       </div>
 
-      <Tabs defaultValue="roles" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs defaultValue="account" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="account"><KeyRound className="w-4 h-4 mx-1" />الحساب</TabsTrigger>
           <TabsTrigger value="roles"><Shield className="w-4 h-4 mx-1" />{t("settings.tabs.roles")}</TabsTrigger>
           <TabsTrigger value="services"><Droplets className="w-4 h-4 mx-1" />{t("settings.tabs.services")}</TabsTrigger>
           <TabsTrigger value="branches"><Building2 className="w-4 h-4 mx-1" />{t("settings.tabs.branches")}</TabsTrigger>
           <TabsTrigger value="overview"><Users className="w-4 h-4 mx-1" />{t("settings.tabs.overview")}</TabsTrigger>
           <TabsTrigger value="about">{t("settings.tabs.about")}</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="account" className="mt-4">
+          <div className="lavage-card overflow-hidden">
+            <div className="p-4 border-b border-border flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">تغيير كلمة المرور</h3>
+                <p className="text-xs text-muted-foreground">قم بتحديث كلمة مرور حسابك</p>
+              </div>
+            </div>
+            <div className="p-6 space-y-4 max-w-md">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">كلمة المرور الجديدة</label>
+                <Input
+                  type="password"
+                  placeholder="6 أحرف على الأقل"
+                  value={pwd.next}
+                  onChange={(e) => setPwd((p) => ({ ...p, next: e.target.value }))}
+                  className="h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">تأكيد كلمة المرور</label>
+                <Input
+                  type="password"
+                  placeholder="أعد إدخال كلمة المرور"
+                  value={pwd.confirm}
+                  onChange={(e) => setPwd((p) => ({ ...p, confirm: e.target.value }))}
+                  className="h-11"
+                />
+              </div>
+              <Button onClick={handlePasswordChange} disabled={pwdLoading} className="w-full h-11 lavage-btn">
+                <KeyRound className="w-4 h-4 mx-2" />
+                {pwdLoading ? "جاري الحفظ..." : "حفظ كلمة المرور الجديدة"}
+              </Button>
+
+              <div className="pt-4 border-t border-border space-y-2">
+                <p className="text-xs text-muted-foreground">نسيت كلمة المرور الحالية؟ يمكنك إرسال رابط إعادة التعيين إلى بريدك:</p>
+                <Button onClick={handleSendResetEmail} variant="outline" className="w-full">
+                  إرسال رابط إعادة تعيين بالبريد
+                </Button>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
 
         <TabsContent value="roles" className="mt-4">
           <div className="lavage-card overflow-hidden">
