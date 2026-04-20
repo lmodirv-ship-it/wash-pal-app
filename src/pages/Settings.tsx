@@ -58,6 +58,31 @@ export default function SettingsPage() {
   const [users, setUsers] = useState<{ id: string; user_id: string; name: string; role: string; created_at: string }[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
+  // Password change state
+  const [pwd, setPwd] = useState({ current: "", next: "", confirm: "" });
+  const [pwdLoading, setPwdLoading] = useState(false);
+
+  const handlePasswordChange = async () => {
+    if (!pwd.next || !pwd.confirm) { toast.error(t("common.fillRequired")); return; }
+    if (pwd.next.length < 6) { toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل"); return; }
+    if (pwd.next !== pwd.confirm) { toast.error("كلمتا المرور غير متطابقتين"); return; }
+    setPwdLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: pwd.next });
+    if (error) toast.error(error.message);
+    else { toast.success("تم تغيير كلمة المرور بنجاح"); setPwd({ current: "", next: "", confirm: "" }); }
+    setPwdLoading(false);
+  };
+
+  const handleSendResetEmail = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) { toast.error("لا يوجد بريد إلكتروني"); return; }
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) toast.error(error.message);
+    else toast.success(`تم إرسال رابط إعادة التعيين إلى ${user.email}`);
+  };
+
   const fetchUsers = async () => {
     setLoadingUsers(true);
     const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
