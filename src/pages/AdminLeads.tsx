@@ -447,8 +447,11 @@ export default function AdminLeads() {
                         <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة" className="h-8 w-8 border-info/40 hover:bg-info/15 hover:border-info hover:shadow-[0_0_12px_hsl(var(--info)/0.4)] transition-all">
                           <Mail className="w-4 h-4 text-info" />
                         </Button>
-                        <Button size="icon" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail" className="h-8 w-8 bg-gradient-to-br from-primary to-accent hover:shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all">
+                        <Button size="icon" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Gmail" className="h-8 w-8 bg-gradient-to-br from-primary to-accent hover:shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all">
                           <Send className="w-4 h-4 text-primary-foreground" />
+                        </Button>
+                        <Button size="icon" disabled={!l.email} onClick={() => sendViaMailbutler(l)} title="إرسال عبر Mailbutler" className="h-8 w-8 bg-gradient-to-br from-warning/30 to-warning/10 border border-warning/40 hover:from-warning/50 hover:to-warning/20 hover:shadow-[0_0_14px_hsl(var(--warning)/0.5)] hover:border-warning transition-all disabled:opacity-40">
+                          <MailPlus className="w-4 h-4 text-warning" />
                         </Button>
                       </div>
                     </TableCell>
