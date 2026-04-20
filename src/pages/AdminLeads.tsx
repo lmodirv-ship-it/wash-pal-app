@@ -262,26 +262,31 @@ export default function AdminLeads() {
       </div>
 
       {/* Generation form */}
-      <Card>
-        <CardHeader><CardTitle>🌍 توليد جديد</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <Card className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 shadow-[0_0_40px_hsl(var(--primary)/0.1)]">
+        <CardHeader className="border-b border-border/50">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <span className="w-1 h-6 bg-gradient-to-b from-primary to-accent rounded-full" />
+            🌍 توليد جديد بالذكاء الاصطناعي
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-6">
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">البلد</label>
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold uppercase tracking-wider">البلد</label>
             <Select value={country} onValueChange={setCountry}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-background/50 border-border/60 hover:border-primary/40 transition-colors h-11"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {COUNTRIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">المدينة (اختياري)</label>
-            <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Casablanca, Paris..." />
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold uppercase tracking-wider">المدينة (اختياري)</label>
+            <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Casablanca, Paris..." className="h-11 bg-background/50 border-border/60 hover:border-primary/40 transition-colors" />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">عدد المحلات</label>
+            <label className="text-xs text-muted-foreground mb-2 block font-semibold uppercase tracking-wider">عدد المحلات</label>
             <Select value={count} onValueChange={setCount}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-background/50 border-border/60 hover:border-primary/40 transition-colors h-11"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="10">10</SelectItem>
                 <SelectItem value="25">25</SelectItem>
@@ -294,8 +299,12 @@ export default function AdminLeads() {
             </Select>
           </div>
           <div className="flex items-end">
-            <Button onClick={generate} disabled={loading} className="w-full">
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> جاري البحث...</> : <><Sparkles className="w-4 h-4" /> توليد ذكي</>}
+            <Button
+              onClick={generate}
+              disabled={loading}
+              className="w-full h-11 bg-gradient-to-r from-primary via-accent to-primary-glow hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)] text-primary-foreground font-bold transition-all duration-300 hover:scale-[1.02]"
+            >
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin ml-2" /> جاري البحث...</> : <><Sparkles className="w-4 h-4 ml-2" /> توليد ذكي</>}
             </Button>
           </div>
         </CardContent>
