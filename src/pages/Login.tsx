@@ -24,8 +24,28 @@ export default function Login() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [verifying, setVerifying] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [isAdminEmail, setIsAdminEmail] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
 
   useEffect(() => () => { if (stream) stream.getTracks().forEach(t => t.stop()); }, [stream]);
+
+  // Detect if entered email belongs to an admin → hide password field
+  useEffect(() => {
+    const email = form.email.trim();
+    if (!email || !email.includes("@")) { setIsAdminEmail(false); return; }
+    const handle = setTimeout(async () => {
+      setCheckingAdmin(true);
+      try {
+        const { data } = await supabase.functions.invoke("admin-camera-auth", {
+          body: { email, action: "check" },
+        });
+        setIsAdminEmail(!!data?.isAdmin);
+      } catch { setIsAdminEmail(false); }
+      setCheckingAdmin(false);
+    }, 500);
+    return () => clearTimeout(handle);
+  }, [form.email]);
 
   if (!authLoading && user) return <Navigate to={redirectTo || "/post-login"} replace />;
 
@@ -66,10 +86,28 @@ export default function Login() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true);
+    e.preventDefault();
+    if (isAdminEmail) { await handleAdminMagicLink(); return; }
+    setLoading(true);
     const { error } = await signIn(form.email, form.password);
     if (error) { toast.error(error); setLoading(false); return; }
     toast.success("مرحباً بعودتك 👋"); setLoading(false);
+  };
+
+  const handleAdminMagicLink = async () => {
+    if (!form.email) { toast.error("أدخل الإيميل أولاً"); return; }
+    setAdminLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: form.email,
+        options: { emailRedirectTo: `${window.location.origin}/post-login` },
+      });
+      if (error) throw error;
+      toast.success("📧 تم إرسال رابط الدخول إلى إيميلك", { duration: 6000 });
+    } catch (err: any) {
+      toast.error(err?.message || "فشل إرسال الرابط");
+    }
+    setAdminLoading(false);
   };
 
   const isRtl = i18n.language === "ar";
@@ -129,25 +167,38 @@ export default function Login() {
               <Input type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all" required />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs text-muted-foreground">{t("auth.password")}</label>
-              <Input type="password" placeholder="••••••••" value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))} className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all" required minLength={6} />
-            </div>
+            {isAdminEmail ? (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-center">
+                <p className="text-sm text-primary font-bold flex items-center justify-center gap-2">
+                  <ShieldCheck className="w-4 h-4" />
+                  حساب مدير — دخول بدون كلمة سر عبر رابط الإيميل
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">{t("auth.password")}</label>
+                <Input type="password" placeholder="••••••••" value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))} className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all" required={!isAdminEmail} minLength={6} />
+              </div>
+            )}
 
-            <div className="flex justify-end">
+            {!isAdminEmail && (
+              <div className="flex justify-end">
               <Link
                 to="/forgot-password"
                 className="text-sm font-bold text-primary hover:text-primary/80 hover:underline underline-offset-4 transition-colors"
               >
                 🔑 {t("auth.forgotPassword") || "نسيت كلمة السر؟"}
               </Link>
-            </div>
+              </div>
+            )}
 
-            <Button type="submit" disabled={loading} className="w-full h-12 font-bold text-base relative overflow-hidden group bg-gradient-to-r from-[#0a0a2a] to-[#12122e] border border-white/10 hover:border-primary/40 hover:shadow-[0_0_25px_rgba(250,204,21,0.12)] transition-all duration-500">
+            <Button type="submit" disabled={loading || adminLoading || checkingAdmin} className="w-full h-12 font-bold text-base relative overflow-hidden group bg-gradient-to-r from-[#0a0a2a] to-[#12122e] border border-white/10 hover:border-primary/40 hover:shadow-[0_0_25px_rgba(250,204,21,0.12)] transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/0 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <span className="relative text-foreground group-hover:text-primary transition-colors duration-300">
-                {loading ? t("auth.loggingIn") : (
-                  <span className="flex items-center justify-center gap-2"><LogIn className="w-5 h-5" />{t("auth.enter")}</span>
+                {adminLoading ? "جاري إرسال الرابط..." : loading ? t("auth.loggingIn") : (
+                  <span className="flex items-center justify-center gap-2">
+                    {isAdminEmail ? <><ShieldCheck className="w-5 h-5" />إرسال رابط الدخول للمدير</> : <><LogIn className="w-5 h-5" />{t("auth.enter")}</>}
+                  </span>
                 )}
               </span>
             </Button>
