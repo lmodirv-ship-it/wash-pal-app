@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket, ShieldAlert,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket, ShieldAlert, Key,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -60,6 +60,7 @@ export function AppSidebar() {
     { title: "Superviseurs", url: "/admin/subscriptions", icon: ShieldCheck },
     { title: "Utilisateurs inscrits", url: "/admin/pricing-plans", icon: Users },
     { title: "Demandes de trajet", url: "/admin/leads", icon: ClipboardList, badge: 6 },
+    { title: "API Keys", url: "/admin/api-keys", icon: Key },
     { title: "Chauffeurs", url: "/employees", icon: UserCog },
     { title: "Clients", url: "/customers", icon: Users },
     { title: "Revenus", url: "/finance", icon: Wallet },
