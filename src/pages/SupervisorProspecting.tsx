@@ -191,7 +191,10 @@ export default function SupervisorProspecting() {
           <div className="space-y-2">
             {filtered.map(l => {
               const statusObj = STATUSES.find(s => s.value === l.prospecting_status);
-              const msg = defaultLeadMessage(l.country || "MA", l.name);
+              const leadObj = { name: l.name, country: l.country };
+              const waMsg = buildInviteWhatsAppMessage(leadObj);
+              const emailSubject = buildEngagementEmailSubject(leadObj);
+              const emailBody = buildEngagementEmailBody(leadObj);
               return (
                 <div key={l.id} className="flex flex-wrap items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/30 transition">
                   <div className="flex-1 min-w-[200px]">
