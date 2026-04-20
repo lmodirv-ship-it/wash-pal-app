@@ -367,11 +367,14 @@ export default function AdminLeads() {
                     <TableCell className="text-xs" dir="ltr">{l.whatsapp || "—"}</TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)}>
+                        <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)} title="واتساب">
                           <MessageCircle className="w-4 h-4 text-green-500" />
                         </Button>
-                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)}>
+                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة">
                           <Mail className="w-4 h-4 text-blue-500" />
+                        </Button>
+                        <Button size="icon" variant="default" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail">
+                          <Send className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
