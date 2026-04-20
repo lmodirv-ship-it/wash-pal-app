@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket,
 } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { NavLink } from "@/components/NavLink";
@@ -91,6 +91,11 @@ export function AppSidebar() {
     { title: t("nav.reports"), url: "/reports", icon: BarChart3 },
     { title: t("nav.branches"), url: "/branches", icon: Building2 },
   ];
+  const supervisorTools = [
+    { title: "🔍 التنقيب عن الشركاء", url: "/prospecting", icon: Globe2 },
+    { title: "📧 نماذج المراسلات", url: "/templates", icon: Mail },
+    { title: "🎟️ كوبونات الخصم", url: "/coupons", icon: Ticket },
+  ];
   const supervisorSettings = [{ title: t("nav.settings"), url: "/settings", icon: Settings }];
 
   // Manager: same as supervisor minus team mgmt + finance restricted
@@ -120,6 +125,7 @@ export function AppSidebar() {
           <Group label={t("nav.overview")} items={supervisorOverview} collapsed={collapsed} isPathActive={isPathActive} />
           <Group label={t("nav.management")} items={[...supervisorManage, { title: t("nav.shops"), url: "/shops", icon: Store }]} collapsed={collapsed} isPathActive={isPathActive} />
           <Group label={t("nav.business")} items={supervisorBusiness} collapsed={collapsed} isPathActive={isPathActive} />
+          <Group label="أدوات النمو" items={supervisorTools} collapsed={collapsed} isPathActive={isPathActive} />
           <Group items={supervisorSettings} collapsed={collapsed} isPathActive={isPathActive} />
         </>
       );
@@ -130,6 +136,7 @@ export function AppSidebar() {
           <Group label={t("nav.overview")} items={supervisorOverview} collapsed={collapsed} isPathActive={isPathActive} />
           <Group label={t("nav.management")} items={supervisorManage} collapsed={collapsed} isPathActive={isPathActive} />
           <Group label={t("nav.business")} items={supervisorBusiness} collapsed={collapsed} isPathActive={isPathActive} />
+          <Group label="أدوات النمو" items={supervisorTools} collapsed={collapsed} isPathActive={isPathActive} />
           <Group items={supervisorSettings} collapsed={collapsed} isPathActive={isPathActive} />
         </>
       );

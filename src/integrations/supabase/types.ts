@@ -17,6 +17,7 @@ export type Database = {
       b2b_partners: {
         Row: {
           address: string
+          category: string | null
           city: string
           country: string | null
           created_at: string
@@ -29,6 +30,7 @@ export type Database = {
           owner_name: string
           package_name: string
           phone: string
+          prospecting_status: string
           reference: string | null
           registration_date: string
           remaining_points: number | null
@@ -41,6 +43,7 @@ export type Database = {
         }
         Insert: {
           address: string
+          category?: string | null
           city?: string
           country?: string | null
           created_at?: string
@@ -53,6 +56,7 @@ export type Database = {
           owner_name: string
           package_name?: string
           phone: string
+          prospecting_status?: string
           reference?: string | null
           registration_date?: string
           remaining_points?: number | null
@@ -65,6 +69,7 @@ export type Database = {
         }
         Update: {
           address?: string
+          category?: string | null
           city?: string
           country?: string | null
           created_at?: string
@@ -77,6 +82,7 @@ export type Database = {
           owner_name?: string
           package_name?: string
           phone?: string
+          prospecting_status?: string
           reference?: string | null
           registration_date?: string
           remaining_points?: number | null
@@ -187,6 +193,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      discount_coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          notes: string | null
+          shop_id: string
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          notes?: string | null
+          shop_id: string
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          notes?: string | null
+          shop_id?: string
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: []
       }
       employees: {
         Row: {
@@ -472,6 +523,48 @@ export type Database = {
           id?: string
           intruder_photo?: string | null
           ip_address?: string | null
+        }
+        Relationships: []
+      }
+      message_templates: {
+        Row: {
+          body: string
+          category: string
+          channel: string
+          created_at: string
+          id: string
+          is_active: boolean
+          language: string
+          name: string
+          shop_id: string
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          category?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          name: string
+          shop_id: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          name?: string
+          shop_id?: string
+          subject?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

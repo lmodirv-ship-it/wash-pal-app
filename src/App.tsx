@@ -37,6 +37,9 @@ import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminPricingPlans from "./pages/AdminPricingPlans";
 import AdminLeads from "./pages/AdminLeads";
 import Entries from "./pages/Entries";
+import SupervisorProspecting from "./pages/SupervisorProspecting";
+import MessageTemplates from "./pages/MessageTemplates";
+import Coupons from "./pages/Coupons";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -155,6 +158,9 @@ const App = () => (
               <Route path="/shops" element={<Shops />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/team" element={<Team />} />
+              <Route path="/prospecting" element={<SupervisorProspecting />} />
+              <Route path="/templates" element={<MessageTemplates />} />
+              <Route path="/coupons" element={<Coupons />} />
             </Route>
 
             {/* Employee — fullscreen, no sidebar/layout */}
