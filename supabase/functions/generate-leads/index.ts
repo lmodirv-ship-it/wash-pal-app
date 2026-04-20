@@ -23,9 +23,9 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const systemPrompt =
-      "You are a B2B lead-research assistant. Return ONLY real, publicly listed car-wash / auto-detailing businesses with verifiable public contact info. Never invent emails or phones. If a field is unknown, leave it empty string. Output via the provided tool only.";
+      "You are a fast B2B lead-research assistant. Return real car wash / auto-detailing businesses with public contact info. If a field is unknown, use empty string. Output ONLY via the tool. Be concise.";
 
-    const userPrompt = `Find ${targetCount} real car wash / auto detailing businesses ${where}. For each, provide: business name, owner or manager name (if public), public email, WhatsApp number (international format with +), phone, city, country, full address, website, and a 1-line note about the business.`;
+    const userPrompt = `List ${targetCount} car wash businesses ${where}. Fields: name, owner_name, email, whatsapp (with +), phone, city, country, address, website, notes (1 short line).`;
 
     const tool = {
       type: "function",
@@ -62,6 +62,7 @@ serve(async (req) => {
       },
     };
 
+    const t0 = Date.now();
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -69,7 +70,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -78,6 +79,7 @@ serve(async (req) => {
         tool_choice: { type: "function", function: { name: "return_leads" } },
       }),
     });
+    console.log(`AI responded in ${Date.now() - t0}ms`);
 
     if (aiRes.status === 429) {
       return new Response(JSON.stringify({ error: "تم تجاوز الحد المسموح. حاول لاحقاً." }), {
