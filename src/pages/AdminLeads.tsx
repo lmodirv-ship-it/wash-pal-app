@@ -7,12 +7,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, MessageCircle, Mail, Save, Download, Globe2, Users, CheckCircle2 } from "lucide-react";
+import { Loader2, Sparkles, MessageCircle, Mail, Save, Download, Globe2, Users, CheckCircle2, Send } from "lucide-react";
 import {
+  buildEngagementEmailBody,
+  buildEngagementEmailSubject,
   buildInviteEmailBody,
   buildInviteEmailSubject,
   buildInviteWhatsAppMessage,
   detectLang,
+  gmailComposeLink,
   mailtoLink,
   whatsappLink,
 } from "@/lib/leadMessages";
@@ -182,6 +185,16 @@ export default function AdminLeads() {
     window.location.href = mailtoLink(lead.email, buildInviteEmailSubject(lead, lang), buildInviteEmailBody(lead, lang));
   };
 
+  // Opens Gmail compose (Mailbutler workflow) with persuasive engagement message
+  const sendEngagement = (lead: Lead) => {
+    if (!lead.email) return toast({ title: "لا يوجد إيميل", variant: "destructive" });
+    const lang = detectLang(lead.country);
+    const subject = buildEngagementEmailSubject(lead, lang);
+    const body = buildEngagementEmailBody(lead, lang);
+    window.open(gmailComposeLink(lead.email, subject, body), "_blank");
+    toast({ title: "✉️ تم فتح Gmail / Mailbutler", description: `رسالة تشجيعية جاهزة لـ ${lead.name}` });
+  };
+
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <div className="flex items-center justify-between">
@@ -306,8 +319,11 @@ export default function AdminLeads() {
                         <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)} title="واتساب">
                           <MessageCircle className="w-4 h-4 text-green-500" />
                         </Button>
-                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل">
+                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة">
                           <Mail className="w-4 h-4 text-blue-500" />
+                        </Button>
+                        <Button size="icon" variant="default" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail">
+                          <Send className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -351,11 +367,14 @@ export default function AdminLeads() {
                     <TableCell className="text-xs" dir="ltr">{l.whatsapp || "—"}</TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)}>
+                        <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)} title="واتساب">
                           <MessageCircle className="w-4 h-4 text-green-500" />
                         </Button>
-                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)}>
+                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة">
                           <Mail className="w-4 h-4 text-blue-500" />
+                        </Button>
+                        <Button size="icon" variant="default" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail">
+                          <Send className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
