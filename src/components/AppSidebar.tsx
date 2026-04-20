@@ -1,56 +1,45 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket, ShieldAlert,
 } from "lucide-react";
-import { BrandLogo } from "@/components/BrandLogo";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
-  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
-  SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
+  Sidebar, SidebarContent, useSidebar,
 } from "@/components/ui/sidebar";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 
-function NavItem({ item, collapsed, isActive }: { item: { title: string; url: string; icon: any }; collapsed: boolean; isActive: boolean }) {
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive}>
-        <NavLink
-          to={item.url}
-          end={item.url === "/"}
-          className={`group relative rounded-xl py-2.5 px-3 transition-all duration-200
-            ${isActive
-              ? "bg-primary/10 text-primary font-semibold"
-              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground"
-            }`}
-          activeClassName=""
-        >
-          <item.icon className={`mx-2 h-[18px] w-[18px] flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
-          {!collapsed && <span className="text-sm">{item.title}</span>}
-          {isActive && !collapsed && (
-            <span className="absolute end-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-l-full" />
-          )}
-        </NavLink>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-}
+interface NavEntry { title: string; url: string; icon: any; badge?: number | string; }
 
-function Group({ label, items, collapsed, isPathActive }: { label?: string; items: any[]; collapsed: boolean; isPathActive: (u: string) => boolean }) {
-  if (!items.length) return null;
+function NavCard({ item, isActive, collapsed }: { item: NavEntry; isActive: boolean; collapsed: boolean }) {
   return (
-    <SidebarGroup>
-      {!collapsed && label && (
-        <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-3 mt-3">{label}</SidebarGroupLabel>
+    <NavLink
+      to={item.url}
+      end={item.url === "/"}
+      className={`group relative flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all duration-200 border
+        ${isActive
+          ? "bg-[hsl(28_90%_55%/0.12)] border-[hsl(28_90%_55%/0.45)] text-[hsl(28_95%_65%)] shadow-[0_0_24px_-8px_hsl(28_90%_55%/0.6)]"
+          : "bg-[hsl(220_25%_11%)] border-[hsl(220_20%_18%)] text-foreground/85 hover:bg-[hsl(220_25%_14%)] hover:border-[hsl(220_20%_24%)]"
+        }`}
+      activeClassName=""
+    >
+      <span className={`flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0 transition
+        ${isActive ? "bg-[hsl(28_90%_55%/0.18)] text-[hsl(28_95%_65%)]" : "bg-[hsl(220_25%_15%)] text-foreground/70 group-hover:text-foreground"}`}>
+        <item.icon className="w-[18px] h-[18px]" />
+      </span>
+      {!collapsed && (
+        <>
+          <span className="text-sm font-semibold flex-1 truncate">{item.title}</span>
+          {item.badge !== undefined && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-destructive/90 text-destructive-foreground tabular-nums">
+              {item.badge}
+            </span>
+          )}
+        </>
       )}
-      <SidebarGroupContent>
-        <SidebarMenu className="space-y-0.5 px-2">
-          {items.map((item) => <NavItem key={item.url} item={item} collapsed={collapsed} isActive={isPathActive(item.url)} />)}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+    </NavLink>
   );
 }
 
@@ -59,144 +48,130 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { currentBranch } = useApp();
-  const { profile, signOut } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
   const role = profile?.role || "employee";
-
   const isPathActive = (url: string) => url === "/" ? location.pathname === "/" : location.pathname.startsWith(url);
 
-  // ---------- Build menus per role ----------
-  const adminPlatform = [
-    { title: "لوحة المنصة", url: "/admin", icon: ShieldCheck },
-    { title: "اشتراكات المحلات", url: "/admin/subscriptions", icon: CreditCard },
-    { title: "باقات الأسعار", url: "/admin/pricing-plans", icon: Package },
-    { title: "🌍 توليد عملاء", url: "/admin/leads", icon: Globe2 },
+  // Build menu per role
+  const adminItems: NavEntry[] = [
+    { title: "Tableau de bord", url: "/admin", icon: LayoutDashboard },
+    { title: "Superviseurs", url: "/admin/subscriptions", icon: ShieldCheck },
+    { title: "Utilisateurs inscrits", url: "/admin/pricing-plans", icon: Users },
+    { title: "Demandes de trajet", url: "/admin/leads", icon: ClipboardList, badge: 6 },
+    { title: "Chauffeurs", url: "/employees", icon: UserCog },
+    { title: "Clients", url: "/customers", icon: Users },
+    { title: "Revenus", url: "/finance", icon: Wallet },
+    { title: "Magasins", url: "/shops", icon: Store },
+    { title: t("nav.settings"), url: "/settings", icon: Settings },
   ];
 
-  const supervisorOverview = [
+  const supervisorItems: NavEntry[] = [
     { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
     { title: t("nav.operations"), url: "/orders", icon: Receipt },
-  ];
-  const supervisorManage = [
     { title: t("nav.services"), url: "/services", icon: Droplets },
     { title: "المداخل", url: "/entries", icon: ClipboardList },
     { title: t("nav.employees"), url: "/employees", icon: UserCog },
     { title: t("nav.customers"), url: "/customers", icon: Users },
     { title: "فريق العمل", url: "/team", icon: UserPlus },
-  ];
-  const supervisorBusiness = [
     { title: t("nav.invoices"), url: "/invoices", icon: FileText },
     { title: t("nav.finance"), url: "/finance", icon: Wallet },
     { title: t("nav.reports"), url: "/reports", icon: BarChart3 },
     { title: t("nav.branches"), url: "/branches", icon: Building2 },
+    { title: "🎟️ كوبونات", url: "/coupons", icon: Ticket },
+    { title: "📧 رسائل", url: "/templates", icon: Mail },
+    { title: "🔍 تنقيب", url: "/prospecting", icon: Globe2 },
+    { title: t("nav.settings"), url: "/settings", icon: Settings },
   ];
-  const supervisorTools = [
-    { title: "🔍 التنقيب عن الشركاء", url: "/prospecting", icon: Globe2 },
-    { title: "📧 نماذج المراسلات", url: "/templates", icon: Mail },
-    { title: "🎟️ كوبونات الخصم", url: "/coupons", icon: Ticket },
-  ];
-  const supervisorSettings = [{ title: t("nav.settings"), url: "/settings", icon: Settings }];
 
-  // Manager: same as supervisor minus team mgmt + finance restricted
-  const managerOverview = supervisorOverview;
-  const managerManage = [
+  const managerItems: NavEntry[] = [
+    { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
+    { title: t("nav.operations"), url: "/orders", icon: Receipt },
     { title: t("nav.services"), url: "/services", icon: Droplets },
-    { title: "المداخل", url: "/entries", icon: ClipboardList },
     { title: t("nav.employees"), url: "/employees", icon: UserCog },
     { title: t("nav.customers"), url: "/customers", icon: Users },
-  ];
-  const managerBusiness = [
     { title: t("nav.invoices"), url: "/invoices", icon: FileText },
     { title: t("nav.reports"), url: "/reports", icon: BarChart3 },
     { title: t("nav.branches"), url: "/branches", icon: Building2 },
   ];
 
-  const employeeItems = [
+  const employeeItems: NavEntry[] = [
     { title: t("nav.services"), url: "/services", icon: Droplets },
     { title: t("nav.invoices"), url: "/invoices", icon: FileText },
   ];
 
-  const renderMenu = () => {
-    if (role === "admin") {
-      return (
-        <>
-          <Group label="إدارة المنصة" items={adminPlatform} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label={t("nav.overview")} items={supervisorOverview} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label={t("nav.management")} items={[...supervisorManage, { title: t("nav.shops"), url: "/shops", icon: Store }]} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label={t("nav.business")} items={supervisorBusiness} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label="أدوات النمو" items={supervisorTools} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group items={supervisorSettings} collapsed={collapsed} isPathActive={isPathActive} />
-        </>
-      );
-    }
-    if (role === "supervisor") {
-      return (
-        <>
-          <Group label={t("nav.overview")} items={supervisorOverview} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label={t("nav.management")} items={supervisorManage} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label={t("nav.business")} items={supervisorBusiness} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label="أدوات النمو" items={supervisorTools} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group items={supervisorSettings} collapsed={collapsed} isPathActive={isPathActive} />
-        </>
-      );
-    }
-    if (role === "manager") {
-      return (
-        <>
-          <Group label={t("nav.overview")} items={managerOverview} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label={t("nav.management")} items={managerManage} collapsed={collapsed} isPathActive={isPathActive} />
-          <Group label={t("nav.business")} items={managerBusiness} collapsed={collapsed} isPathActive={isPathActive} />
-        </>
-      );
-    }
-    // employee / customer / fallback
-    return <Group items={employeeItems} collapsed={collapsed} isPathActive={isPathActive} />;
-  };
+  const items =
+    role === "admin" ? adminItems :
+    role === "supervisor" ? supervisorItems :
+    role === "manager" ? managerItems :
+    employeeItems;
 
+  const refCode = (user?.id || "").replace(/-/g, "").slice(-7).toUpperCase() || "GUEST00";
   const roleLabel =
-    role === "admin" ? "مدير المنصة" :
+    role === "admin" ? "Admin système" :
     role === "supervisor" ? "صاحب المحل" :
     role === "manager" ? "مسير" :
     role === "customer" ? "زبون" : t("common.employee");
 
   return (
-    <Sidebar collapsible="icon" side={isRtl ? "right" : "left"} className={`${isRtl ? "border-l" : "border-r"} border-sidebar-border bg-sidebar`}>
-      <SidebarContent className="bg-sidebar">
-        <div className="px-4 py-5 border-b border-sidebar-border">
-          <div className="flex items-center gap-3">
-            <BrandLogo size={40} />
-            {!collapsed && (
-              <div className="min-w-0">
-                <h1 className="text-base font-bold text-foreground truncate">HN Carwash</h1>
-                <p className="text-[11px] text-muted-foreground truncate">{currentBranch?.name || "—"}</p>
-              </div>
-            )}
+    <Sidebar
+      collapsible="icon"
+      side={isRtl ? "right" : "left"}
+      className={`${isRtl ? "border-l" : "border-r"} border-[hsl(220_20%_14%)]`}
+      style={{ ["--sidebar-width" as any]: "18rem" }}
+    >
+      <SidebarContent className="bg-[hsl(220_30%_7%)] p-3 gap-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[hsl(220_20%_20%)] [&::-webkit-scrollbar-thumb]:rounded-full">
+        {/* Brand header card */}
+        <div className="rounded-2xl bg-gradient-to-br from-[hsl(220_30%_12%)] to-[hsl(220_30%_8%)] border border-[hsl(220_20%_18%)] p-3 flex items-center gap-3 relative overflow-hidden">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] shadow-[0_0_20px_-4px_hsl(28_90%_55%/0.7)]">
+            <ShieldAlert className="w-6 h-6 text-white" />
           </div>
-        </div>
-
-        {renderMenu()}
-
-        <div className="mt-auto p-3 border-t border-sidebar-border">
-          {!collapsed ? (
-            <div className="flex items-center gap-3 p-2 rounded-xl bg-sidebar-accent">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm" style={{ background: 'var(--gradient-primary)' }}>
-                {(profile?.name || 'U').charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-foreground truncate">{profile?.name || t("common.user")}</p>
-                <p className="text-[10px] text-muted-foreground truncate">{roleLabel}</p>
-              </div>
-              <button onClick={signOut} className="p-1.5 rounded-lg hover:bg-background text-muted-foreground hover:text-destructive transition-colors" title={t("nav.logout")}>
-                <LogOut className="w-4 h-4" />
-              </button>
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <h1 className="text-[15px] font-bold leading-tight text-foreground">Panneau d'administration</h1>
+              <p className="text-[10px] text-muted-foreground tracking-wider uppercase mt-0.5">Control Panel</p>
             </div>
-          ) : (
-            <button onClick={signOut} className="w-full flex justify-center p-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition">
-              <LogOut className="w-4 h-4" />
-            </button>
           )}
         </div>
+
+        {/* Administrator card */}
+        <div className="rounded-2xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] p-3 flex items-center gap-3">
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-[hsl(28_90%_55%/0.15)] border border-[hsl(28_90%_55%/0.4)]">
+            <ShieldCheck className="w-5 h-5 text-[hsl(28_95%_65%)]" />
+          </div>
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-foreground truncate">{profile?.name || "Administrateur"}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[10px] text-muted-foreground truncate">{roleLabel}</span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[hsl(28_90%_55%/0.18)] text-[hsl(28_95%_65%)] border border-[hsl(28_90%_55%/0.35)] tabular-nums">
+                  {refCode}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Nav cards */}
+        <nav className="flex flex-col gap-2">
+          {items.map((it) => (
+            <NavCard key={it.url} item={it} isActive={isPathActive(it.url)} collapsed={collapsed} />
+          ))}
+        </nav>
+
+        {/* Logout footer */}
+        <button
+          onClick={signOut}
+          className="mt-auto rounded-2xl px-3 py-3 bg-destructive/10 border border-destructive/30 text-destructive font-semibold text-sm hover:bg-destructive/20 transition flex items-center justify-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          {!collapsed && <span>{t("nav.logout")}</span>}
+        </button>
+
+        {!collapsed && currentBranch && (
+          <p className="text-[10px] text-muted-foreground/60 text-center truncate">{currentBranch.name}</p>
+        )}
       </SidebarContent>
     </Sidebar>
   );

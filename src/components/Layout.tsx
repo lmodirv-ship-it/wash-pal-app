@@ -8,97 +8,114 @@ import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Bell, LogOut, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, LogOut, Eye, Users, TrendingUp, RefreshCw, Globe, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { BrandLogo } from "@/components/BrandLogo";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { branches, currentBranch, setCurrentBranch } = useApp();
-  const { profile, isAdmin, signOut } = useAuth();
+  const { isAdmin, signOut } = useAuth();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === "ar";
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background relative z-10">
+      <div className="min-h-screen flex w-full bg-[hsl(220_30%_5%)] relative z-10">
         <AppSidebar />
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-30 h-16 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-4 md:px-6 gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <SidebarTrigger className="hover:bg-muted rounded-lg" />
-              <BrandLogo size={36} />
-              <div className="hidden sm:block min-w-0">
-                <p className="text-[11px] text-muted-foreground">{t("common.welcome")}</p>
-                <p className="text-sm font-semibold text-foreground truncate">{profile?.name || t("common.user")} 👋</p>
-              </div>
-            </div>
+          {/* HN-DRIVER style topbar */}
+          <header className="sticky top-0 z-30 bg-[hsl(220_30%_6%)]/95 backdrop-blur-xl border-b border-[hsl(220_20%_14%)] px-3 md:px-5 py-3">
+            <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+              <SidebarTrigger className="hover:bg-[hsl(220_25%_12%)] rounded-xl h-10 w-10" />
 
-            <div className="hidden md:flex flex-1 max-w-md mx-4">
-              <div className="relative w-full">
-                <Search className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
-                <Input
-                  placeholder={t("common.quickSearch")}
-                  className={`${isRtl ? "pr-9" : "pl-9"} h-10 bg-muted/50 border-transparent focus-visible:bg-card focus-visible:border-border rounded-xl text-sm`}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <LanguageSwitcher />
-              {isAdmin && <AdminModeSwitcher />}
-              {isAdmin && (
-                <Button asChild size="sm" variant="outline" className="h-10 rounded-xl gap-2 hidden sm:flex border-primary/30 text-primary hover:bg-primary/10">
-                  <Link to="/create-shop"><Plus className="w-4 h-4" /><span className="hidden md:inline">متجر جديد</span></Link>
-                </Button>
-              )}
-              {isAdmin && branches.length > 1 && currentBranch && (
-                <Select
-                  value={currentBranch?.id || ""}
-                  onValueChange={(v) => {
-                    const b = branches.find((br) => br.id === v);
-                    if (b) setCurrentBranch(b);
-                  }}
-                >
-                  <SelectTrigger className="w-40 h-10 rounded-xl text-sm">
+              {/* Country select */}
+              <div className="hidden md:flex items-center gap-2 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] min-w-[140px]">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+                <Select defaultValue="ma">
+                  <SelectTrigger className="border-0 bg-transparent h-auto p-0 focus:ring-0 text-sm font-semibold">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {branches.map((b) => (
-                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                    ))}
+                    <SelectItem value="ma">🇲🇦 Maroc</SelectItem>
+                    <SelectItem value="es">🇪🇸 Espagne</SelectItem>
+                    <SelectItem value="fr">🇫🇷 France</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Branch select */}
+              {isAdmin && branches.length > 1 && currentBranch && (
+                <div className="hidden md:flex items-center gap-2 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] min-w-[160px]">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <Select
+                    value={currentBranch?.id || ""}
+                    onValueChange={(v) => {
+                      const b = branches.find((br) => br.id === v);
+                      if (b) setCurrentBranch(b);
+                    }}
+                  >
+                    <SelectTrigger className="border-0 bg-transparent h-auto p-0 focus:ring-0 text-sm font-semibold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {branches.map((b) => (
+                        <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
-              <button className="hidden sm:flex w-10 h-10 items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative">
-                <Bell className="w-[18px] h-[18px]" />
-                <span className={`absolute top-2 ${isRtl ? "left-2" : "right-2"} w-2 h-2 rounded-full bg-destructive`} />
+
+              {/* Search */}
+              <div className="relative flex-1 min-w-[180px] max-w-md">
+                <Search className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+                <Input
+                  placeholder={t("common.quickSearch") || "Rechercher..."}
+                  className={`${isRtl ? "pr-9" : "pl-9"} h-10 bg-[hsl(220_25%_10%)] border-[hsl(220_20%_16%)] rounded-xl text-sm`}
+                />
+              </div>
+
+              <button className="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] text-muted-foreground hover:text-foreground transition">
+                <RefreshCw className="w-4 h-4" />
               </button>
+
+              {/* Logout pill */}
               <Button
                 onClick={signOut}
-                variant="outline"
-                size="sm"
-                className="h-10 rounded-xl gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+                className="h-10 rounded-xl gap-2 bg-transparent border-2 border-[hsl(28_90%_55%)] text-[hsl(28_95%_65%)] hover:bg-[hsl(28_90%_55%/0.15)] hover:text-[hsl(28_95%_70%)] font-bold px-4 shadow-[0_0_20px_-6px_hsl(28_90%_55%/0.7)]"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">{t("nav.logout")}</span>
+                <span className="hidden sm:inline">Déconnexion</span>
               </Button>
+
+              {/* Counters */}
+              <div className="hidden lg:flex items-center gap-2">
+                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)]">
+                  <Eye className="w-4 h-4 text-[hsl(190_95%_55%)]" />
+                  <span className="text-sm font-bold tabular-nums text-foreground">3776</span>
+                </div>
+                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)]">
+                  <Users className="w-4 h-4 text-[hsl(152_70%_55%)]" />
+                  <span className="text-sm font-bold tabular-nums text-foreground">1023</span>
+                </div>
+                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)]">
+                  <TrendingUp className="w-4 h-4 text-[hsl(28_95%_65%)]" />
+                  <span className="text-sm font-bold tabular-nums text-foreground">106</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[hsl(152_70%_55%)] animate-pulse" />
+                </div>
+              </div>
+
+              <LanguageSwitcher />
+              {isAdmin && <AdminModeSwitcher />}
             </div>
           </header>
 
           <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-8 overflow-auto">
-            <div className="max-w-7xl mx-auto animate-in-fade">
+            <div className="max-w-[1600px] mx-auto animate-in-fade">
               {children}
             </div>
           </main>
-
-          <footer className="hidden md:block border-t border-border bg-background/60 backdrop-blur-sm py-3 px-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} <span className="font-semibold text-primary">مجموعة HN للبرمجيات والتصميم</span>
-            </p>
-          </footer>
 
           <MobileBottomNav />
         </div>
