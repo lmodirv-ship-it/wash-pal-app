@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Globe2, Phone, Mail, MessageCircle, Loader2, MailPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useApp } from "@/contexts/AppContext";
-import { whatsappLink } from "@/lib/whatsapp";
-import { gmailComposeLink, mailbutlerComposeLink, defaultLeadMessage } from "@/lib/leadMessages";
+import {
+  whatsappLink, gmailComposeLink, mailbutlerComposeLink,
+  buildInviteWhatsAppMessage, buildEngagementEmailSubject, buildEngagementEmailBody,
+} from "@/lib/leadMessages";
 
 const STATUSES = [
   { value: "new", label: "جديد", color: "bg-blue-500/15 text-blue-400 border-blue-500/30" },
