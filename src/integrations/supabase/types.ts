@@ -926,6 +926,74 @@ export type Database = {
         }
         Relationships: []
       }
+      video_scan_detections: {
+        Row: {
+          created_at: string
+          frame_image: string | null
+          has_car: boolean
+          id: string
+          plate: string | null
+          scan_id: string
+          timestamp_sec: number
+        }
+        Insert: {
+          created_at?: string
+          frame_image?: string | null
+          has_car?: boolean
+          id?: string
+          plate?: string | null
+          scan_id: string
+          timestamp_sec?: number
+        }
+        Update: {
+          created_at?: string
+          frame_image?: string | null
+          has_car?: boolean
+          id?: string
+          plate?: string | null
+          scan_id?: string
+          timestamp_sec?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_scan_detections_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "video_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_scans: {
+        Row: {
+          admin_id: string
+          created_at: string
+          duration_sec: number
+          id: string
+          status: string
+          total_cars: number
+          video_name: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          duration_sec?: number
+          id?: string
+          status?: string
+          total_cars?: number
+          video_name: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          duration_sec?: number
+          id?: string
+          status?: string
+          total_cars?: number
+          video_name?: string
+        }
+        Relationships: []
+      }
       visitor_stats: {
         Row: {
           id: number

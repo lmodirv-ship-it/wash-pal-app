@@ -9,6 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { VideoScanner } from "@/components/VideoScanner";
 
 const PLAN_PRICE: Record<string, number> = { starter: 0, pro: 29, business: 99 };
 
@@ -235,6 +236,8 @@ export default function AdminDashboard() {
           </ul>
         </div>
       </div>
+
+      <VideoScanner />
     </div>
   );
 }
