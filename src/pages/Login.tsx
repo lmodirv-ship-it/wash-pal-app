@@ -167,25 +167,38 @@ export default function Login() {
               <Input type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all" required />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs text-muted-foreground">{t("auth.password")}</label>
-              <Input type="password" placeholder="••••••••" value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))} className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all" required minLength={6} />
-            </div>
+            {isAdminEmail ? (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-center">
+                <p className="text-sm text-primary font-bold flex items-center justify-center gap-2">
+                  <ShieldCheck className="w-4 h-4" />
+                  حساب مدير — دخول بدون كلمة سر عبر رابط الإيميل
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <label className="text-xs text-muted-foreground">{t("auth.password")}</label>
+                <Input type="password" placeholder="••••••••" value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))} className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all" required={!isAdminEmail} minLength={6} />
+              </div>
+            )}
 
-            <div className="flex justify-end">
+            {!isAdminEmail && (
+              <div className="flex justify-end">
               <Link
                 to="/forgot-password"
                 className="text-sm font-bold text-primary hover:text-primary/80 hover:underline underline-offset-4 transition-colors"
               >
                 🔑 {t("auth.forgotPassword") || "نسيت كلمة السر؟"}
               </Link>
-            </div>
+              </div>
+            )}
 
-            <Button type="submit" disabled={loading} className="w-full h-12 font-bold text-base relative overflow-hidden group bg-gradient-to-r from-[#0a0a2a] to-[#12122e] border border-white/10 hover:border-primary/40 hover:shadow-[0_0_25px_rgba(250,204,21,0.12)] transition-all duration-500">
+            <Button type="submit" disabled={loading || adminLoading || checkingAdmin} className="w-full h-12 font-bold text-base relative overflow-hidden group bg-gradient-to-r from-[#0a0a2a] to-[#12122e] border border-white/10 hover:border-primary/40 hover:shadow-[0_0_25px_rgba(250,204,21,0.12)] transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/0 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <span className="relative text-foreground group-hover:text-primary transition-colors duration-300">
-                {loading ? t("auth.loggingIn") : (
-                  <span className="flex items-center justify-center gap-2"><LogIn className="w-5 h-5" />{t("auth.enter")}</span>
+                {adminLoading ? "جاري إرسال الرابط..." : loading ? t("auth.loggingIn") : (
+                  <span className="flex items-center justify-center gap-2">
+                    {isAdminEmail ? <><ShieldCheck className="w-5 h-5" />إرسال رابط الدخول للمدير</> : <><LogIn className="w-5 h-5" />{t("auth.enter")}</>}
+                  </span>
                 )}
               </span>
             </Button>
