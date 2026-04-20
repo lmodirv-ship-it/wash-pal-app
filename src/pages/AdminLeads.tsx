@@ -196,43 +196,65 @@ export default function AdminLeads() {
   };
 
   return (
-    <div className="p-6 space-y-6" dir="rtl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Globe2 className="w-8 h-8 text-primary" />
-            توليد عملاء ذكي
-          </h1>
-          <p className="text-muted-foreground mt-1">اكتشف محلات غسيل السيارات حول العالم وادعهم للمنصة</p>
+    <div className="p-6 space-y-6 min-h-screen bg-gradient-to-br from-background via-background to-muted/30" dir="rtl">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary via-accent to-primary-glow flex items-center justify-center shadow-[0_0_30px_hsl(var(--primary)/0.5)] ring-2 ring-primary/30">
+            <Globe2 className="w-7 h-7 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground via-primary-glow to-accent bg-clip-text text-transparent">
+              توليد عملاء ذكي
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">اكتشف محلات غسيل السيارات حول العالم وادعهم للمنصة 🌍</p>
+          </div>
         </div>
+        <Badge className="bg-success/15 text-success border-success/30 px-4 py-2 text-sm font-semibold shadow-[0_0_20px_hsl(var(--success)/0.3)]">
+          <span className="w-2 h-2 rounded-full bg-success animate-pulse ml-2" /> AI نشط
+        </Badge>
       </div>
 
-      {/* Stats */}
+      {/* Stats — Premium gradient KPI cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-primary/10"><Users className="w-6 h-6 text-primary" /></div>
+        <Card className="relative overflow-hidden border-info/20 bg-gradient-to-br from-info/10 via-card to-card hover:shadow-[0_0_30px_hsl(var(--info)/0.25)] transition-all duration-300 group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-info/10 rounded-full blur-3xl group-hover:bg-info/20 transition-all" />
+          <CardContent className="p-5 flex items-center justify-between relative">
             <div>
-              <p className="text-xs text-muted-foreground">محلات محفوظة</p>
-              <p className="text-2xl font-bold">{saved.length}</p>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">محلات محفوظة</p>
+              <p className="text-4xl font-bold mt-2 bg-gradient-to-br from-info to-info/70 bg-clip-text text-transparent">{saved.length}</p>
+              <p className="text-xs text-muted-foreground mt-1">في قاعدة البيانات</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-info/20 to-info/5 ring-1 ring-info/30 shadow-[0_0_20px_hsl(var(--info)/0.3)]">
+              <Users className="w-7 h-7 text-info" />
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-green-500/10"><CheckCircle2 className="w-6 h-6 text-green-500" /></div>
+
+        <Card className="relative overflow-hidden border-success/20 bg-gradient-to-br from-success/10 via-card to-card hover:shadow-[0_0_30px_hsl(var(--success)/0.25)] transition-all duration-300 group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-success/10 rounded-full blur-3xl group-hover:bg-success/20 transition-all" />
+          <CardContent className="p-5 flex items-center justify-between relative">
             <div>
-              <p className="text-xs text-muted-foreground">نتائج هذه الجلسة</p>
-              <p className="text-2xl font-bold">{results.length}</p>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">نتائج هذه الجلسة</p>
+              <p className="text-4xl font-bold mt-2 bg-gradient-to-br from-success to-success/70 bg-clip-text text-transparent">{results.length}</p>
+              <p className="text-xs text-muted-foreground mt-1">جاهزة للمراجعة</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-success/20 to-success/5 ring-1 ring-success/30 shadow-[0_0_20px_hsl(var(--success)/0.3)]">
+              <CheckCircle2 className="w-7 h-7 text-success" />
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-yellow-500/10"><Sparkles className="w-6 h-6 text-yellow-500" /></div>
+
+        <Card className="relative overflow-hidden border-warning/20 bg-gradient-to-br from-warning/10 via-card to-card hover:shadow-[0_0_30px_hsl(var(--warning)/0.25)] transition-all duration-300 group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-warning/10 rounded-full blur-3xl group-hover:bg-warning/20 transition-all" />
+          <CardContent className="p-5 flex items-center justify-between relative">
             <div>
-              <p className="text-xs text-muted-foreground">المحدد للحفظ</p>
-              <p className="text-2xl font-bold">{selected.size}</p>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">المحدد للحفظ</p>
+              <p className="text-4xl font-bold mt-2 bg-gradient-to-br from-warning to-warning/70 bg-clip-text text-transparent">{selected.size}</p>
+              <p className="text-xs text-muted-foreground mt-1">من أصل {results.length}</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-warning/20 to-warning/5 ring-1 ring-warning/30 shadow-[0_0_20px_hsl(var(--warning)/0.3)]">
+              <Sparkles className="w-7 h-7 text-warning" />
             </div>
           </CardContent>
         </Card>
