@@ -125,6 +125,7 @@ export function AppSidebar() {
           <Group label={t("nav.overview")} items={supervisorOverview} collapsed={collapsed} isPathActive={isPathActive} />
           <Group label={t("nav.management")} items={[...supervisorManage, { title: t("nav.shops"), url: "/shops", icon: Store }]} collapsed={collapsed} isPathActive={isPathActive} />
           <Group label={t("nav.business")} items={supervisorBusiness} collapsed={collapsed} isPathActive={isPathActive} />
+          <Group label="أدوات النمو" items={supervisorTools} collapsed={collapsed} isPathActive={isPathActive} />
           <Group items={supervisorSettings} collapsed={collapsed} isPathActive={isPathActive} />
         </>
       );
