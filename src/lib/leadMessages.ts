@@ -166,3 +166,140 @@ export function whatsappLink(phone: string, message: string): string {
 export function mailtoLink(email: string, subject: string, body: string): string {
   return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
+
+// ---------------- Mailbutler / Gmail Compose ----------------
+// Opens Gmail compose in a new tab with the lead's email, subject and body pre-filled.
+// Mailbutler users have their Gmail integrated, so this opens directly in their workflow.
+export function gmailComposeLink(email: string, subject: string, body: string): string {
+  const params = new URLSearchParams({
+    view: "cm",
+    fs: "1",
+    to: email,
+    su: subject,
+    body: body,
+  });
+  return `https://mail.google.com/mail/?${params.toString()}`;
+}
+
+// Persuasive engagement message — emphasizes value, urgency, and free trial
+export function buildEngagementEmailSubject(lead: LeadLike, lang: Lang = detectLang(lead.country)): string {
+  if (lang === "ar") return `🚗 ${lead.name} — ضاعف أرباحك مع ${PLATFORM_NAME} (تجربة مجانية 15 يوم)`;
+  if (lang === "fr") return `🚗 ${lead.name} — Doublez vos revenus avec ${PLATFORM_NAME} (Essai gratuit 15j)`;
+  return `🚗 ${lead.name} — Double your revenue with ${PLATFORM_NAME} (15-day free trial)`;
+}
+
+export function buildEngagementEmailBody(lead: LeadLike, lang: Lang = detectLang(lead.country)): string {
+  const greet = lead.owner_name || lead.name;
+
+  if (lang === "ar") {
+    return `مرحباً ${greet} 👋
+
+هل تعلم أن أكثر من *60% من محلات غسيل السيارات* تخسر زبائنها بسبب سوء التنظيم وضياع الفواتير؟
+
+نحن في *${PLATFORM_NAME}* صممنا منصة ذكية متكاملة خصيصاً لمحلات مثل *${lead.name}* — تساعدك على:
+
+🚀 *مضاعفة أرباحك* عبر تنظيم الطلبات وتقليل الأخطاء
+⚡ *توفير 3 ساعات يومياً* من العمل الإداري
+💰 *تتبع كل درهم* — لا مزيد من الأموال الضائعة
+📊 *تقارير لحظية* تكشف لك أين تربح وأين تخسر
+👥 *إدارة كاملة للموظفين والفروع* من مكان واحد
+📱 *يعمل على الهاتف* — تابع محلك حتى وأنت في البيت
+
+✨ *ما الذي يميزنا؟*
+✅ واجهة عربية 100% — لا حاجة لتعلم الإنجليزية
+✅ دعم فني مباشر بالعربية
+✅ بدون عقود طويلة — ألغِ متى شئت
+✅ أسعار تبدأ من *99 درهم/شهر* فقط
+
+🎁 *عرض حصري لمحل ${lead.name}:*
+👉 *تجربة مجانية كاملة 15 يوم* — بدون بطاقة ائتمان
+👉 *إعداد مجاني* لحسابك من فريقنا
+👉 *تدريب مجاني* لك ولموظفيك
+
+⏰ *العرض محدود* — انضم لأكثر من 200 محل يثقون بنا الآن.
+
+🔗 سجل الآن: ${PLATFORM_URL}
+
+أو رد على هذا الإيميل وسنتصل بك خلال 24 ساعة.
+
+نحن متحمسون لرؤية ${lead.name} ينمو معنا 🚗💧
+
+تحياتنا،
+فريق ${PLATFORM_NAME}
+${PLATFORM_URL}`;
+  }
+
+  if (lang === "fr") {
+    return `Bonjour ${greet} 👋
+
+Saviez-vous que *plus de 60% des stations de lavage* perdent des clients à cause d'une mauvaise organisation et de factures perdues ?
+
+Chez *${PLATFORM_NAME}*, nous avons créé une plateforme intelligente conçue pour des stations comme *${lead.name}* — pour vous aider à :
+
+🚀 *Doubler vos revenus* en organisant les commandes et réduisant les erreurs
+⚡ *Économiser 3 heures par jour* de travail administratif
+💰 *Suivre chaque euro* — fini l'argent perdu
+📊 *Rapports en temps réel* pour savoir où vous gagnez et où vous perdez
+👥 *Gestion complète des employés et succursales* depuis un seul endroit
+📱 *Fonctionne sur mobile* — suivez votre station depuis chez vous
+
+✨ *Ce qui nous distingue :*
+✅ Interface 100% en français
+✅ Support technique direct
+✅ Sans engagement — annulez quand vous voulez
+✅ Tarifs à partir de *9€/mois* seulement
+
+🎁 *Offre exclusive pour ${lead.name} :*
+👉 *Essai gratuit complet 15 jours* — sans carte bancaire
+👉 *Configuration gratuite* de votre compte par notre équipe
+👉 *Formation gratuite* pour vous et vos employés
+
+⏰ *Offre limitée* — rejoignez plus de 200 stations qui nous font confiance.
+
+🔗 Inscrivez-vous : ${PLATFORM_URL}
+
+Ou répondez à cet email et nous vous appellerons sous 24h.
+
+Nous sommes impatients de voir ${lead.name} grandir avec nous 🚗💧
+
+Cordialement,
+L'équipe ${PLATFORM_NAME}
+${PLATFORM_URL}`;
+  }
+
+  return `Hello ${greet} 👋
+
+Did you know that *over 60% of car wash businesses* lose customers due to poor organization and lost invoices?
+
+At *${PLATFORM_NAME}*, we built a smart all-in-one platform designed for businesses like *${lead.name}* — to help you:
+
+🚀 *Double your revenue* by organizing orders and reducing errors
+⚡ *Save 3 hours daily* on administrative work
+💰 *Track every dollar* — no more lost money
+📊 *Real-time reports* showing where you earn and where you lose
+👥 *Full employee & branch management* from one place
+📱 *Works on mobile* — monitor your business from anywhere
+
+✨ *What makes us different:*
+✅ Built for car wash businesses — not generic
+✅ Direct technical support
+✅ No long contracts — cancel anytime
+✅ Plans starting from *just $9/month*
+
+🎁 *Exclusive offer for ${lead.name}:*
+👉 *Full 15-day free trial* — no credit card required
+👉 *Free account setup* by our team
+👉 *Free training* for you and your staff
+
+⏰ *Limited offer* — join 200+ businesses already trusting us.
+
+🔗 Sign up now: ${PLATFORM_URL}
+
+Or reply to this email and we'll call you within 24 hours.
+
+We're excited to see ${lead.name} grow with us 🚗💧
+
+Best regards,
+The ${PLATFORM_NAME} Team
+${PLATFORM_URL}`;
+}
