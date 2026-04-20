@@ -36,6 +36,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import AdminPricingPlans from "./pages/AdminPricingPlans";
 import AdminLeads from "./pages/AdminLeads";
+import AdminApiKeys from "./pages/AdminApiKeys";
 import Entries from "./pages/Entries";
 import SupervisorProspecting from "./pages/SupervisorProspecting";
 import MessageTemplates from "./pages/MessageTemplates";
@@ -135,6 +136,7 @@ const App = () => (
               <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
               <Route path="/admin/pricing-plans" element={<AdminPricingPlans />} />
               <Route path="/admin/leads" element={<AdminLeads />} />
+              <Route path="/admin/api-keys" element={<AdminApiKeys />} />
             </Route>
 
             {/* Manager / Supervisor / Admin */}
