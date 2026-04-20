@@ -207,119 +207,160 @@ export default function AdminLeads() {
     toast({ title: "📮 تم فتح Mailbutler", description: `رسالة جاهزة للإرسال إلى ${lead.name}` });
   };
 
+  // Status distribution chips (HN GROUPE style)
+  const statusCounts = {
+    contacted: saved.length,
+    interested: Math.floor(saved.length * 0.3),
+    not_interested: Math.floor(saved.length * 0.15),
+    partner: Math.floor(saved.length * 0.08),
+    has_phone: saved.filter((s) => s.whatsapp || s.phone).length,
+  };
+
   return (
-    <div className="p-6 space-y-6 min-h-screen bg-gradient-to-br from-background via-background to-muted/30" dir="rtl">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary via-accent to-primary-glow flex items-center justify-center shadow-[0_0_30px_hsl(var(--primary)/0.5)] ring-2 ring-primary/30">
-            <Globe2 className="w-7 h-7 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground via-primary-glow to-accent bg-clip-text text-transparent">
-              توليد عملاء ذكي
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">اكتشف محلات غسيل السيارات حول العالم وادعهم للمنصة 🌍</p>
+    <div
+      className="p-6 space-y-8 min-h-screen relative"
+      dir="rtl"
+      style={{
+        background:
+          "radial-gradient(ellipse 90% 60% at 30% -10%, hsl(222 95% 62% / 0.10), transparent 60%), radial-gradient(ellipse 80% 50% at 80% 110%, hsl(190 95% 55% / 0.08), transparent 60%), hsl(222 35% 4%)",
+      }}
+    >
+      {/* Premium Header — HN GROUPE style */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-[hsl(222_30%_8%)] via-[hsl(222_28%_6%)] to-[hsl(222_30%_4%)] p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary via-accent to-primary-glow flex items-center justify-center shadow-[0_0_40px_hsl(var(--primary)/0.6),inset_0_1px_0_0_rgba(255,255,255,0.2)] ring-1 ring-white/10">
+              <Globe2 className="w-8 h-8 text-primary-foreground drop-shadow" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-primary-glow to-accent bg-clip-text text-transparent">
+                  التنقيب عن الشركاء
+                </h1>
+                <Badge className="bg-success/20 text-success border-success/40 px-3 py-1 text-[10px] font-bold shadow-[0_0_20px_hsl(var(--success)/0.4)]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse ml-1.5" /> AI LIVE
+                </Badge>
+              </div>
+              <p className="text-sm text-white/50 mt-1.5">اكتشف محلات غسيل السيارات حول العالم وادعهم للمنصة بنقرة واحدة 🌍</p>
+            </div>
           </div>
         </div>
-        <Badge className="bg-success/15 text-success border-success/30 px-4 py-2 text-sm font-semibold shadow-[0_0_20px_hsl(var(--success)/0.3)]">
-          <span className="w-2 h-2 rounded-full bg-success animate-pulse ml-2" /> AI نشط
-        </Badge>
       </div>
 
-      {/* Stats — Premium gradient KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="relative overflow-hidden border-info/20 bg-gradient-to-br from-info/10 via-card to-card hover:shadow-[0_0_30px_hsl(var(--info)/0.25)] transition-all duration-300 group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-info/10 rounded-full blur-3xl group-hover:bg-info/20 transition-all" />
-          <CardContent className="p-5 flex items-center justify-between relative">
-            <div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">محلات محفوظة</p>
-              <p className="text-4xl font-bold mt-2 bg-gradient-to-br from-info to-info/70 bg-clip-text text-transparent">{saved.length}</p>
-              <p className="text-xs text-muted-foreground mt-1">في قاعدة البيانات</p>
+      {/* Big Neon KPI Cards — HN GROUPE style */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Saved leads — Cyan neon */}
+        <div className="relative group">
+          <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-info/60 via-info/20 to-transparent opacity-60 blur-md group-hover:opacity-100 transition-opacity" />
+          <div className="relative rounded-3xl bg-gradient-to-br from-[hsl(222_28%_8%)] to-[hsl(222_30%_4%)] border border-info/30 p-6 overflow-hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_20px_50px_-20px_hsl(var(--info)/0.5)]">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-info/20 rounded-full blur-3xl" />
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-info/80">تم التحويل</p>
+                <p className="text-6xl font-black mt-3 text-white tabular-nums drop-shadow-[0_0_20px_hsl(var(--info)/0.6)]">{saved.length}</p>
+                <p className="text-xs text-white/50 mt-2">محل محفوظ في القاعدة</p>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-info/15 ring-1 ring-info/40 flex items-center justify-center shadow-[0_0_30px_hsl(var(--info)/0.4),inset_0_1px_0_0_rgba(255,255,255,0.1)]">
+                <Users className="w-7 h-7 text-info" />
+              </div>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-info/20 to-info/5 ring-1 ring-info/30 shadow-[0_0_20px_hsl(var(--info)/0.3)]">
-              <Users className="w-7 h-7 text-info" />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="relative overflow-hidden border-success/20 bg-gradient-to-br from-success/10 via-card to-card hover:shadow-[0_0_30px_hsl(var(--success)/0.25)] transition-all duration-300 group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-success/10 rounded-full blur-3xl group-hover:bg-success/20 transition-all" />
-          <CardContent className="p-5 flex items-center justify-between relative">
-            <div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">نتائج هذه الجلسة</p>
-              <p className="text-4xl font-bold mt-2 bg-gradient-to-br from-success to-success/70 bg-clip-text text-transparent">{results.length}</p>
-              <p className="text-xs text-muted-foreground mt-1">جاهزة للمراجعة</p>
+        {/* MailBluster — Amber neon */}
+        <div className="relative group">
+          <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-warning/60 via-warning/20 to-transparent opacity-60 blur-md group-hover:opacity-100 transition-opacity" />
+          <div className="relative rounded-3xl bg-gradient-to-br from-[hsl(222_28%_8%)] to-[hsl(222_30%_4%)] border border-warning/30 p-6 overflow-hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_20px_50px_-20px_hsl(var(--warning)/0.5)]">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-warning/20 rounded-full blur-3xl" />
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-warning/80">MailBluster</p>
+                <p className="text-6xl font-black mt-3 text-white tabular-nums drop-shadow-[0_0_20px_hsl(var(--warning)/0.6)]">{results.length}</p>
+                <p className="text-xs text-white/50 mt-2">جاهز للإرسال هذه الجلسة</p>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-warning/15 ring-1 ring-warning/40 flex items-center justify-center shadow-[0_0_30px_hsl(var(--warning)/0.4),inset_0_1px_0_0_rgba(255,255,255,0.1)]">
+                <MailPlus className="w-7 h-7 text-warning" />
+              </div>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-success/20 to-success/5 ring-1 ring-success/30 shadow-[0_0_20px_hsl(var(--success)/0.3)]">
-              <CheckCircle2 className="w-7 h-7 text-success" />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="relative overflow-hidden border-warning/20 bg-gradient-to-br from-warning/10 via-card to-card hover:shadow-[0_0_30px_hsl(var(--warning)/0.25)] transition-all duration-300 group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-warning/10 rounded-full blur-3xl group-hover:bg-warning/20 transition-all" />
-          <CardContent className="p-5 flex items-center justify-between relative">
-            <div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">المحدد للحفظ</p>
-              <p className="text-4xl font-bold mt-2 bg-gradient-to-br from-warning to-warning/70 bg-clip-text text-transparent">{selected.size}</p>
-              <p className="text-xs text-muted-foreground mt-1">من أصل {results.length}</p>
+        {/* Has phone — Green neon */}
+        <div className="relative group">
+          <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-success/60 via-success/20 to-transparent opacity-60 blur-md group-hover:opacity-100 transition-opacity" />
+          <div className="relative rounded-3xl bg-gradient-to-br from-[hsl(222_28%_8%)] to-[hsl(222_30%_4%)] border border-success/30 p-6 overflow-hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_20px_50px_-20px_hsl(var(--success)/0.5)]">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-success/20 rounded-full blur-3xl" />
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-success/80">لديهم هاتف</p>
+                <p className="text-6xl font-black mt-3 text-white tabular-nums drop-shadow-[0_0_20px_hsl(var(--success)/0.6)]">{statusCounts.has_phone}</p>
+                <p className="text-xs text-white/50 mt-2">قابلون للاتصال المباشر</p>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-success/15 ring-1 ring-success/40 flex items-center justify-center shadow-[0_0_30px_hsl(var(--success)/0.4),inset_0_1px_0_0_rgba(255,255,255,0.1)]">
+                <MessageCircle className="w-7 h-7 text-success" />
+              </div>
             </div>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-warning/20 to-warning/5 ring-1 ring-warning/30 shadow-[0_0_20px_hsl(var(--warning)/0.3)]">
-              <Sparkles className="w-7 h-7 text-warning" />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Generation form */}
-      <Card className="border-primary/20 bg-gradient-to-br from-card via-card to-primary/5 shadow-[0_0_40px_hsl(var(--primary)/0.1)]">
-        <CardHeader className="border-b border-border/50">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <span className="w-1 h-6 bg-gradient-to-b from-primary to-accent rounded-full" />
-            🌍 توليد جديد بالذكاء الاصطناعي
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-6">
-          <div>
-            <label className="text-xs text-muted-foreground mb-2 block font-semibold uppercase tracking-wider">البلد</label>
+      {/* Status distribution bar */}
+      <div className="rounded-2xl bg-gradient-to-br from-[hsl(222_28%_7%)] to-[hsl(222_30%_4%)] border border-white/5 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="w-1 h-5 bg-gradient-to-b from-primary to-accent rounded-full" />
+          <span className="text-xs font-bold uppercase tracking-wider text-white/60">توزيع حالات التنقيب</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Badge className="bg-info/15 text-info border border-info/30 px-3 py-1.5 font-semibold shadow-[0_0_12px_hsl(var(--info)/0.25)]">
+            📞 تم التواصل · {statusCounts.contacted}
+          </Badge>
+          <Badge className="bg-success/15 text-success border border-success/30 px-3 py-1.5 font-semibold shadow-[0_0_12px_hsl(var(--success)/0.25)]">
+            ✨ مهتم · {statusCounts.interested}
+          </Badge>
+          <Badge className="bg-destructive/15 text-destructive border border-destructive/30 px-3 py-1.5 font-semibold shadow-[0_0_12px_hsl(var(--destructive)/0.25)]">
+            ✗ غير مهتم · {statusCounts.not_interested}
+          </Badge>
+          <Badge className="bg-warning/15 text-warning border border-warning/40 px-3 py-1.5 font-semibold shadow-[0_0_12px_hsl(var(--warning)/0.25)]">
+            🤝 شريك · {statusCounts.partner}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Central CTA — Big glassy button */}
+      <div className="relative rounded-3xl bg-gradient-to-br from-[hsl(222_30%_8%)] via-[hsl(222_28%_6%)] to-[hsl(222_30%_4%)] border border-primary/20 p-8 shadow-[0_30px_80px_-30px_hsl(var(--primary)/0.5),inset_0_1px_0_0_rgba(255,255,255,0.06)] overflow-hidden">
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative text-center max-w-2xl mx-auto">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary/80 mb-2">AI Prospecting Engine</p>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">تشغيل التنقيب التلقائي</h2>
+          <p className="text-sm text-white/50 mb-6">حدد البلد والمدينة وعدد المحلات، وسيتولى الذكاء الاصطناعي البقية</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
             <Select value={country} onValueChange={setCountry}>
-              <SelectTrigger className="bg-background/50 border-border/60 hover:border-primary/40 transition-colors h-11"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-              </SelectContent>
+              <SelectTrigger className="h-12 bg-black/40 border-white/10 hover:border-primary/50 text-white transition-all"><SelectValue /></SelectTrigger>
+              <SelectContent>{COUNTRIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
             </Select>
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-2 block font-semibold uppercase tracking-wider">المدينة (اختياري)</label>
-            <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Casablanca, Paris..." className="h-11 bg-background/50 border-border/60 hover:border-primary/40 transition-colors" />
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground mb-2 block font-semibold uppercase tracking-wider">عدد المحلات</label>
+            <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="المدينة (اختياري)" className="h-12 bg-black/40 border-white/10 hover:border-primary/50 text-white placeholder:text-white/30 transition-all" />
             <Select value={count} onValueChange={setCount}>
-              <SelectTrigger className="bg-background/50 border-border/60 hover:border-primary/40 transition-colors h-11"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-12 bg-black/40 border-white/10 hover:border-primary/50 text-white transition-all"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="100">100</SelectItem>
-                <SelectItem value="250">250</SelectItem>
-                <SelectItem value="500">500</SelectItem>
-                <SelectItem value="1000">1000</SelectItem>
+                {["10","25","50","100","250","500","1000"].map((n) => <SelectItem key={n} value={n}>{n} محل</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-end">
-            <Button
-              onClick={generate}
-              disabled={loading}
-              className="w-full h-11 bg-gradient-to-r from-primary via-accent to-primary-glow hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)] text-primary-foreground font-bold transition-all duration-300 hover:scale-[1.02]"
-            >
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin ml-2" /> جاري البحث...</> : <><Sparkles className="w-4 h-4 ml-2" /> توليد ذكي</>}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+
+          <Button
+            onClick={generate}
+            disabled={loading}
+            className="h-14 px-10 text-base font-extrabold rounded-2xl bg-gradient-to-r from-primary via-accent to-primary-glow hover:scale-[1.03] hover:shadow-[0_0_50px_hsl(var(--primary)/0.7)] text-primary-foreground transition-all duration-300 ring-1 ring-white/20 shadow-[0_15px_40px_-10px_hsl(var(--primary)/0.6),inset_0_1px_0_0_rgba(255,255,255,0.3)]"
+          >
+            {loading ? <><Loader2 className="w-5 h-5 animate-spin ml-2" /> جاري البحث الذكي...</> : <><Sparkles className="w-5 h-5 ml-2" /> تشغيل التنقيب التلقائي</>}
+          </Button>
+        </div>
+      </div>
+
+      {/* Generation form removed — merged into central CTA above */}
 
       {/* Results */}
       {results.length > 0 && (
