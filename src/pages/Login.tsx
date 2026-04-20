@@ -24,8 +24,28 @@ export default function Login() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [verifying, setVerifying] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [isAdminEmail, setIsAdminEmail] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
 
   useEffect(() => () => { if (stream) stream.getTracks().forEach(t => t.stop()); }, [stream]);
+
+  // Detect if entered email belongs to an admin → hide password field
+  useEffect(() => {
+    const email = form.email.trim();
+    if (!email || !email.includes("@")) { setIsAdminEmail(false); return; }
+    const handle = setTimeout(async () => {
+      setCheckingAdmin(true);
+      try {
+        const { data } = await supabase.functions.invoke("admin-camera-auth", {
+          body: { email, action: "check" },
+        });
+        setIsAdminEmail(!!data?.isAdmin);
+      } catch { setIsAdminEmail(false); }
+      setCheckingAdmin(false);
+    }, 500);
+    return () => clearTimeout(handle);
+  }, [form.email]);
 
   if (!authLoading && user) return <Navigate to={redirectTo || "/post-login"} replace />;
 
@@ -66,10 +86,28 @@ export default function Login() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true);
+    e.preventDefault();
+    if (isAdminEmail) { await handleAdminMagicLink(); return; }
+    setLoading(true);
     const { error } = await signIn(form.email, form.password);
     if (error) { toast.error(error); setLoading(false); return; }
     toast.success("مرحباً بعودتك 👋"); setLoading(false);
+  };
+
+  const handleAdminMagicLink = async () => {
+    if (!form.email) { toast.error("أدخل الإيميل أولاً"); return; }
+    setAdminLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: form.email,
+        options: { emailRedirectTo: `${window.location.origin}/post-login` },
+      });
+      if (error) throw error;
+      toast.success("📧 تم إرسال رابط الدخول إلى إيميلك", { duration: 6000 });
+    } catch (err: any) {
+      toast.error(err?.message || "فشل إرسال الرابط");
+    }
+    setAdminLoading(false);
   };
 
   const isRtl = i18n.language === "ar";
