@@ -312,50 +312,62 @@ export default function AdminLeads() {
 
       {/* Results */}
       {results.length > 0 && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>النتائج ({results.length})</CardTitle>
+        <Card className="border-success/20 bg-gradient-to-br from-card via-card to-success/5 shadow-[0_0_40px_hsl(var(--success)/0.1)]">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border/50">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <span className="w-1 h-6 bg-gradient-to-b from-success to-accent rounded-full" />
+              ✨ النتائج
+              <Badge className="bg-success/15 text-success border-success/30 mr-2">{results.length}</Badge>
+            </CardTitle>
             <div className="flex gap-2">
-              <Button onClick={saveSelected} variant="default" size="sm"><Save className="w-4 h-4" /> حفظ المحدد</Button>
-              <Button onClick={exportCSV} variant="outline" size="sm"><Download className="w-4 h-4" /> CSV</Button>
+              <Button onClick={saveSelected} size="sm" className="bg-gradient-to-r from-success to-success/80 hover:shadow-[0_0_20px_hsl(var(--success)/0.4)] text-success-foreground font-semibold">
+                <Save className="w-4 h-4 ml-1" /> حفظ المحدد ({selected.size})
+              </Button>
+              <Button onClick={exportCSV} variant="outline" size="sm" className="border-info/40 text-info hover:bg-info/10 hover:border-info">
+                <Download className="w-4 h-4 ml-1" /> CSV
+              </Button>
             </div>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
+          <CardContent className="overflow-x-auto p-0">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="border-b border-border/50 hover:bg-transparent bg-muted/20">
                   <TableHead className="w-10"></TableHead>
-                  <TableHead>الاسم</TableHead>
-                  <TableHead>المالك</TableHead>
-                  <TableHead>البلد / المدينة</TableHead>
-                  <TableHead>إيميل</TableHead>
-                  <TableHead>واتساب / هاتف</TableHead>
-                  <TableHead>موقع</TableHead>
-                  <TableHead>إجراءات</TableHead>
+                  <TableHead className="font-bold text-foreground">الاسم</TableHead>
+                  <TableHead className="font-bold text-foreground">المالك</TableHead>
+                  <TableHead className="font-bold text-foreground">البلد / المدينة</TableHead>
+                  <TableHead className="font-bold text-foreground">الإيميل</TableHead>
+                  <TableHead className="font-bold text-foreground">واتساب / هاتف</TableHead>
+                  <TableHead className="font-bold text-foreground">موقع</TableHead>
+                  <TableHead className="font-bold text-foreground text-center">إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {results.map((l, i) => (
-                  <TableRow key={i}>
+                  <TableRow key={i} className="border-b border-border/30 hover:bg-primary/5 transition-colors">
                     <TableCell><Checkbox checked={selected.has(i)} onCheckedChange={() => toggle(i)} /></TableCell>
-                    <TableCell className="font-medium">{l.name}</TableCell>
-                    <TableCell>{l.owner_name || "—"}</TableCell>
-                    <TableCell className="text-xs">{l.country} {l.city ? `• ${l.city}` : ""}</TableCell>
-                    <TableCell className="text-xs">{l.email || "—"}</TableCell>
-                    <TableCell className="text-xs ltr:text-left" dir="ltr">{l.whatsapp || l.phone || "—"}</TableCell>
+                    <TableCell className="font-semibold text-foreground">{l.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{l.owner_name || "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-info/10 text-info border-info/30 text-xs">
+                        {l.country} {l.city ? `• ${l.city}` : ""}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground" dir="ltr">{l.email || "—"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground" dir="ltr">{l.whatsapp || l.phone || "—"}</TableCell>
                     <TableCell className="text-xs">
-                      {l.website ? <a href={l.website} target="_blank" rel="noreferrer" className="text-primary underline">رابط</a> : "—"}
+                      {l.website ? <a href={l.website} target="_blank" rel="noreferrer" className="text-primary hover:text-primary-glow underline underline-offset-2">رابط ↗</a> : <span className="text-muted-foreground">—</span>}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
-                        <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)} title="واتساب">
-                          <MessageCircle className="w-4 h-4 text-green-500" />
+                      <div className="flex gap-1.5 justify-center">
+                        <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)} title="واتساب" className="h-8 w-8 border-success/40 hover:bg-success/15 hover:border-success hover:shadow-[0_0_12px_hsl(var(--success)/0.4)] transition-all">
+                          <MessageCircle className="w-4 h-4 text-success" />
                         </Button>
-                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة">
-                          <Mail className="w-4 h-4 text-blue-500" />
+                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة" className="h-8 w-8 border-info/40 hover:bg-info/15 hover:border-info hover:shadow-[0_0_12px_hsl(var(--info)/0.4)] transition-all">
+                          <Mail className="w-4 h-4 text-info" />
                         </Button>
-                        <Button size="icon" variant="default" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail">
-                          <Send className="w-4 h-4" />
+                        <Button size="icon" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail" className="h-8 w-8 bg-gradient-to-br from-primary to-accent hover:shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all">
+                          <Send className="w-4 h-4 text-primary-foreground" />
                         </Button>
                       </div>
                     </TableCell>
