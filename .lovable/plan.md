@@ -1,55 +1,27 @@
 
-المستخدم يريد (بعد تصحيح الإملاء): في صفحة المدير، تحت قسم الخدمات/قارئ، إضافة **قارئ فيديوهات** — يرفع فيديوهات من جهاز الحاسوب، والنظام يحللها تلقائياً ويسجل: **عدد السيارات + رقم اللوحة + التوقيت**.
-
-## الفهم
-- مكان الميزة: صفحة `/admin` (لوحة Super Admin)
-- المدخل: ملفات فيديو يرفعها المدير من حاسوبه
-- الإخراج: جدول يحتوي على (عدد السيارات المُكتشفة، رقم اللوحة، وقت ظهور كل سيارة)
-- الموجود: `PlateScanner.tsx` + `CameraMode.tsx` (يستخدمان كاميرا حية)
-- الجديد: تحليل ملفات فيديو مرفوعة (مختلف عن الكاميرا الحية)
-
-## التحديات التقنية
-1. تحليل فيديو في المتصفح ثقيل — لا يمكن إرسال فيديو كامل لـ Lovable AI
-2. الحل: استخراج إطارات (frames) كل N ثانية من الفيديو، ثم إرسال كل إطار لـ `google/gemini-2.5-flash` (Vision) لاكتشاف اللوحة
-3. تخزين النتائج في جدول جديد `video_scan_results`
+سأضيف زر "تحويل الإيميل إلى Mailbutler" بجانب أزرار الإجراءات الحالية في صفحة /admin/leads، يفتح Mailbutler مباشرة مع الإيميل والموضوع والنص جاهزة.
 
 ## الخطة
 
-### 1. Migration: جدول جديد
-```sql
-CREATE TABLE video_scans (
-  id uuid PK, admin_id uuid, video_name text,
-  total_cars int, duration_sec int, created_at timestamptz
-);
-CREATE TABLE video_scan_detections (
-  id uuid PK, scan_id uuid FK, plate text,
-  timestamp_sec numeric, frame_image text, created_at timestamptz
-);
-```
-RLS: admin only.
+### تعديل `src/lib/leadMessages.ts`
+إضافة دالة `mailbutlerComposeLink(email, subject, body)` تبني رابط Mailbutler:
+- `https://web.mailbutler.io/compose?to=...&subject=...&body=...`
+- (Mailbutler Web يدعم نفس بارامترات mailto القياسية)
 
-### 2. مكون جديد `VideoScanner.tsx`
-- زر رفع فيديو (`<input type=file accept=video/*>`)
-- `<video>` مخفي + `<canvas>` لاستخراج إطارات
-- يستخرج إطار كل 2 ثانية → يحوّله لـ base64
-- يرسل لـ edge function `scan-video-frame` → يعيد اللوحة المكتشفة
-- يعرض progress bar + جدول مباشر بالنتائج
+### تعديل `src/pages/AdminLeads.tsx`
+1. استيراد `mailbutlerComposeLink` و أيقونة `Mail` إضافية (مثل `MailPlus` من lucide-react).
+2. إضافة handler جديد `sendViaMailbutler(lead)` يستخدم نفس قالب `buildEngagementEmailSubject/Body` ويفتح الرابط في تبويب جديد.
+3. إضافة زر جديد بجانب أزرار WhatsApp / Gmail / Engagement في:
+   - جدول النتائج المُولّدة
+   - جدول المحلات المحفوظة
+4. ستايل الزر: تدرج برتقالي/كهرماني (`bg-gradient-to-br from-orange-500/20 to-amber-500/10`) مع glow hover ليتميز عن باقي الأزرار، وأيقونة `MailPlus`.
+5. tooltip عربي: "إرسال عبر Mailbutler".
 
-### 3. Edge function `scan-video-frame`
-- يستقبل image base64
-- يستدعي Lovable AI Gateway (`google/gemini-2.5-flash`) مع prompt: "استخرج رقم لوحة السيارة من هذه الصورة. أعد JSON: {plate, has_car}"
-- يعيد النتيجة
+### ملاحظات
+- لا حاجة لأي تغيير في قاعدة البيانات أو edge functions.
+- نفس قالب الرسالة التشجيعية المُستخدم حالياً (متعدد اللغات: عربي/فرنسي/إنجليزي حسب بلد المحل).
+- الزر يظهر فقط للمحلات التي لها إيميل (`disabled={!lead.email}`).
 
-### 4. صفحة `/admin/video-scanner` + إضافتها للـ Sidebar
-أو دمج المكون مباشرة كـ tab في `/admin` تحت الإحصائيات.
-
-→ سأضع المكون داخل `/admin` كقسم جديد (أبسط للمستخدم).
-
-## الملفات
-1. ➕ Migration للجدولين + RLS
-2. ➕ `supabase/functions/scan-video-frame/index.ts`
-3. ➕ `src/components/VideoScanner.tsx`
-4. ✏️ `src/pages/AdminDashboard.tsx` (إضافة قسم في الأسفل)
-
-## ملاحظة مهمة
-دقة قراءة لوحات السيارات من فيديو منخفض الجودة محدودة. Gemini Flash جيد لكن قد يخطئ في لوحات ضبابية أو مائلة. سيتم عرض كل اكتشاف مع صورة الإطار حتى يمكن للمدير التحقق يدوياً.
+## الملفات المعدّلة
+- `src/lib/leadMessages.ts` — إضافة `mailbutlerComposeLink`
+- `src/pages/AdminLeads.tsx` — handler + زر في الجدولين
