@@ -185,6 +185,16 @@ export default function AdminLeads() {
     window.location.href = mailtoLink(lead.email, buildInviteEmailSubject(lead, lang), buildInviteEmailBody(lead, lang));
   };
 
+  // Opens Gmail compose (Mailbutler workflow) with persuasive engagement message
+  const sendEngagement = (lead: Lead) => {
+    if (!lead.email) return toast({ title: "لا يوجد إيميل", variant: "destructive" });
+    const lang = detectLang(lead.country);
+    const subject = buildEngagementEmailSubject(lead, lang);
+    const body = buildEngagementEmailBody(lead, lang);
+    window.open(gmailComposeLink(lead.email, subject, body), "_blank");
+    toast({ title: "✉️ تم فتح Gmail / Mailbutler", description: `رسالة تشجيعية جاهزة لـ ${lead.name}` });
+  };
+
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <div className="flex items-center justify-between">
