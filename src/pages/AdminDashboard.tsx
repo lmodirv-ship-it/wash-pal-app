@@ -239,6 +239,7 @@ export default function AdminDashboard() {
       </div>
 
       <VideoScanner />
+      <PlateHistoryByDate />
     </div>
   );
 }
