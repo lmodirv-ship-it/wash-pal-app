@@ -380,45 +380,61 @@ export default function AdminLeads() {
       )}
 
       {/* Saved leads */}
-      <Card>
-        <CardHeader><CardTitle>📚 المحلات المحفوظة (AI)</CardTitle></CardHeader>
-        <CardContent className="overflow-x-auto">
+      <Card className="border-info/20 bg-gradient-to-br from-card via-card to-info/5 shadow-[0_0_40px_hsl(var(--info)/0.1)]">
+        <CardHeader className="border-b border-border/50">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <span className="w-1 h-6 bg-gradient-to-b from-info to-primary rounded-full" />
+            📚 المحلات المحفوظة (AI)
+            <Badge className="bg-info/15 text-info border-info/30 mr-2">{saved.length}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto p-0">
           {savedLoading ? (
-            <div className="py-10 text-center text-muted-foreground"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>
+            <div className="py-12 text-center text-muted-foreground"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>
           ) : saved.length === 0 ? (
-            <p className="text-center py-8 text-muted-foreground">لا توجد محلات محفوظة بعد</p>
+            <div className="py-12 text-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-muted/30 flex items-center justify-center mb-3">
+                <Users className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground">لا توجد محلات محفوظة بعد</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">ابدأ بتوليد عملاء جدد من الأعلى</p>
+            </div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>المرجع</TableHead>
-                  <TableHead>الاسم</TableHead>
-                  <TableHead>البلد</TableHead>
-                  <TableHead>المدينة</TableHead>
-                  <TableHead>إيميل</TableHead>
-                  <TableHead>واتساب</TableHead>
-                  <TableHead>إجراءات</TableHead>
+                <TableRow className="border-b border-border/50 hover:bg-transparent bg-muted/20">
+                  <TableHead className="font-bold text-foreground">المرجع</TableHead>
+                  <TableHead className="font-bold text-foreground">الاسم</TableHead>
+                  <TableHead className="font-bold text-foreground">البلد</TableHead>
+                  <TableHead className="font-bold text-foreground">المدينة</TableHead>
+                  <TableHead className="font-bold text-foreground">الإيميل</TableHead>
+                  <TableHead className="font-bold text-foreground">واتساب</TableHead>
+                  <TableHead className="font-bold text-foreground text-center">إجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {saved.map((l) => (
-                  <TableRow key={l.id}>
-                    <TableCell className="font-mono text-xs">{l.reference || "—"}</TableCell>
-                    <TableCell className="font-medium">{l.name}</TableCell>
-                    <TableCell className="text-xs">{l.country || "—"}</TableCell>
-                    <TableCell className="text-xs">{l.city || "—"}</TableCell>
-                    <TableCell className="text-xs">{l.email || "—"}</TableCell>
-                    <TableCell className="text-xs" dir="ltr">{l.whatsapp || "—"}</TableCell>
+                  <TableRow key={l.id} className="border-b border-border/30 hover:bg-info/5 transition-colors">
                     <TableCell>
-                      <div className="flex gap-1">
-                        <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)} title="واتساب">
-                          <MessageCircle className="w-4 h-4 text-green-500" />
+                      <Badge variant="outline" className="font-mono text-xs bg-primary/10 text-primary border-primary/30">{l.reference || "—"}</Badge>
+                    </TableCell>
+                    <TableCell className="font-semibold text-foreground">{l.name}</TableCell>
+                    <TableCell>
+                      {l.country ? <Badge variant="outline" className="bg-info/10 text-info border-info/30 text-xs">{l.country}</Badge> : <span className="text-muted-foreground text-xs">—</span>}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{l.city || "—"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground" dir="ltr">{l.email || "—"}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground" dir="ltr">{l.whatsapp || "—"}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-1.5 justify-center">
+                        <Button size="icon" variant="outline" onClick={() => sendWhatsApp(l)} title="واتساب" className="h-8 w-8 border-success/40 hover:bg-success/15 hover:border-success hover:shadow-[0_0_12px_hsl(var(--success)/0.4)] transition-all">
+                          <MessageCircle className="w-4 h-4 text-success" />
                         </Button>
-                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة">
-                          <Mail className="w-4 h-4 text-blue-500" />
+                        <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة" className="h-8 w-8 border-info/40 hover:bg-info/15 hover:border-info hover:shadow-[0_0_12px_hsl(var(--info)/0.4)] transition-all">
+                          <Mail className="w-4 h-4 text-info" />
                         </Button>
-                        <Button size="icon" variant="default" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail">
-                          <Send className="w-4 h-4" />
+                        <Button size="icon" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail" className="h-8 w-8 bg-gradient-to-br from-primary to-accent hover:shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all">
+                          <Send className="w-4 h-4 text-primary-foreground" />
                         </Button>
                       </div>
                     </TableCell>
