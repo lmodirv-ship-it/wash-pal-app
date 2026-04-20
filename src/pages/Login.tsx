@@ -134,9 +134,14 @@ export default function Login() {
               <Input type="password" placeholder="••••••••" value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))} className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all" required minLength={6} />
             </div>
 
-            <Link to="/forgot-password" className="block text-xs text-muted-foreground hover:text-primary transition-colors">
-              {t("auth.forgotPassword")}
-            </Link>
+            <div className="flex justify-end">
+              <Link
+                to="/forgot-password"
+                className="text-sm font-bold text-primary hover:text-primary/80 hover:underline underline-offset-4 transition-colors"
+              >
+                🔑 {t("auth.forgotPassword") || "نسيت كلمة السر؟"}
+              </Link>
+            </div>
 
             <Button type="submit" disabled={loading} className="w-full h-12 font-bold text-base relative overflow-hidden group bg-gradient-to-r from-[#0a0a2a] to-[#12122e] border border-white/10 hover:border-primary/40 hover:shadow-[0_0_25px_rgba(250,204,21,0.12)] transition-all duration-500">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/0 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
