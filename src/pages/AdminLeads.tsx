@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, MessageCircle, Mail, Save, Download, Globe2, Users, CheckCircle2, Send } from "lucide-react";
+import { Loader2, Sparkles, MessageCircle, Mail, Save, Download, Globe2, Users, CheckCircle2, Send, MailPlus } from "lucide-react";
 import {
   buildEngagementEmailBody,
   buildEngagementEmailSubject,
@@ -17,6 +17,7 @@ import {
   buildInviteWhatsAppMessage,
   detectLang,
   gmailComposeLink,
+  mailbutlerComposeLink,
   mailtoLink,
   whatsappLink,
 } from "@/lib/leadMessages";
@@ -196,6 +197,16 @@ export default function AdminLeads() {
     toast({ title: "✉️ تم فتح Gmail / Mailbutler", description: `رسالة تشجيعية جاهزة لـ ${lead.name}` });
   };
 
+  // Opens Mailbutler Web composer directly with the engagement message
+  const sendViaMailbutler = (lead: Lead) => {
+    if (!lead.email) return toast({ title: "لا يوجد إيميل", variant: "destructive" });
+    const lang = detectLang(lead.country);
+    const subject = buildEngagementEmailSubject(lead, lang);
+    const body = buildEngagementEmailBody(lead, lang);
+    window.open(mailbutlerComposeLink(lead.email, subject, body), "_blank");
+    toast({ title: "📮 تم فتح Mailbutler", description: `رسالة جاهزة للإرسال إلى ${lead.name}` });
+  };
+
   return (
     <div className="p-6 space-y-6 min-h-screen bg-gradient-to-br from-background via-background to-muted/30" dir="rtl">
       {/* Header */}
@@ -366,8 +377,11 @@ export default function AdminLeads() {
                         <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة" className="h-8 w-8 border-info/40 hover:bg-info/15 hover:border-info hover:shadow-[0_0_12px_hsl(var(--info)/0.4)] transition-all">
                           <Mail className="w-4 h-4 text-info" />
                         </Button>
-                        <Button size="icon" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail" className="h-8 w-8 bg-gradient-to-br from-primary to-accent hover:shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all">
+                        <Button size="icon" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Gmail" className="h-8 w-8 bg-gradient-to-br from-primary to-accent hover:shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all">
                           <Send className="w-4 h-4 text-primary-foreground" />
+                        </Button>
+                        <Button size="icon" disabled={!l.email} onClick={() => sendViaMailbutler(l)} title="إرسال عبر Mailbutler" className="h-8 w-8 bg-gradient-to-br from-warning/30 to-warning/10 border border-warning/40 hover:from-warning/50 hover:to-warning/20 hover:shadow-[0_0_14px_hsl(var(--warning)/0.5)] hover:border-warning transition-all disabled:opacity-40">
+                          <MailPlus className="w-4 h-4 text-warning" />
                         </Button>
                       </div>
                     </TableCell>
@@ -433,8 +447,11 @@ export default function AdminLeads() {
                         <Button size="icon" variant="outline" onClick={() => sendEmail(l)} title="إيميل دعوة" className="h-8 w-8 border-info/40 hover:bg-info/15 hover:border-info hover:shadow-[0_0_12px_hsl(var(--info)/0.4)] transition-all">
                           <Mail className="w-4 h-4 text-info" />
                         </Button>
-                        <Button size="icon" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Mailbutler / Gmail" className="h-8 w-8 bg-gradient-to-br from-primary to-accent hover:shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all">
+                        <Button size="icon" onClick={() => sendEngagement(l)} title="رسالة تشجيعية عبر Gmail" className="h-8 w-8 bg-gradient-to-br from-primary to-accent hover:shadow-[0_0_12px_hsl(var(--primary)/0.6)] transition-all">
                           <Send className="w-4 h-4 text-primary-foreground" />
+                        </Button>
+                        <Button size="icon" disabled={!l.email} onClick={() => sendViaMailbutler(l)} title="إرسال عبر Mailbutler" className="h-8 w-8 bg-gradient-to-br from-warning/30 to-warning/10 border border-warning/40 hover:from-warning/50 hover:to-warning/20 hover:shadow-[0_0_14px_hsl(var(--warning)/0.5)] hover:border-warning transition-all disabled:opacity-40">
+                          <MailPlus className="w-4 h-4 text-warning" />
                         </Button>
                       </div>
                     </TableCell>

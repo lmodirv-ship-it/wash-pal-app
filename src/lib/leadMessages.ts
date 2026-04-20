@@ -181,6 +181,16 @@ export function gmailComposeLink(email: string, subject: string, body: string): 
   return `https://mail.google.com/mail/?${params.toString()}`;
 }
 
+// Mailbutler Web compose link — opens Mailbutler's web composer with prefilled fields
+export function mailbutlerComposeLink(email: string, subject: string, body: string): string {
+  const params = new URLSearchParams({
+    to: email,
+    subject: subject,
+    body: body,
+  });
+  return `https://web.mailbutler.io/compose?${params.toString()}`;
+}
+
 // Persuasive engagement message — emphasizes value, urgency, and free trial
 export function buildEngagementEmailSubject(lead: LeadLike, lang: Lang = detectLang(lead.country)): string {
   if (lang === "ar") return `🚗 ${lead.name} — ضاعف أرباحك مع ${PLATFORM_NAME} (تجربة مجانية 15 يوم)`;
