@@ -20,8 +20,19 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
-    const adminUser = users?.users?.find((u) => (u.email || "").toLowerCase() === email);
+    // Find user by paging through all users (listUsers is paginated, default 50/page)
+    let adminUser: any = null;
+    let page = 1;
+    const perPage = 1000;
+    while (!adminUser) {
+      const { data, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+      if (listErr) break;
+      const found = data?.users?.find((u) => (u.email || "").toLowerCase() === email);
+      if (found) { adminUser = found; break; }
+      if (!data?.users || data.users.length < perPage) break;
+      page++;
+      if (page > 20) break;
+    }
 
     if (!adminUser) {
       return new Response(
