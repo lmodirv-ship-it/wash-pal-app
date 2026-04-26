@@ -12,7 +12,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, face_image, action } = await req.json();
+    const { email: rawEmail, face_image, action } = await req.json();
+    const email = (rawEmail || "").trim().toLowerCase();
 
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -20,7 +21,7 @@ Deno.serve(async (req) => {
     );
 
     const { data: users } = await supabaseAdmin.auth.admin.listUsers();
-    const adminUser = users?.users?.find((u) => u.email === email);
+    const adminUser = users?.users?.find((u) => (u.email || "").toLowerCase() === email);
 
     if (!adminUser) {
       return new Response(
