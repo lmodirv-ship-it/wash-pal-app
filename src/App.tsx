@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, lazy } from "react";
+import { ReactNode, Suspense, lazy, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,6 +10,7 @@ import { useEffectiveRoles, homeForRole, pickPrimaryRole } from "@/hooks/useEffe
 import { Layout } from "@/components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { supabase } from "@/integrations/supabase/client";
 
 // Lazy-loaded pages — drastically reduces initial bundle
 const Landing = lazy(() => import("./pages/Landing"));
@@ -97,9 +98,30 @@ function ShopGate({ needsShop, children }: { needsShop: boolean; children: React
 function RoleHomeRedirect() {
   const { user, loading } = useAuth();
   const { roles, loading: rolesLoading } = useEffectiveRoles();
+  const [pendingCheck, setPendingCheck] = useState<"loading" | "yes" | "no">("loading");
+
+  useEffect(() => {
+    if (!user) { setPendingCheck("no"); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("employee_join_requests")
+        .select("id,status")
+        .eq("user_id", user.id)
+        .eq("status", "pending")
+        .limit(1);
+      setPendingCheck((data?.length || 0) > 0 ? "yes" : "no");
+    })();
+  }, [user]);
+
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
-  if (rolesLoading || roles === null) return <LoadingScreen />;
+  if (rolesLoading || roles === null || pendingCheck === "loading") return <LoadingScreen />;
+
+  // If the user has only customer/employee role and a pending request, send them to the waiting page.
+  const hasShopRole = roles.some((r) => ["owner", "admin", "supervisor", "manager", "employee"].includes(r));
+  if (pendingCheck === "yes" && !hasShopRole) {
+    return <Navigate to="/pending-approval" replace />;
+  }
   return <Navigate to={homeForRole(pickPrimaryRole(roles))} replace />;
 }
 
