@@ -5,23 +5,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "btn-glass inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "btn-pill inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        // Glassy luminous pill — like in the reference screenshot
-        default: "btn-glass--primary text-primary-foreground",
-        destructive: "btn-glass--destructive text-destructive-foreground",
-        outline: "btn-glass--outline text-foreground",
-        secondary: "btn-glass--secondary text-secondary-foreground",
-        ghost: "btn-glass--ghost text-foreground",
-        link: "text-primary underline-offset-4 hover:underline !shadow-none !border-0 !bg-transparent before:hidden after:hidden",
+        // Minimal pill — dark translucent w/ thin cyan border (HN reference)
+        default: "btn-pill--primary text-foreground",
+        destructive: "btn-pill--destructive text-destructive-foreground",
+        outline: "btn-pill--outline text-foreground",
+        secondary: "btn-pill--secondary text-foreground",
+        ghost: "btn-pill--ghost text-foreground",
+        link: "text-primary underline-offset-4 hover:underline !shadow-none !border-0 !bg-transparent",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-9 px-4 py-2",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-10 px-6",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: {
