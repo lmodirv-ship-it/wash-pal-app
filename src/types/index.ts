@@ -62,6 +62,8 @@ export interface Order {
   notes?: string;
   createdAt: string;
   completedAt?: string;
+  startAt?: string;
+  expectedEndAt?: string;
 }
 
 export interface Invoice {

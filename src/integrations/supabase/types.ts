@@ -812,11 +812,13 @@ export type Database = {
           customer_name: string
           employee_id: string | null
           employee_name: string | null
+          expected_end_at: string | null
           id: string
           notes: string | null
           reference: string | null
           services: string[]
           shop_id: string
+          start_at: string
           status: string
           total_price: number
         }
@@ -830,11 +832,13 @@ export type Database = {
           customer_name: string
           employee_id?: string | null
           employee_name?: string | null
+          expected_end_at?: string | null
           id?: string
           notes?: string | null
           reference?: string | null
           services?: string[]
           shop_id: string
+          start_at?: string
           status?: string
           total_price?: number
         }
@@ -848,11 +852,13 @@ export type Database = {
           customer_name?: string
           employee_id?: string | null
           employee_name?: string | null
+          expected_end_at?: string | null
           id?: string
           notes?: string | null
           reference?: string | null
           services?: string[]
           shop_id?: string
+          start_at?: string
           status?: string
           total_price?: number
         }

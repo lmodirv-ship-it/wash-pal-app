@@ -82,6 +82,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     totalPrice: Number(r.total_price), status: r.status, employeeId: r.employee_id,
     employeeName: r.employee_name, branchId: r.branch_id, notes: r.notes,
     createdAt: r.created_at, completedAt: r.completed_at,
+    startAt: r.start_at, expectedEndAt: r.expected_end_at,
   });
   const mapService = (r: any): Service => ({
     id: r.id, reference: r.reference, name: r.name,

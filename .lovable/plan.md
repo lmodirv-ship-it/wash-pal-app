@@ -1,78 +1,77 @@
-# Fix /employee route aliasing
+## Feature: عمليات الموظف كجدول + Reference + start/end datetime
 
-## Problem
-Visiting `/employee` or `/employee/services` should not 404. Per the new requirement, the canonical employee area is `/dashboard/*`, and `/employee/*` must alias to it.
+النظام حالياً يستخدم جدول `orders` وليس `work_entries`. سأبني فوق `orders` الموجود (مع البيانات والاشتراكات) بدل إنشاء جدول جديد منفصل، وأضيف الحقول الناقصة فقط. الـ RLS متاحة بالفعل (member/manager/owner). صفحة `EmployeeApp` فيها بالفعل جدول صغير لـ "أعمالي اليوم" — سأطوّره ليصبح الجدول الرسمي المطلوب.
 
-Currently in `src/App.tsx`:
-- `/employee` renders `EmployeeApp` directly (not a redirect).
-- `/employee/services` renders `EmployeeServices` directly.
-- The `/dashboard` route group disallows the `employee` role.
-- `homeForRole("employee")` returns `/employee`, so post-login lands employees on the soon-to-be-aliased path.
+---
 
-## Changes
+### 1) تعديلات قاعدة البيانات (migration)
 
-### 1. `src/App.tsx` — convert `/employee/*` to redirects
-Replace the current employee route block with three `<Navigate replace>` aliases:
+تعديل جدول `orders`:
+- إضافة `start_at timestamptz NOT NULL DEFAULT now()`
+- إضافة `expected_end_at timestamptz` (محسوب تلقائياً من duration الخدمة)
+- `completed_at` موجود — سيُحدَّث تلقائياً عند تحويل الحالة إلى `completed`
+- توسيع `status` ليدعم: `waiting | in_progress | completed | cancelled` (الحالي يحتوي `waiting`)
+- تغيير صيغة `reference` من 6 أرقام إلى **حرف واحد + 6 أرقام** (مثال: `S483920`)
+  - استبدال `generate_reference` لجدول orders بـ trigger مخصّص `generate_order_reference` يولّد `S` + 6 أرقام عشوائية فريدة
+  - إضافة `CHECK (reference ~ '^[A-Z][0-9]{6}$')` (سيُطبَّق على الجديد فقط؛ السجلات القديمة بدون reference ستبقى كما هي وعند أول كتابة سيُولَّد reference متوافق)
+- Trigger لتعبئة `expected_end_at` تلقائياً = `start_at + duration` بناءً على أوّل خدمة في `services[]`
+- Trigger لتعيين `completed_at = now()` عند الانتقال إلى `status='completed'`، وتفريغها عند العودة لحالة أخرى
 
-```tsx
-<Route path="/employee" element={<Navigate to="/dashboard" replace />} />
-<Route path="/employee/services" element={<Navigate to="/dashboard/services" replace />} />
-<Route path="/employee/*" element={<Navigate to="/dashboard" replace />} />
-<Route path="/work" element={<Navigate to="/dashboard" replace />} />
-```
+Indexes:
+- `idx_orders_shop_created (shop_id, created_at DESC)`
+- `idx_orders_status (status)`
+- `idx_orders_reference (reference)` (unique موجود ضمنياً)
 
-These are public-level redirects (no guard), so they never 404. The destination route then enforces auth + role.
+ملاحظة: لا حاجة لتغييرات RLS — السياسات الحالية (`orders_member_*` و`orders_owner_all`) تطبّق بالضبط القاعدة المطلوبة (موظف يرى متجره فقط، owner يرى الكل، لا cross-shop).
 
-### 2. `src/App.tsx` — allow `employee` on the dashboard route group
-Add `"employee"` to `allowedRoles` of the dashboard `ProtectedRoute`:
+---
 
-```tsx
-allowedRoles={["owner", "admin", "supervisor", "manager", "employee"]}
-```
+### 2) تحديثات Frontend
 
-Add two new dashboard routes that point to the existing employee pages so the alias targets resolve:
+**`src/contexts/AppContext.tsx`** (أو مكان `addOrder`):
+- عند إنشاء طلب: إرسال `status: 'in_progress'` افتراضياً (بدل `waiting`) — لأن العملية تبدأ فور التسجيل
+- استرجاع الحقول الجديدة في الـ select: `reference, start_at, expected_end_at, completed_at, status`
+- إضافة `updateOrderStatus(id, status)` يضع `completed_at` في الـ payload عند الإكمال
 
-- `/dashboard/services` → `EmployeeServices` (employee-friendly services view; `/services` already exists for admins and stays unchanged).
-- `/dashboard` already maps to `Index`. For employees we keep the same dashboard entry; if a dedicated employee landing is desired later we can branch inside `Index`. For now `/employee` → `/dashboard` satisfies the requirement and the EmployeeApp content remains reachable via `/dashboard/services` for the order-entry flow they actually use.
+**`src/types/index.ts`**: إضافة الحقول الجديدة لنوع Order.
 
-Actually to preserve current employee UX (the EmployeeApp order-entry screen is what they use today), map the employee landing this way:
-- `/dashboard` for employees keeps the standard `Index`. Employees were already using `/employee` (EmployeeApp) as their workspace, so we add `/dashboard/work` → `EmployeeApp` and update `/employee` alias to `/dashboard/work` to keep the same screen. Final aliases:
+**`src/pages/EmployeeApp.tsx`** (استبدال `DailyOrdersTable`):
+- جدول كامل بالأعمدة المطلوبة:
+  Reference | اسم الخدمة | نوع السيارة | الموظف | بداية | نهاية متوقعة | نهاية فعلية | المدة (دقيقة) | الثمن | الحالة | ملاحظات | إجراء
+- الإجراء: زر "إكمال" / "إلغاء" يحدّث الحالة
+- بحث (Reference + اسم الخدمة)
+- فلاتر: الحالة، التاريخ (today/week/all)، الموظف (للمدراء)
+- ترتيب تنازلي حسب `start_at`
+- Pagination: 20/صفحة
+- Mobile: `overflow-x-auto` مع `min-w-[900px]` للجدول + sticky header
 
-```tsx
-<Route path="/employee" element={<Navigate to="/dashboard/work" replace />} />
-<Route path="/employee/services" element={<Navigate to="/dashboard/services" replace />} />
-<Route path="/employee/*" element={<Navigate to="/dashboard/work" replace />} />
-```
+**`src/pages/Orders.tsx` و`src/pages/Entries.tsx`**: تحديث طفيف لإظهار الأعمدة الجديدة (Reference + start/end) إن لزم.
 
-And inside the dashboard guarded group:
-```tsx
-<Route path="/dashboard/work" element={<EmployeeApp />} />
-<Route path="/dashboard/services" element={<EmployeeServices />} />
-```
+---
 
-Note: `Layout` (sidebar) will now wrap EmployeeApp/EmployeeServices since they live under `AppShell`. To preserve the current fullscreen employee UX, render them inside a sibling guarded group that uses the bare `AppProvider + ShopGate` wrapper (same as today's employee block) but mounted under `/dashboard/work` and `/dashboard/services` paths. So we keep two route groups:
+### 3) السلوك المتوقع
 
-- Standard dashboard group (with Layout) — owner/admin/supervisor/manager — unchanged routes.
-- Employee dashboard group (no Layout) — owner/employee/supervisor/manager — paths `/dashboard/work`, `/dashboard/services`.
+- موظف يسجّل طلباً جديداً → يحصل تلقائياً على `S######` + `start_at=now()` + `expected_end_at=start_at+duration` + `status=in_progress`
+- زر "إكمال" → `status=completed` + `completed_at=now()`
+- زر "إلغاء" → `status=cancelled`
+- كل عرض محصور بالـ shop عبر RLS
 
-### 3. `src/hooks/useEffectiveRoles.ts` — update employee home
-Change `case "employee": return "/employee";` to `return "/dashboard/work";` so post-login routing aligns with the new canonical paths. The `/employee` alias still works for any external links/bookmarks.
+---
 
-## Guard behavior (verified)
-- Unauthenticated user hitting `/employee` → alias to `/dashboard/work` → `ProtectedRoute` redirects to `/login`.
-- Pending employee (no role yet) → `RoleHomeRedirect` already sends them to `/pending-approval`; if they hit `/employee` directly, `ProtectedRoute` denies and `homeForRole` of their role (customer) sends to `/app`. We will keep `RoleHomeRedirect` as the canonical pending check; direct `/employee` access for a pending user falls back to `/unauthorized`. To be friendlier, the employee guarded group will redirect denied users to `/post-login` (which already routes pending employees correctly).
-- Approved employee → lands on `/dashboard/work` (EmployeeApp) and can navigate to `/dashboard/services`.
-- Owner/manager/supervisor → still allowed on both groups.
-- Admin → allowed on standard dashboard, NOT on employee group (kept shop-scoped per existing rules).
+### 4) معايير القبول
 
-## Verification checklist
-1. `/employee` → 302 to `/dashboard/work`, renders EmployeeApp for an employee, no 404.
-2. `/employee/services` → 302 to `/dashboard/services`, renders services list scoped to the employee's shop.
-3. `/employee/anything-else` → 302 to `/dashboard/work`.
-4. Logged-out user hitting `/employee` → ends at `/login`.
-5. Pending employee hitting `/employee` → ends at `/pending-approval` via `/post-login`.
-6. `tsc --noEmit` and `vite build` succeed.
+- ✅ Reference جديد بصيغة `^[A-Z][0-9]{6}$` لكل عملية
+- ✅ start_at / expected_end_at / completed_at تظهر في الجدول
+- ✅ المدراء (manager/supervisor/owner) يرون نفس السجلات حسب صلاحياتهم
+- ✅ لا cross-shop access (مضمون بـRLS الموجود)
+- ✅ `tsc --noEmit` ينجح
 
-## Files touched
-- `src/App.tsx` (routes restructure)
-- `src/hooks/useEffectiveRoles.ts` (homeForRole)
+---
+
+### الملفات المتأثرة
+
+- migration جديدة: تعديل `orders` + triggers + indexes
+- `src/contexts/AppContext.tsx`
+- `src/types/index.ts`
+- `src/pages/EmployeeApp.tsx` (جدول جديد بدل DailyOrdersTable)
+- (اختياري) `src/pages/Orders.tsx`, `src/pages/Entries.tsx`
