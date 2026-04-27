@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Building2, DollarSign, Users, TrendingUp, Sparkles, FileText, Zap, Package, Crown, CreditCard, BarChart3, Download, ChevronDown, Eye, Pause, Play } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -60,9 +60,9 @@ function BigStat({ label, value, icon: Icon, tone, loading }: BigStatProps) {
 
 export default function AdminDashboard() {
   const [range, setRange] = useState<DateRange>(() => buildPresetRange("30d"));
-  const { loading, shops, subs, orders, kpis, series, topShops } = useDashboardMetrics(range);
+  const { loading, isFetching, error, refetch, shops, subs, orders, kpis, series, topShops } = useDashboardMetrics(range);
 
-  const downloadShops = async () => {
+  const downloadShops = useCallback(async () => {
     const rows = shops.map((s) => ({
       id: s.id, name: s.name, created_at: s.created_at, suspended: s.suspended,
     }));
@@ -71,9 +71,9 @@ export default function AdminDashboard() {
     downloadCsv(`shops-${stamp}.csv`, csv || "no_data\n");
     await logExport("shops", null, rows.length);
     toast.success(`تم تصدير ${rows.length} متجر`);
-  };
+  }, [shops]);
 
-  const downloadOrders = async () => {
+  const downloadOrders = useCallback(async () => {
     const rows = orders.map((o) => ({
       id: o.id, shop_id: o.shop_id, status: o.status,
       total_price: o.total_price, created_at: o.created_at, completed_at: o.completed_at,
@@ -85,9 +85,9 @@ export default function AdminDashboard() {
     // record under 'work_entries' (operational data) so the audit row still lands.
     await logExport("work_entries", null, rows.length);
     toast.success(`تم تصدير ${rows.length} طلب`);
-  };
+  }, [orders]);
 
-  const downloadSubs = async () => {
+  const downloadSubs = useCallback(async () => {
     const rows = subs.map((s) => ({
       id: s.id, shop_id: s.shop_id, plan: s.plan, status: s.status,
       monthly_price: s.monthly_price, current_period_end: s.current_period_end, created_at: s.created_at,
@@ -97,9 +97,9 @@ export default function AdminDashboard() {
     downloadCsv(`subscriptions-${stamp}.csv`, csv || "no_data\n");
     await logExport("subscriptions", null, rows.length);
     toast.success(`تم تصدير ${rows.length} اشتراك`);
-  };
+  }, [subs]);
 
-  const downloadTopShops = async () => {
+  const downloadTopShops = useCallback(async () => {
     const rows = topShops.map((t, i) => ({
       rank: i+1, id: t.id, name: t.name, orders_count: t.count, revenue: t.revenue,
     }));
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
     downloadCsv(`top-shops-${stamp}.csv`, csv || "no_data\n");
     await logExport("shops", null, rows.length);
     toast.success(`تم تصدير ${rows.length} متجر`);
-  };
+  }, [topShops]);
 
   const insights = useMemo(() => {
     const out: string[] = [];
