@@ -21,10 +21,10 @@
     --popover: 230 35% 6%;
     --popover-foreground: 220 15% 96%;
 
-    /* Brand — Electric blue glow */
-    --primary: 214 100% 58%;
+    /* Brand — Electric cyan + violet aurora */
+    --primary: 195 100% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 210 100% 70%;
+    --primary-glow: 190 100% 70%;
 
     --accent: 280 95% 65%;
     --accent-foreground: 0 0% 100%;
@@ -49,36 +49,36 @@
 
     --border: 220 30% 18%;
     --input: 230 25% 13%;
-    --ring: 214 100% 58%;
+    --ring: 195 100% 60%;
 
     --radius: 1.25rem;
 
     /* Sidebar — translucent obsidian */
     --sidebar-background: 230 38% 5%;
     --sidebar-foreground: 220 18% 82%;
-    --sidebar-primary: 214 100% 58%;
+    --sidebar-primary: 195 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 230 28% 11%;
-    --sidebar-accent-foreground: 210 100% 78%;
+    --sidebar-accent-foreground: 195 100% 75%;
     --sidebar-border: 220 30% 14%;
-    --sidebar-ring: 214 100% 58%;
+    --sidebar-ring: 195 100% 60%;
 
     /* Charts */
-    --chart-1: 214 100% 58%;
+    --chart-1: 195 100% 60%;
     --chart-2: 280 95% 65%;
     --chart-3: 320 90% 65%;
     --chart-4: 38 100% 60%;
     --chart-5: 152 80% 52%;
 
     /* Gradients — holographic + aurora */
-    --gradient-primary: linear-gradient(135deg, hsl(214 100% 58%) 0%, hsl(200 100% 65%) 100%);
-    --gradient-aurora: linear-gradient(125deg, hsl(214 100% 58%) 0%, hsl(205 100% 65%) 50%, hsl(195 100% 70%) 100%);
-    --gradient-soft: linear-gradient(135deg, hsl(214 100% 58% / 0.18), hsl(200 100% 65% / 0.08));
+    --gradient-primary: linear-gradient(135deg, hsl(195 100% 60%) 0%, hsl(280 95% 65%) 100%);
+    --gradient-aurora: linear-gradient(125deg, hsl(195 100% 60%) 0%, hsl(220 95% 65%) 35%, hsl(280 95% 65%) 70%, hsl(320 90% 65%) 100%);
+    --gradient-soft: linear-gradient(135deg, hsl(195 100% 60% / 0.18), hsl(280 95% 65% / 0.08));
     --gradient-success: linear-gradient(135deg, hsl(152 80% 52%), hsl(170 85% 58%));
     --gradient-warning: linear-gradient(135deg, hsl(38 100% 62%), hsl(20 100% 64%));
     --gradient-glossy: linear-gradient(180deg, hsl(230 30% 9%) 0%, hsl(230 40% 4%) 100%);
     --gradient-sheen: linear-gradient(135deg, hsl(220 20% 96% / 0.10) 0%, transparent 50%, hsl(220 20% 96% / 0.03) 100%);
-    --gradient-holo: conic-gradient(from 180deg at 50% 50%, hsl(214 100% 58% / 0.4), hsl(200 100% 65% / 0.4), hsl(190 100% 70% / 0.4), hsl(214 100% 58% / 0.4));
+    --gradient-holo: conic-gradient(from 180deg at 50% 50%, hsl(195 100% 60% / 0.4), hsl(280 95% 65% / 0.4), hsl(320 90% 65% / 0.4), hsl(195 100% 60% / 0.4));
 
     /* Shadows — deep + neon glow */
     --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.4);
@@ -86,7 +86,7 @@
     --shadow-md: 0 6px 18px -3px hsl(0 0% 0% / 0.55), 0 2px 6px -2px hsl(0 0% 0% / 0.35);
     --shadow-lg: 0 18px 40px -8px hsl(0 0% 0% / 0.65), 0 6px 16px -4px hsl(0 0% 0% / 0.4);
     --shadow-xl: 0 32px 64px -12px hsl(0 0% 0% / 0.75);
-    --shadow-glow: 0 0 0 1px hsl(214 100% 58% / 0.3), 0 0 40px -4px hsl(214 100% 58% / 0.6);
+    --shadow-glow: 0 0 0 1px hsl(195 100% 60% / 0.25), 0 0 40px -4px hsl(195 100% 60% / 0.55);
     --shadow-glow-violet: 0 0 0 1px hsl(280 95% 65% / 0.25), 0 0 40px -4px hsl(280 95% 65% / 0.55);
     --shadow-inner-sheen: inset 0 1px 0 0 hsl(220 20% 96% / 0.08), inset 0 0 0 1px hsl(220 20% 96% / 0.02);
     --shadow-glass: 0 8px 32px 0 hsl(230 50% 2% / 0.6), inset 0 1px 0 0 hsl(220 20% 100% / 0.08);
@@ -103,9 +103,9 @@
     --card-foreground: 220 20% 96%;
     --popover: 230 35% 7%;
     --popover-foreground: 220 20% 96%;
-    --primary: 214 100% 58%;
+    --primary: 195 100% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 210 100% 70%;
+    --primary-glow: 190 100% 70%;
     --accent: 280 95% 65%;
     --accent-foreground: 0 0% 100%;
     --secondary: 230 25% 14%;
@@ -114,10 +114,10 @@
     --muted-foreground: 220 12% 62%;
     --border: 220 30% 18%;
     --input: 230 25% 14%;
-    --ring: 214 100% 58%;
+    --ring: 195 100% 60%;
     --sidebar-background: 230 38% 6%;
     --sidebar-foreground: 220 18% 80%;
-    --sidebar-primary: 214 100% 58%;
+    --sidebar-primary: 195 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 230 28% 12%;
     --sidebar-accent-foreground: 195 100% 75%;
@@ -594,4 +594,35 @@
     color: transparent;
     animation: holo-shift 8s ease infinite;
   }
+}
+
+/* ============================================
+   Global button override — Electric blue glow
+   Applies to ALL buttons across every page.
+   Excludes: sidebar nav, icon-only utility buttons inside selects/popovers.
+   ============================================ */
+@layer components {
+  button:not([data-sidebar]):not([role="combobox"]):not([role="option"]):not([role="menuitem"]):not([role="tab"]):not([cmdk-item]) {
+    --btn-blue: 214 100% 58%;
+    --btn-blue-glow: 200 100% 70%;
+  }
+
+  /* Solid / primary-style buttons get blue background + glow */
+  button.bg-primary,
+  button[class*="bg-primary"]:not([class*="bg-primary/"]) {
+    background-color: hsl(var(--btn-blue, 214 100% 58%)) !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 1px hsl(var(--btn-blue, 214 100% 58%) / 0.4),
+                0 8px 24px -6px hsl(var(--btn-blue, 214 100% 58%) / 0.65) !important;
+  }
+  button.bg-primary:hover,
+  button[class*="bg-primary"]:not([class*="bg-primary/"]):hover {
+    background-color: hsl(210 100% 64%) !important;
+    box-shadow: 0 0 0 1px hsl(var(--btn-blue, 214 100% 58%) / 0.55),
+                0 10px 30px -6px hsl(var(--btn-blue, 214 100% 58%) / 0.85) !important;
+  }
+}
+@layer utilities {
+  /* Helper if you want to opt a button out: add class `btn-no-blue` */
+  button.btn-no-blue { background-color: revert !important; box-shadow: revert !important; }
 }
