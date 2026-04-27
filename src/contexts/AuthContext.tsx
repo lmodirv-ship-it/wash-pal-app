@@ -20,12 +20,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
+    // Try to read; if missing, attempt one self-heal insert with default role.
+    let { data } = await supabase
       .from('profiles')
       .select('id, name, role')
       .eq('user_id', userId)
-      .single();
-    setProfile(data);
+      .maybeSingle();
+
+    if (!data) {
+      // Self-heal: create a minimal profile so the app never hangs on "loading".
+      const { data: userRes } = await supabase.auth.getUser();
+      const meta = (userRes.user?.user_metadata || {}) as { name?: string; role?: string };
+      const safeRole = ['admin', 'manager', 'supervisor', 'employee', 'customer'].includes(meta.role || '')
+        ? (meta.role as string)
+        : 'employee';
+      await supabase.from('profiles').insert({
+        user_id: userId,
+        name: meta.name || '',
+        role: safeRole,
+      });
+      const retry = await supabase
+        .from('profiles')
+        .select('id, name, role')
+        .eq('user_id', userId)
+        .maybeSingle();
+      data = retry.data;
+    }
+
+    // Final fallback: never leave profile null when a user exists,
+    // otherwise the UI will show "loading" forever.
+    setProfile(
+      data ?? { id: userId, name: '', role: 'employee' }
+    );
     return data;
   };
 
@@ -36,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         if (mounted) setUser(session.user);
-        await fetchProfile(session.user.id);
+        try { await fetchProfile(session.user.id); } catch { /* ignore */ }
       }
       if (mounted) setLoading(false);
     };
