@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks, Coins, Hash, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks, Coins, Hash, Search, X, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
@@ -34,6 +38,7 @@ export default function EmployeeApp() {
   const [serviceId, setServiceId] = useState<string>("");
   const [tab, setTab] = useState<ServiceCategory>("standard");
   const [saving, setSaving] = useState(false);
+  const [orderDate, setOrderDate] = useState<Date>(new Date());
 
   const SURCHARGE_4X4 = 10;
 
@@ -103,7 +108,25 @@ export default function EmployeeApp() {
       </Card>
 
       <Card className="p-3 rounded-2xl shadow-soft">
-        <div className="flex items-center gap-1.5 mb-3 px-1">
+        <div className="flex items-center gap-1.5 mb-3 px-1 flex-wrap">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button"
+                className="h-8 px-2.5 rounded-md text-[11px] font-bold border border-border bg-card text-foreground hover:border-primary/50 transition-all flex items-center gap-1">
+                <CalendarIcon className="w-3 h-3" />
+                {format(orderDate, "dd/MM")}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={orderDate}
+                onSelect={(d) => d && setOrderDate(d)}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
           <button type="button" onClick={() => setCarSize("normal")}
             className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
               carSize === "normal" ? "border-primary bg-primary text-primary-foreground shadow-glow"
@@ -113,15 +136,14 @@ export default function EmployeeApp() {
           </button>
           <button type="button" onClick={() => setCarSize("4x4")}
             className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
-              carSize === "4x4" ? "border-warning bg-warning text-warning-foreground shadow-glow"
-              : "border-border bg-card text-muted-foreground hover:border-warning/50"}`}>
+              carSize === "4x4" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+              : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
             <span>4×4</span>
-            <span className="text-[9px] opacity-80">+10</span>
           </button>
           <button type="button" onClick={() => setCarSize("motor")}
             className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
-              carSize === "motor" ? "border-success bg-success text-success-foreground shadow-glow"
-              : "border-border bg-card text-muted-foreground hover:border-success/50"}`}>
+              carSize === "motor" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+              : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
             <Bike className="w-3 h-3" />
             {t("employeeApp.motor")}
           </button>
