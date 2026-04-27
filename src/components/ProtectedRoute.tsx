@@ -76,9 +76,16 @@ export default function ProtectedRoute({ children, allowedRoles }: Props) {
     userRoles.includes("super_admin") || userRoles.includes("admin");
   if (isSuperAdmin) return <>{children}</>;
 
-  // 5. Role-based check
+  // 5. Role-based check — redirect to user's own home instead of unauthorized page
   const hasAccess = userRoles.some((r) => allowedRoles.includes(r));
-  if (!hasAccess) return <Navigate to="/unauthorized" replace />;
+  if (!hasAccess) {
+    // Pick the best home route for this user's actual role
+    if (userRoles.includes("customer")) return <Navigate to="/app" replace />;
+    if (userRoles.includes("employee")) return <Navigate to="/employee" replace />;
+    if (userRoles.includes("manager") || userRoles.includes("supervisor"))
+      return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/post-login" replace />;
+  }
 
   return <>{children}</>;
 }
