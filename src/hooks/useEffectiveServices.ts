@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { Service, ServiceCategory } from "@/types";
+import { getEmployeeVisibleServices } from "@/lib/serviceVisibility";
 
 export type EmptyReason =
   | "NO_SHOP_LINK"
@@ -96,7 +97,7 @@ export function useEffectiveServices() {
 
         const disabled = new Set((ovRows || []).filter((o: any) => o.enabled === false).map((o: any) => o.service_id));
         const all = (svcRows || []).map(mapService);
-        const effective = all.filter((s) => !disabled.has(s.id));
+        const effective = getEmployeeVisibleServices(all, shopId, disabled);
 
         if (cancelled) return;
         setServices(effective);
