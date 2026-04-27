@@ -1,20 +1,27 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowLeft, Home } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveRoles, homeForRole, pickPrimaryRole } from "@/hooks/useEffectiveRoles";
 
 export default function Unauthorized() {
   const navigate = useNavigate();
   const { signOut, user, profile } = useAuth();
+  const { roles, loading } = useEffectiveRoles();
 
-  const homeFor = (r?: string) => {
-    if (r === "admin") return "/admin";
-    if (r === "manager" || r === "supervisor") return "/dashboard";
-    if (r === "customer") return "/app";
-    if (r === "employee") return "/employee";
-    return "/post-login";
-  };
-  const homePath = homeFor(profile?.role);
+  // Authenticated users should never see this page — auto-redirect to their home.
+  if (user) {
+    if (loading || roles === null) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-[#030308]">
+          <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+        </div>
+      );
+    }
+    return <Navigate to={homeForRole(pickPrimaryRole(roles))} replace />;
+  }
+
+  const homePath = "/login";
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-6" dir="rtl">
