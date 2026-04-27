@@ -236,7 +236,7 @@ export default function EmployeeApp() {
           </TabsList>
 
           {CATS.map(c => (
-            <TabsContent key={c.id} value={c.id} className="mt-0 min-h-[420px]">
+            <TabsContent key={c.id} value={c.id} className="mt-0 min-h-[220px]">
               {grouped[c.id].length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-6">{t("employeeApp.noServicesCat")}</p>
               ) : (
