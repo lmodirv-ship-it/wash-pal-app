@@ -143,14 +143,10 @@
     content: '';
     position: fixed;
     inset: 0;
-    background:
-      radial-gradient(ellipse 70% 45% at 15% 0%, hsl(195 100% 60% / 0.22), transparent 60%),
-      radial-gradient(ellipse 65% 45% at 85% 100%, hsl(280 95% 65% / 0.20), transparent 60%),
-      radial-gradient(ellipse 50% 40% at 50% 50%, hsl(320 90% 65% / 0.08), transparent 70%),
-      radial-gradient(circle at 90% 10%, hsl(38 100% 62% / 0.06), transparent 60%);
+    background: #000;
     pointer-events: none;
     z-index: 0;
-    animation: aurora-drift 24s ease-in-out infinite alternate;
+    animation: none;
   }
   @keyframes aurora-drift {
     0%   { transform: translate3d(0,0,0) scale(1); filter: hue-rotate(0deg); }
