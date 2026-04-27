@@ -94,7 +94,7 @@ export default function EmployeeApp() {
         <div>
           <Label className="text-sm font-semibold flex items-center gap-1.5 mb-2">
             <Car className="w-4 h-4 text-primary" />
-            <span>{t("employeeApp.employeeName", { defaultValue: "اسم العامل" })}:</span>
+            <span>{t("employeeApp.employeeName", { defaultValue: "اسم الموظف" })}:</span>
             <span className="text-primary">{myName}</span>
           </Label>
           <Input
