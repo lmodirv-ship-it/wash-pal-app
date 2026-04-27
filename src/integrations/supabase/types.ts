@@ -1761,10 +1761,20 @@ export type Database = {
         Args: { _message: string; _scope?: string; _title: string }
         Returns: number
       }
+      owner_db_health: { Args: never; Returns: Json }
+      owner_recent_security_events: { Args: { _limit?: number }; Returns: Json }
       owner_set_shop_suspension: {
         Args: { _reason?: string; _shop_id: string; _suspend: boolean }
         Returns: undefined
       }
+      owner_set_user_role: {
+        Args: {
+          _new_role: Database["public"]["Enums"]["app_role"]
+          _target_user_id: string
+        }
+        Returns: undefined
+      }
+      owner_tenant_integrity: { Args: never; Returns: Json }
       purge_surveillance_data: { Args: never; Returns: Json }
       reject_join_request: {
         Args: { _reason: string; _request_id: string }
