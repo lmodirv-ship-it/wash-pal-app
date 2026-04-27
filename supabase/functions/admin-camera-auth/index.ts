@@ -12,39 +12,43 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email: rawEmail, face_image, action } = await req.json();
-    const email = (rawEmail || "").trim().toLowerCase();
+    const { face_image, action } = await req.json();
 
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
-    // Find user by paging through all users (listUsers is paginated, default 50/page)
-    let adminUser: any = null;
-    let page = 1;
-    const perPage = 1000;
-    while (!adminUser) {
-      const { data, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
-      if (listErr) break;
-      const found = data?.users?.find((u) => (u.email || "").toLowerCase() === email);
-      if (found) { adminUser = found; break; }
-      if (!data?.users || data.users.length < perPage) break;
-      page++;
-      if (page > 20) break;
-    }
-
-    if (!adminUser) {
+    // SECURITY: require authenticated admin session for all actions.
+    // No public email lookup, no email enumeration, no magic-link tokens returned.
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
-        JSON.stringify({ error: "المستخدم غير موجود" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const userClient = createClient(SUPABASE_URL, ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claimsData.claims.sub as string;
+    const email = (claimsData.claims.email as string | undefined)?.toLowerCase() || "";
 
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("id, role, face_photo")
-      .eq("user_id", adminUser.id)
+      .eq("user_id", userId)
       .single();
 
     if (!profile || profile.role !== "admin") {
@@ -54,7 +58,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Action: check
+    // Action: check (now safe — only the signed-in admin can query their own status)
     if (action === "check") {
       return new Response(
         JSON.stringify({ isAdmin: true, hasPhoto: !!profile.face_photo }),
@@ -62,7 +66,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Action: register face
+    // Action: register face — only the admin themselves, while signed in
     if (action === "register") {
       if (!face_image) {
         return new Response(
@@ -76,24 +80,14 @@ Deno.serve(async (req) => {
         .update({ face_photo: face_image })
         .eq("id", profile.id);
 
-      const { data: tokenData } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: email,
-      });
-
+      // Do NOT return any login token. Admin already has a valid session.
       return new Response(
-        JSON.stringify({
-          success: true,
-          message: "تم تسجيل الوجه بنجاح",
-          user_id: adminUser.id,
-          token: tokenData?.properties?.hashed_token,
-          action_link: tokenData?.properties?.action_link,
-        }),
+        JSON.stringify({ success: true, message: "تم تسجيل الوجه بنجاح" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Action: verify face
+    // Action: verify face — confirms the signed-in admin's face matches.
     if (action === "verify") {
       if (!face_image) {
         return new Response(
@@ -161,26 +155,10 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Face matched
-      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: email,
-      });
-
-      if (linkError) {
-        return new Response(
-          JSON.stringify({ error: "خطأ في إنشاء جلسة الدخول" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
+      // Face matched. The admin is already authenticated by JWT;
+      // we never return raw login tokens to the client.
       return new Response(
-        JSON.stringify({
-          verified: true,
-          message: "تم التحقق بنجاح",
-          token: linkData?.properties?.hashed_token,
-          action_link: linkData?.properties?.action_link,
-        }),
+        JSON.stringify({ verified: true, message: "تم التحقق بنجاح" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
