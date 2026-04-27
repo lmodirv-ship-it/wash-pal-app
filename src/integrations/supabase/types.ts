@@ -468,6 +468,7 @@ export type Database = {
           expense_date: string
           id: string
           notes: string | null
+          reference: string | null
           shop_id: string
           title: string
         }
@@ -480,6 +481,7 @@ export type Database = {
           expense_date?: string
           id?: string
           notes?: string | null
+          reference?: string | null
           shop_id: string
           title: string
         }
@@ -492,6 +494,7 @@ export type Database = {
           expense_date?: string
           id?: string
           notes?: string | null
+          reference?: string | null
           shop_id?: string
           title?: string
         }
@@ -660,6 +663,7 @@ export type Database = {
           is_paid: boolean
           order_id: string
           paid_amount: number
+          reference: string | null
           services: Json
           shop_id: string
           total_amount: number
@@ -672,6 +676,7 @@ export type Database = {
           is_paid?: boolean
           order_id: string
           paid_amount?: number
+          reference?: string | null
           services?: Json
           shop_id: string
           total_amount?: number
@@ -684,6 +689,7 @@ export type Database = {
           is_paid?: boolean
           order_id?: string
           paid_amount?: number
+          reference?: string | null
           services?: Json
           shop_id?: string
           total_amount?: number
