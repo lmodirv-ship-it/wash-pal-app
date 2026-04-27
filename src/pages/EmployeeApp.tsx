@@ -93,14 +93,16 @@ export default function EmployeeApp() {
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
         <div>
           <Label className="text-sm font-semibold flex items-center gap-1.5 mb-2">
-            <Car className="w-4 h-4 text-primary" /> {t("employeeApp.carType")}
+            <Car className="w-4 h-4 text-primary" />
+            <span>{t("employeeApp.employeeName", { defaultValue: "اسم العامل" })}:</span>
+            <span className="text-primary">{myName}</span>
           </Label>
           <Input
             autoFocus
             placeholder={carSize === "motor" ? t("employeeApp.placeholderMotor") : t("employeeApp.plateExample")}
             value={carType}
             onChange={e => setCarType(e.target.value)}
-            className="h-12 w-full text-lg font-bold text-center uppercase"
+            className="h-9 w-full text-sm font-bold text-center uppercase"
           />
           {carSize === "4x4" && <p className="text-[11px] text-warning mt-1.5">{t("employeeApp.surchargeNote")}</p>}
           {carSize === "motor" && <p className="text-[11px] text-success mt-1.5">{t("employeeApp.motorNote")}</p>}
