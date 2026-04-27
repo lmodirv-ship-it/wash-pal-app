@@ -19,6 +19,7 @@ export interface Service {
   isActive: boolean;
   category: ServiceCategory;
   startingFrom: boolean;
+  shopId?: string;
 }
 
 export interface Customer {
