@@ -104,7 +104,6 @@ export default function EmployeeApp() {
             onChange={e => setCarType(e.target.value)}
             className="h-9 w-full text-sm font-bold text-center uppercase"
           />
-          {carSize === "4x4" && <p className="text-[11px] text-warning mt-1.5">{t("employeeApp.surchargeNote")}</p>}
           {carSize === "motor" && <p className="text-[11px] text-success mt-1.5">{t("employeeApp.motorNote")}</p>}
         </div>
       </Card>
