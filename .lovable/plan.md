@@ -1,141 +1,176 @@
-# Audit-Backed Export System (Owner/Admin)
+# PR1 — Owner Control Center Foundation + Services Cap → 60
 
 ## Scope Lock
-
-**This task only.** No refactor, no removal of any existing feature/route/policy. All changes are additive.
+**This PR only.** No work outside `/owner/*` and the services-cap subsystem. No deletion of existing features.
 
 ---
 
-## A. Files to Change / Create
+## A. Current State Audit (what already exists, will NOT be re-built)
+
+| Feature | Status | Action |
+|---|---|---|
+| `/owner/*` routes wrapped in `ProtectedRoute allowedRoles={["owner"]}` + `OwnerShell` | ✅ exists | Keep — add page-level `is_owner()` re-check |
+| `OwnerSidebar` with 13 entries | ✅ exists | Tweak labels only (rename "سجل الأدوار" → "Role Audit Logs"), remove zero items |
+| `OwnerShops` (list/filter/suspend/CSV) | ✅ exists | Add step-up confirmation modal; already audit-logged via `owner_set_shop_suspension` |
+| `AdminUsers` mounted at `/owner/users` | ✅ exists | Add step-up modal for role changes |
+| `OwnerSecurity` (login_attempts) | ✅ exists | Add CSV export button |
+| `OwnerActivity` (audit_logs) | ✅ exists | No change |
+| `RoleAuditLogs` mounted at `/owner/audit-logs` | ✅ exists | Rename route alias `/owner/role-audit-logs` → same page |
+| `OwnerDatabase` (read-only) | ✅ exists | No change |
+| `OwnerNotifications` (in-app broadcast) | ✅ exists via `owner_broadcast` RPC | No change |
+| `audit_logs` table + `log_owner_action` RPC | ✅ exists | Add `ip` + `user_agent` capture from client |
+| `AdminDashboard` at `/owner` (KPIs) | ✅ exists | No change |
+
+**Verdict**: PR1 is ~85% complete from prior work. This PR finishes the gaps + adds the 60-services cap.
+
+---
+
+## B. Files to Change / Create
 
 ### New files
-1. `supabase/migrations/<ts>_export_views_and_audit.sql` — single migration
-2. `src/lib/exportCsv.ts` — shared CSV helper (download + escape)
-3. `src/pages/OwnerExports.tsx` — central exports page (Services / Employees / Work Entries) for owner
+1. `src/components/StepUpConfirm.tsx` — reusable confirmation modal (typed-phrase + reason; calls audit RPC)
+2. `src/lib/clientMeta.ts` — captures `user_agent` (and best-effort IP via `https://api.ipify.org` cached per session)
+3. `supabase/migrations/<ts>_services_cap_60_and_audit_meta.sql` — single migration:
+   - `enforce_service_limit()` trigger on `services` (max 60 active per shop, owner bypass)
+   - Indexes: `services(shop_id, is_active)`, `services(shop_id, category)`, `services(shop_id, updated_at DESC)`
+   - Add `updated_at` column to `services` if missing + `update_updated_at_column` trigger
+   - Extend `log_owner_action` to accept `_ip` and `_user_agent` params (overload-safe new signature)
 
 ### Updated files
-1. `src/pages/OwnerShops.tsx` — already has Export shops CSV; add audit log call on suspend/unsuspend (already logged DB-side via `owner_set_shop_suspension`, just confirm — **no code change needed**, will verify only)
-2. `src/pages/OwnerActivity.tsx` — wire existing Download button to real CSV export of `audit_logs` view
-3. `src/components/OwnerSidebar.tsx` — add "Exports" entry pointing to `/owner/exports`
-4. `src/App.tsx` — register `/owner/exports` route (lazy)
-5. `src/pages/Services.tsx` — add "Export CSV" button (manager+ only, scoped to current shop)
-6. `src/pages/Employees.tsx` — add "Export CSV" button (manager+ only, scoped to current shop)
-7. `src/pages/Entries.tsx` (or `EmployeeApp.tsx` table — whichever is the work-entries page admins use) — add "Export CSV" button (manager+ only, scoped to current shop)
+1. `src/components/OwnerSidebar.tsx` — rename labels to match spec (Dashboard / Shops / Users & Roles / Security / Role Audit Logs / Subscriptions / Notifications / Database / Settings); the sidebar already excludes any "shop services management" — verified
+2. `src/pages/OwnerShops.tsx` — wrap suspend/unsuspend with `<StepUpConfirm>` (already typed-confirmation present; harmonize)
+3. `src/pages/AdminUsers.tsx` — wrap role-change with `<StepUpConfirm>` + call `log_owner_action` with ip/UA
+4. `src/pages/AdminSubscriptions.tsx` — wrap critical update (plan/status change) with `<StepUpConfirm>`
+5. `src/pages/OwnerSecurity.tsx` — add CSV export button (login_attempts) + audit via `log_export_action`
+6. `src/pages/OwnerExports.tsx` — add 2 more tiles: `users` (admin-style export of profiles+roles) and `subscriptions`. Add `login_attempts` + `role_audit_logs` tiles
+7. `src/components/OwnerShell.tsx` — add page-level `is_owner()` defense-in-depth (RPC check, redirect to `/dashboard` if false)
+8. `src/App.tsx` — alias `/owner/role-audit-logs` → existing `RoleAuditLogs`
+9. `src/pages/Services.tsx` — show "X / 60" counter; show friendly toast on cap hit; ensure category tabs + search + pagination work for 60 items (grid currently is fine; will add page-size 20 if list grows past 24)
+10. `src/pages/EmployeeServices.tsx` & employee selection components — verify scoped query `eq('shop_id', currentShopId).eq('is_active', true)` (already correct; will confirm and add unit-style smoke check)
 
 ### Removals
 **NONE.** (Empty as required by Execution Contract.)
 
 ---
 
-## B. Migration Contents
-
-### B.1 Export Views (security_invoker = true → respects RLS automatically, prevents cross-shop)
+## C. Migration Contents (single file)
 
 ```sql
-CREATE OR REPLACE VIEW public.v_services_export
-WITH (security_invoker = true) AS
-SELECT
-  s.shop_id, s.id AS service_id, s.reference, s.name, s.name_ar, s.name_fr, s.name_en,
-  s.category, s.price, s.duration, s.starting_from, s.is_active,
-  s.description, s.created_at
-FROM public.services s;
+-- 1) services.updated_at + trigger (idempotent)
+ALTER TABLE public.services
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
 
-CREATE OR REPLACE VIEW public.v_employees_export
-WITH (security_invoker = true) AS
-SELECT
-  e.shop_id, e.id AS employee_id, e.reference, e.name, e.phone,
-  e.role, e.role_type, e.branch_id, b.name AS branch_name,
-  e.is_active, e.hire_date, e.created_at
-FROM public.employees e
-LEFT JOIN public.branches b ON b.id = e.branch_id;
+DROP TRIGGER IF EXISTS services_set_updated_at ON public.services;
+CREATE TRIGGER services_set_updated_at
+  BEFORE UPDATE ON public.services
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
-CREATE OR REPLACE VIEW public.v_work_entries_export
-WITH (security_invoker = true) AS
-SELECT
-  o.shop_id, o.id AS order_id, o.reference, o.branch_id,
-  o.customer_name, o.car_plate, o.car_type,
-  o.employee_id, o.employee_name,
-  o.services, o.total_price, o.status,
-  o.start_at, o.expected_end_at, o.completed_at,
-  o.notes, o.created_at
-FROM public.orders o;
+-- 2) Indexes for fast scoped listing
+CREATE INDEX IF NOT EXISTS services_shop_active_idx     ON public.services (shop_id, is_active);
+CREATE INDEX IF NOT EXISTS services_shop_category_idx   ON public.services (shop_id, category);
+CREATE INDEX IF NOT EXISTS services_shop_updated_at_idx ON public.services (shop_id, updated_at DESC);
 
-GRANT SELECT ON public.v_services_export, public.v_employees_export, public.v_work_entries_export TO authenticated;
-```
+-- 3) Cap = 60 active services per shop
+CREATE OR REPLACE FUNCTION public.enforce_service_limit()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE current_count int;
+BEGIN
+  IF auth.uid() IS NOT NULL AND public.is_owner() THEN RETURN NEW; END IF;
+  IF NEW.is_active = false THEN RETURN NEW; END IF;
+  SELECT COUNT(*) INTO current_count
+    FROM public.services
+   WHERE shop_id = NEW.shop_id AND is_active = true
+     AND (TG_OP = 'INSERT' OR id <> NEW.id);
+  IF current_count >= 60 THEN
+    RAISE EXCEPTION 'تم بلوغ الحد الأقصى للخدمات (60) لكل متجر. يرجى تعطيل خدمات قديمة أولاً.'
+      USING ERRCODE = 'P0001';
+  END IF;
+  RETURN NEW;
+END $$;
 
-> Because `security_invoker = true`, existing RLS on `services` / `employees` / `orders` (member-scoped + owner bypass) is enforced. **Cross-shop is impossible** unless caller is platform owner.
+DROP TRIGGER IF EXISTS services_enforce_limit ON public.services;
+CREATE TRIGGER services_enforce_limit
+  BEFORE INSERT OR UPDATE OF is_active, shop_id ON public.services
+  FOR EACH ROW EXECUTE FUNCTION public.enforce_service_limit();
 
-### B.2 Audit logging RPC for non-owner actors (manager/admin exports)
-
-`audit_logs` currently has `INSERT` restricted to `is_owner()`. We need managers/admins to log their own export events without weakening that policy. Add a SECURITY DEFINER RPC:
-
-```sql
-CREATE OR REPLACE FUNCTION public.log_export_action(
-  _shop_id uuid, _export_type text, _row_count int
-) RETURNS uuid
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+-- 4) Extended audit logger with IP + UA (additive overload — keeps existing function)
+CREATE OR REPLACE FUNCTION public.log_owner_action_v2(
+  _action text, _target_type text, _target_id text,
+  _old_value jsonb DEFAULT NULL, _new_value jsonb DEFAULT NULL,
+  _metadata jsonb DEFAULT NULL, _ip text DEFAULT NULL, _user_agent text DEFAULT NULL
+) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE v_id uuid; v_email text;
 BEGIN
-  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
-  -- Allow: owner, or shop manager of that shop
-  IF NOT (public.is_owner() OR (_shop_id IS NOT NULL AND public.is_shop_manager(_shop_id))) THEN
-    RAISE EXCEPTION 'Not allowed to export for this shop';
-  END IF;
-  IF _export_type NOT IN ('services','employees','work_entries','shops','audit_logs') THEN
-    RAISE EXCEPTION 'Invalid export type';
-  END IF;
+  IF NOT public.is_owner() THEN RAISE EXCEPTION 'Only platform owner can log owner actions'; END IF;
   SELECT email INTO v_email FROM auth.users WHERE id = auth.uid();
-  INSERT INTO public.audit_logs (actor_user_id, actor_email, action, target_type, target_id, metadata)
-  VALUES (auth.uid(), v_email, 'export.csv', _export_type, _shop_id::text,
-          jsonb_build_object('rows', _row_count, 'shop_id', _shop_id))
+  INSERT INTO public.audit_logs
+    (actor_user_id, actor_email, action, target_type, target_id,
+     old_value, new_value, metadata, ip_address, user_agent)
+  VALUES (auth.uid(), v_email, _action, _target_type, _target_id,
+          _old_value, _new_value, _metadata, _ip, _user_agent)
   RETURNING id INTO v_id;
   RETURN v_id;
 END $$;
-
-GRANT EXECUTE ON FUNCTION public.log_export_action(uuid,text,int) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.log_owner_action_v2(text,text,text,jsonb,jsonb,jsonb,text,text) TO authenticated;
 ```
 
-### B.3 Index (non-destructive)
-```sql
-CREATE INDEX IF NOT EXISTS audit_logs_action_created_at_idx
-  ON public.audit_logs(action, created_at DESC);
-```
-
-**No DROPs. No ALTER on existing tables. No data deletion.**
+**No DROP, no destructive ALTER, no data deletion.**
 
 ---
 
-## C. Frontend Behavior
+## D. Step-Up Confirmation UX
 
-- `exportCsv.ts`: query a view filtered by current `shopId` (owner uses `null` filter to get all rows allowed by RLS), build CSV with proper escaping, trigger download, then call `supabase.rpc('log_export_action', { _shop_id, _export_type, _row_count })`.
-- Buttons gated by role (manager/supervisor/admin/owner) using existing `useAuth`/role helpers.
-- Owner Exports page: 3 cards (Services / Employees / Work Entries), each with shop selector (owner only) + Export button.
+`<StepUpConfirm>` modal:
+- Shows the target object summary + a red warning banner
+- Requires typing a confirmation phrase (e.g. shop name, user email, or "CONFIRM")
+- Optional reason textarea (sent into `metadata.reason`)
+- Disabled CTA until the phrase matches exactly
+- On confirm: runs the action, then calls `log_owner_action_v2(...)` with `ip` + `user_agent` from `clientMeta.ts`
 
----
-
-## D. Verification (will be produced after execution)
-
-1. **Migration filename** (single new file).
-2. **Diff Report**: Added / Updated / Removed (Removed = empty).
-3. **DB before/after counts**:
-   - `SELECT count(*) FROM v_services_export;`
-   - `SELECT count(*) FROM v_employees_export;`
-   - `SELECT count(*) FROM v_work_entries_export;`
-   - `SELECT count(*) FROM audit_logs WHERE action='export.csv';` (before vs after a test export)
-4. **Ready-to-run CSV SQL** (psql `\copy` snippets).
-5. **Typecheck**: `tsc --noEmit` result.
-6. **Permission test matrix**:
-
-| Actor | Own-shop export | Cross-shop export | Audit row created |
-|---|---|---|---|
-| owner | PASS | PASS | PASS |
-| shop manager/supervisor | PASS | FAIL (RLS blocks) | PASS |
-| employee | FAIL (button hidden + RPC denies) | FAIL | n/a |
+Used in:
+- `OwnerShops` → suspend/unsuspend (already has typed confirmation; will harmonize via the new component)
+- `AdminUsers` → grant/revoke role
+- `AdminSubscriptions` → change plan / change status
 
 ---
 
-## Guardrails confirmed
-- No deletion of any route, page, policy, or function.
-- All inserts via `WITH CHECK` — handled by SECURITY DEFINER RPC + view security_invoker.
-- No cross-shop leakage (RLS enforced by `security_invoker` views).
-- Upsert semantics not needed (views + append-only audit rows).
+## E. Services Cap = 60
+
+**Backend**: trigger above (rejects 61st active service with friendly Arabic message).
+**Frontend** (`Services.tsx`):
+- Header counter: `{activeCount} / 60 خدمة فعّالة`
+- Add button disabled when `activeCount >= 60` + tooltip "بلغت الحد الأقصى (60). عطّل خدمة لإضافة جديدة."
+- Toast on RPC error code `P0001` shows the DB message
+- Search + category tabs already exist; add simple pagination (20/page) when total > 24 items
+- Mobile: existing card grid retained
+
+**Employee path**: verified queries are `WHERE shop_id = $1 AND is_active = true` — covered by new indexes. No cross-shop access (RLS).
+
+---
+
+## F. Verification Plan (after execution)
+
+| Check | Method |
+|---|---|
+| owner can access all `/owner/*` pages | Manual nav (preview) |
+| non-owner blocked → `/dashboard` | Route guard + page guard test |
+| Sensitive action requires step-up | Try suspend/role-change without typing |
+| Audit row written with ip + ua | `SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 5;` |
+| CSV exports work for shops/users/role_audit_logs/subscriptions/login_attempts | Click each → file downloads + audit row appears |
+| 60-cap rejects 61st service | Insert test via SQL + UI |
+| Indexes created | `\d+ services` |
+| Build + typecheck | `bunx tsc --noEmit` |
+
+### Pass/Fail role matrix
+| Actor | `/owner` | Suspend shop | Change role | Export CSV |
+|---|---|---|---|---|
+| owner | PASS | PASS | PASS | PASS |
+| admin (non-owner) | FAIL→/dashboard | FAIL | FAIL | FAIL |
+| supervisor/manager/employee/customer | FAIL→/dashboard | FAIL | FAIL | FAIL |
+
+---
+
+## G. Out of Scope (for later PRs)
+- PR2: `/join-shop` flow, `employee_join_requests` (already partially exists; will be expanded next PR)
+- PR3: services inheritance/override UI polish
+- PR4: rate limiting, HIBP toggle, backup/restore, SECURITY DEFINER lint cleanup
