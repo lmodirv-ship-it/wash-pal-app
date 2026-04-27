@@ -23,7 +23,8 @@ type Req = {
 };
 
 export default function JoinRequests() {
-  const { currentShop } = useApp();
+  const { currentShopId, tenantShops } = useApp();
+  const currentShop = tenantShops.find((s) => s.id === currentShopId) || null;
   const [items, setItems] = useState<Req[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"pending" | "approved" | "rejected">("pending");
@@ -43,16 +44,16 @@ export default function JoinRequests() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [currentShop?.id]);
+  useEffect(() => { load(); }, [currentShopId]);
 
   // Load shop reference code for sharing
   useEffect(() => {
-    if (!currentShop?.id) { setReferenceCode(null); return; }
+    if (!currentShopId) { setReferenceCode(null); return; }
     (async () => {
-      const { data } = await supabase.from("shops").select("reference_code").eq("id", currentShop.id).maybeSingle();
+      const { data } = await supabase.from("shops").select("reference_code").eq("id", currentShopId).maybeSingle();
       setReferenceCode((data as any)?.reference_code ?? null);
     })();
-  }, [currentShop?.id]);
+  }, [currentShopId]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
