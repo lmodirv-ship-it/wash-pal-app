@@ -231,47 +231,17 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5">
           <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><DollarSign className="w-4 h-4 text-[hsl(152_70%_55%)]" /> إيرادات الطلبات المكتملة</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={series.revenue}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
-              <Line type="monotone" dataKey="revenue" stroke="hsl(28 95% 60%)" strokeWidth={3} dot={{ r: 4, fill: "hsl(28 95% 60%)" }} />
-            </LineChart>
-          </ResponsiveContainer>
+          {loading ? <div className="h-[240px] rounded-xl skeleton-shimmer" /> : <RevenueChart data={series.revenue} />}
         </div>
 
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5">
           <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-[hsl(210_95%_65%)]" /> متاجر جديدة</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={series.shopsB}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
-              <Bar dataKey="shops" fill="hsl(210 95% 60%)" radius={[8,8,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {loading ? <div className="h-[240px] rounded-xl skeleton-shimmer" /> : <ShopsChart data={series.shopsB} />}
         </div>
 
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5 lg:col-span-2">
           <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-[hsl(280_80%_70%)]" /> أعضاء جدد</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={series.usersB}>
-              <defs>
-                <linearGradient id="usersGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(280 80% 70%)" stopOpacity={0.6} />
-                  <stop offset="100%" stopColor="hsl(280 80% 70%)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
-              <Area type="monotone" dataKey="users" stroke="hsl(280 80% 70%)" fill="url(#usersGrad)" strokeWidth={2.5} />
-            </AreaChart>
-          </ResponsiveContainer>
+          {loading ? <div className="h-[220px] rounded-xl skeleton-shimmer" /> : <UsersChart data={series.usersB} />}
         </div>
       </div>
 
