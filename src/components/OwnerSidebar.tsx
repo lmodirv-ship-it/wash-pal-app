@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { Crown } from "lucide-react";
 import {
-  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarTrigger,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
 import iconDashboard from "@/assets/icons/owner/dashboard.png";
@@ -152,6 +152,10 @@ export function OwnerSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+
+        <div className="mt-auto px-3 pb-4 pt-2">
+          <SidebarTrigger className="w-full h-11 rounded-xl bg-[hsl(220_25%_8%)] border border-[hsl(48_95%_55%/0.25)] hover:bg-[hsl(48_95%_55%/0.08)] text-[hsl(48_95%_70%)]" />
+        </div>
       </SidebarContent>
     </Sidebar>
   );
