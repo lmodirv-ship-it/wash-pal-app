@@ -1,52 +1,64 @@
 import { NavLink, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard, Building2, Users, Shield, CreditCard,
-  Database, Megaphone, Settings, Crown, ScrollText, Sparkles, KeyRound, FileText, Download, Droplets
-} from "lucide-react";
+import { Crown } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
+import iconDashboard from "@/assets/icons/owner/dashboard.png";
+import iconShops from "@/assets/icons/owner/shops.png";
+import iconServices from "@/assets/icons/owner/services.png";
+import iconUsers from "@/assets/icons/owner/users.png";
+import iconRoleAudit from "@/assets/icons/owner/role-audit.png";
+import iconSecurity from "@/assets/icons/owner/security.png";
+import iconActivity from "@/assets/icons/owner/activity.png";
+import iconExports from "@/assets/icons/owner/exports.png";
+import iconSubscriptions from "@/assets/icons/owner/subscriptions.png";
+import iconPricing from "@/assets/icons/owner/pricing.png";
+import iconLeads from "@/assets/icons/owner/leads.png";
+import iconDatabase from "@/assets/icons/owner/database.png";
+import iconNotifications from "@/assets/icons/owner/notifications.png";
+import iconApiKeys from "@/assets/icons/owner/api-keys.png";
+import iconSettings from "@/assets/icons/owner/settings.png";
 
-const groups: { label: string; items: { title: string; url: string; icon: any }[] }[] = [
+const groups: { label: string; items: { title: string; url: string; icon: string }[] }[] = [
   {
     label: "نظرة عامة",
     items: [
-      { title: "لوحة التحكم", url: "/owner", icon: LayoutDashboard },
+      { title: "لوحة التحكم", url: "/owner", icon: iconDashboard },
     ],
   },
   {
     label: "إدارة المنصة",
     items: [
-      { title: "المتاجر", url: "/owner/shops", icon: Building2 },
-      { title: "الخدمات", url: "/owner/services", icon: Droplets },
-      { title: "المستخدمون والأدوار", url: "/owner/users", icon: Users },
-      { title: "سجل الأدوار", url: "/owner/role-audit-logs", icon: ScrollText },
+      { title: "المتاجر", url: "/owner/shops", icon: iconShops },
+      { title: "الخدمات", url: "/owner/services", icon: iconServices },
+      { title: "المستخدمون والأدوار", url: "/owner/users", icon: iconUsers },
+      { title: "سجل الأدوار", url: "/owner/role-audit-logs", icon: iconRoleAudit },
     ],
   },
   {
     label: "الأمان والامتثال",
     items: [
-      { title: "الأمان", url: "/owner/security", icon: Shield },
-      { title: "سجل التدقيق", url: "/owner/activity", icon: FileText },
-      { title: "تصدير البيانات", url: "/owner/exports", icon: Download },
+      { title: "الأمان", url: "/owner/security", icon: iconSecurity },
+      { title: "سجل التدقيق", url: "/owner/activity", icon: iconActivity },
+      { title: "تصدير البيانات", url: "/owner/exports", icon: iconExports },
     ],
   },
   {
     label: "الفوترة",
     items: [
-      { title: "الاشتراكات", url: "/owner/subscriptions", icon: CreditCard },
-      { title: "خطط الأسعار", url: "/owner/pricing-plans", icon: Sparkles },
-      { title: "العملاء المحتملون", url: "/owner/leads", icon: Crown },
+      { title: "الاشتراكات", url: "/owner/subscriptions", icon: iconSubscriptions },
+      { title: "خطط الأسعار", url: "/owner/pricing-plans", icon: iconPricing },
+      { title: "العملاء المحتملون", url: "/owner/leads", icon: iconLeads },
     ],
   },
   {
     label: "النظام",
     items: [
-      { title: "قاعدة البيانات", url: "/owner/database", icon: Database },
-      { title: "الإشعارات والإعلانات", url: "/owner/notifications", icon: Megaphone },
-      { title: "مفاتيح API", url: "/owner/api-keys", icon: KeyRound },
-      { title: "الإعدادات العامة", url: "/owner/settings", icon: Settings },
+      { title: "قاعدة البيانات", url: "/owner/database", icon: iconDatabase },
+      { title: "الإشعارات والإعلانات", url: "/owner/notifications", icon: iconNotifications },
+      { title: "مفاتيح API", url: "/owner/api-keys", icon: iconApiKeys },
+      { title: "الإعدادات العامة", url: "/owner/settings", icon: iconSettings },
     ],
   },
 ];
@@ -92,6 +104,7 @@ export function OwnerSidebar() {
                       >
                         <NavLink
                           to={item.url}
+                          aria-label={item.title}
                           className={[
                             "group relative flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium",
                             "transition-all duration-200 ease-out",
@@ -101,13 +114,20 @@ export function OwnerSidebar() {
                               : "border border-transparent text-zinc-300/85 hover:border-[hsl(48_95%_55%/0.18)] hover:bg-[hsl(48_95%_55%/0.08)] hover:text-[hsl(48_100%_88%)]",
                           ].join(" ")}
                         >
-                          <item.icon
+                          <img
+                            src={item.icon}
+                            alt=""
+                            aria-hidden="true"
+                            loading="lazy"
+                            width={22}
+                            height={22}
                             className={[
-                              "h-[18px] w-[18px] shrink-0 transition-colors duration-200",
+                              "h-[22px] w-[22px] shrink-0 object-contain transition-all duration-200 select-none",
                               active
-                                ? "text-[hsl(48_100%_70%)] drop-shadow-[0_0_6px_hsl(48_95%_55%/0.55)]"
-                                : "text-[hsl(48_30%_70%/0.75)] group-hover:text-[hsl(48_95%_70%)]",
+                                ? "drop-shadow-[0_0_6px_hsl(48_95%_55%/0.55)] opacity-100"
+                                : "opacity-80 group-hover:opacity-100",
                             ].join(" ")}
+                            draggable={false}
                           />
                           {!collapsed && (
                             <span className="truncate text-[13px] leading-none">{item.title}</span>
