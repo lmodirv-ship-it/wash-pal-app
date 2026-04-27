@@ -99,6 +99,7 @@ export default function Employees() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="lavage-card overflow-hidden">
