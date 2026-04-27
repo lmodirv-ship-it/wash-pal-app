@@ -92,6 +92,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isActive: r.is_active !== false,
     category: (r.category as any) || 'standard',
     startingFrom: r.starting_from === true,
+    shopId: r.shop_id || undefined,
   });
   const mapInvoice = (r: any): Invoice => ({
     id: r.id, orderId: r.order_id, customerName: r.customer_name,
