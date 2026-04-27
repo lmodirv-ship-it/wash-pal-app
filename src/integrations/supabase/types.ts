@@ -1160,6 +1160,7 @@ export type Database = {
         Returns: boolean
       }
       increment_visitor: { Args: never; Returns: number }
+      is_owner: { Args: never; Returns: boolean }
       is_shop_manager: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_member: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_readonly: { Args: { _shop_id: string }; Returns: boolean }
