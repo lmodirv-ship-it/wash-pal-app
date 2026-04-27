@@ -576,8 +576,7 @@ function WorkEntriesTable({
               </div>
             </div>
           )}
-        </>
-      )}
+      </>
     </Card>
   );
 }
