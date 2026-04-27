@@ -1,75 +1,95 @@
-# خطة: إضافة دور `owner` (مالك المنصة)
+# Phase 1.5 — Owner/Admin Hardening (Transitional)
 
-## الفرق الجوهري
-- **حالياً:** `admin` = أعلى صلاحية، يصل لكل بيانات المنصة.
-- **بعد التغيير:** `owner` = الأعلى (عبر المنصة)، و `admin` = مالك متجر واحد فقط.
+## Scope (locked)
+- **Do NOT** remove or narrow existing `*_admin_all` RLS policies. They stay as-is for the transitional period.
+- **Do NOT** drop `profiles.role`.
+- **Do NOT** expand `audit_logs`.
+- **Do NOT** modify table schemas beyond what's strictly required.
+- All changes are additive guards + UI gating.
 
-ترتيب الأولوية الجديد: **owner > admin > supervisor > manager > employee > customer**
+## Confirmed current state (already in DB)
+- `app_role` enum already includes `owner`.
+- `*_owner_all` policies already exist on all sensitive tables alongside `*_admin_all`.
+- `is_owner()` SECURITY DEFINER function exists.
+- `prevent_role_self_escalation` already blocks non-owners from touching `owner` role.
+- `lmodirv@gmail.com` already has `owner` in `user_roles`.
 
----
-
-## التنفيذ — Migration واحد
-
-### أ) إضافة الدور وترقية الحساب الرئيسي
-- `ALTER TYPE app_role ADD VALUE 'owner'`
-- ترقية الحساب الرئيسي (`lmodirv@gmail.com`) من `admin` إلى `owner` في `user_roles` و `profiles.role`
-- باقي حسابات `admin` تبقى `admin` (سيمثلون مالكي متاجر)
-
-### ب) دالة جديدة `is_owner()`
-`SECURITY DEFINER` تعيد `true` لمن لديه دور `owner` — لاستخدامها في RLS
-
-### ج) إضافة سياسات `*_owner_all` (مضافة بجانب السياسات القائمة، آمنة)
-على 24 جدول: `orders, invoices, customers, employees, branches, services, expenses, discount_coupons, message_templates, b2b_partners, shops, shop_members, subscriptions, pricing_plans, notifications, notification_settings, profiles, user_roles, role_audit_logs, login_attempts, video_scans, video_scan_detections, imou_devices, invites`
-
-كل سياسة: `USING (is_owner()) WITH CHECK (is_owner())` — تمنح owner وصولاً كاملاً.
-
-> **لا نحذف سياسات `admin_all` الموجودة** — تبقى تماماً (admin يحتفظ بصلاحياته الحالية لئلا ينكسر شيء). التضييق الدلالي لـ admin يأتي تدريجياً في مرحلة لاحقة.
-
-### د) تحديث الـ triggers
-- `sync_profile_role_from_user_roles`: إضافة `owner` في أعلى أولوية المزامنة
-- `prevent_role_self_escalation`: فقط `owner` يمنح/يزيل دور `owner`؛ `owner` و `admin` يغيّران باقي الأدوار
-- `handle_new_user`: منع تعيين `owner` من بيانات signup (لا يمكن لأحد التسجيل كـ owner)
+So the remaining gaps are: signup hardening, last-owner protection, a clean shop-team helper, and UI gating of the `owner` dropdown option.
 
 ---
 
-## التنفيذ — Frontend (5 ملفات)
+## 1. Database migration
 
-### `src/hooks/useEffectiveRoles.ts`
-```ts
-export type AppRole = "owner" | "admin" | "supervisor" | "manager" | "employee" | "customer";
-export const ALL_ROLES = ["owner", "admin", "supervisor", "manager", "employee", "customer"];
-export const ROLE_PRIORITY = ["owner", "admin", "supervisor", "manager", "employee", "customer"];
+### 1a. Harden `handle_new_user` — strip `owner` from metadata
+Currently `handle_new_user` accepts any role from `raw_user_meta_data` if it is in the allowlist `('admin','manager','supervisor','employee','customer')`. `owner` is not in that list, so it already falls back to `employee` — but we make this explicit and also forbid `admin` from self-signup (since `admin` = shop owner now and must be created via shop creation flow).
 
-homeForRole("owner") → "/admin"
-homeForRole("admin") → "/admin"   // مؤقتاً نفس owner، حتى لا نكسر تدفق المالك الحالي
+Updated logic:
+- If metadata role is `owner` → force to `customer`.
+- If metadata role is `admin` → force to `customer` (admin role must be granted explicitly).
+- Otherwise keep current allowlist behavior.
+
+### 1b. Harden `prevent_role_self_escalation`
+Add explicit rule: **block deletion of the last owner**.
+
+```sql
+-- on DELETE or on UPDATE that removes owner:
+IF OLD.role = 'owner' AND (TG_OP = 'DELETE' OR NEW.role IS DISTINCT FROM 'owner') THEN
+  IF (SELECT COUNT(*) FROM public.user_roles WHERE role = 'owner') <= 1 THEN
+    RAISE EXCEPTION 'Cannot remove the last platform owner';
+  END IF;
+END IF;
 ```
 
-### `src/App.tsx` و `ProtectedRoute`
-- `/admin/*` → `allowedRoles: ["owner", "admin"]` (سيُضيَّق لاحقاً لـ owner فقط)
-- باقي المسارات بدون تغيير
+The existing rule "only owner can grant/remove owner" stays. We also extend the trigger to cover `DELETE` (currently it only covers `UPDATE`).
 
-### `src/components/AppSidebar.tsx`
-- إضافة `owner` كحالة موازية لـ `admin` في عرض القائمة
+### 1c. New helper: `can_manage_shop_team(_shop_id uuid)`
+SECURITY DEFINER, returns true if caller is:
+- `is_owner()`, OR
+- shop owner (`shops.owner_id = auth.uid()`), OR
+- has `admin` role AND is a member of `_shop_id` (via `shop_members` or owns shop), OR
+- is a `supervisor` member of `_shop_id`.
 
-### `AdminUsers.tsx` و `RoleAuditLogs.tsx`
-- إضافة `owner` و `manager` إلى:
-  - `ROLE_LABELS`: `owner: "Propriétaire"`, `manager: "Gérant / Manager"`
-  - `ROLE_COLORS`: ألوان البادج
-- إضافة `owner` إلى dropdown تغيير الدور (لكن RLS يمنع غير owner من اختياره)
+This replaces the ambiguity around `is_shop_manager` for team-management contexts. We add the function but **do not yet rewrite policies to use it** — that's a later migration. We will use it only in any new code paths that need it.
 
-### ذاكرة المشروع
-- تحديث `mem://features/saas-architecture` بترتيب الأولوية الجديد + معنى كل دور
+### 1d. (Out of scope, explicitly NOT done now)
+- No rewriting of `*_admin_all` to `is_owner()` only. That's a future migration.
+- No changes to `is_shop_member` / `is_shop_manager`.
+- No new audit categories.
 
 ---
 
-## ضمانات السلامة
-- **لا يُحذف أي شيء** — كل التغييرات إضافية (سياسات جديدة، trigger محدّث، enum value جديد)
-- **حساب الأدمن الرئيسي يُرقّى تلقائياً** ضمن نفس migration → لا انقطاع في الوصول
-- **admin يحتفظ بكل صلاحياته الحالية** — التضييق التدريجي (admin = متجره فقط) يُؤجَّل لمرحلة لاحقة بعد التأكد من الاستقرار
-- **`owner` لا يمكن إنشاؤه عبر signup** — يُمنح يدوياً فقط
+## 2. Frontend changes
 
-## ما لن يتم
-- لا حذف لـ `profiles.role`
-- لا تعديل لسياسات `is_shop_member` الحالية
-- لا تضييق لصلاحيات `admin` الحالية في هذه المرحلة (مرحلة منفصلة لاحقاً)
-- لا تغيير في schema الجداول
+### 2a. `src/pages/AdminUsers.tsx` (role dropdown)
+- Compute `isPlatformOwner` from `useEffectiveRoles` (`roles.includes('owner')`).
+- The role `<Select>` options:
+  - `owner` option is rendered **only if** `isPlatformOwner === true`.
+  - Other roles (`admin`, `supervisor`, `manager`, `employee`, `customer`) render as today.
+- When a non-owner tries to submit and somehow has `owner` selected, block client-side with toast (defense in depth — RLS+trigger are the real guard).
+
+### 2b. `src/hooks/useEffectiveRoles.ts`
+No type changes (already includes `owner`). Verify `ROLE_PRIORITY` puts `owner` at index 0. No-op if already correct.
+
+### 2c. Sidebar / routing
+No changes required — already updated in previous step.
+
+---
+
+## 3. Verification checklist
+After migration + code edits:
+1. `npm run build` succeeds.
+2. Login as `lmodirv@gmail.com` → effective role = `owner` → `/admin/*` accessible.
+3. Open AdminUsers as owner → `owner` option visible in role dropdown.
+4. Open AdminUsers as a regular `admin` user (manual SQL test or second account) → `owner` option **not** visible.
+5. SQL sanity: `SELECT public.can_manage_shop_team('<some-shop-id>');` returns expected boolean.
+6. Attempt to delete the only `owner` row via SQL → should fail with `Cannot remove the last platform owner`.
+7. Signup with `raw_user_meta_data->>'role' = 'owner'` → user is created with role `customer`, not `owner`.
+
+---
+
+## 4. Files touched
+- New migration: `supabase/migrations/<ts>_owner_admin_hardening.sql`
+  - Replaces `handle_new_user`, replaces `prevent_role_self_escalation`, adds `can_manage_shop_team`.
+- `src/pages/AdminUsers.tsx` — gate `owner` option in dropdown.
+
+That's the entire change set. No other files, no other policies, no schema drift.

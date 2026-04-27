@@ -1144,6 +1144,7 @@ export type Database = {
     }
     Functions: {
       accept_invite: { Args: { _token: string }; Returns: string }
+      can_manage_shop_team: { Args: { _shop_id: string }; Returns: boolean }
       get_shop_limits: {
         Args: { _shop_id: string }
         Returns: {

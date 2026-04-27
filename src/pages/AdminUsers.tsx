@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Search, Users, RefreshCw, Shield } from "lucide-react";
 import { TableSkeleton } from "@/components/PageSkeleton";
 import { EmptyState } from "@/components/EmptyState";
-import { ALL_ROLES, AppRole } from "@/hooks/useEffectiveRoles";
+import { ALL_ROLES, AppRole, useEffectiveRoles } from "@/hooks/useEffectiveRoles";
 
 interface AdminUser {
   id: string;
@@ -50,6 +50,9 @@ export default function AdminUsers() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const { roles: myRoles } = useEffectiveRoles();
+  const isPlatformOwner = (myRoles ?? []).includes("owner" as AppRole);
+  const assignableRoles = ALL_ROLES.filter((r) => isPlatformOwner || r !== "owner");
 
   const load = async () => {
     setLoading(true);
@@ -84,6 +87,10 @@ export default function AdminUsers() {
   }, [users, search, roleFilter]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
+    if (newRole === "owner" && !isPlatformOwner) {
+      toast.error("فقط مالك المنصة يمكنه تعيين دور owner");
+      return;
+    }
     setUpdatingId(userId);
     const { error } = await supabase.functions.invoke("admin-update-user-role", {
       body: { user_id: userId, role: newRole },
@@ -200,7 +207,7 @@ export default function AdminUsers() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {ALL_ROLES.map((r) => (
+                        {assignableRoles.map((r) => (
                           <SelectItem key={r} value={r}>
                             {ROLE_LABELS[r]}
                           </SelectItem>
