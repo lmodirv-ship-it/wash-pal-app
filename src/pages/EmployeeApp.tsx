@@ -96,7 +96,7 @@ export default function EmployeeApp() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <div className="max-w-2xl mx-auto px-3 py-2 space-y-3 pb-28">
+      <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
         <div>
@@ -131,8 +131,8 @@ export default function EmployeeApp() {
         </div>
       </Card>
 
-      <Card className="p-3 rounded-2xl shadow-soft">
-        <div className="flex items-center gap-1.5 mb-3 px-1 flex-wrap">
+      <Card className="p-2 sm:p-3 rounded-2xl shadow-soft">
+        <div className="flex items-center gap-1.5 mb-3 px-1 overflow-x-auto no-scrollbar -mx-1 pb-1">
           <Popover>
             <PopoverTrigger asChild>
               <button type="button"
@@ -222,14 +222,14 @@ export default function EmployeeApp() {
           )
         ) : (
         <Tabs value={tab} onValueChange={(v) => setTab(v as ServiceCategory)}>
-          <TabsList className="grid grid-cols-4 w-full h-auto mb-3">
+          <TabsList className="grid grid-cols-4 w-full h-auto mb-3 gap-0.5">
             {CATS.map(c => {
               const Icon = c.icon;
               return (
-                <TabsTrigger key={c.id} value={c.id} className="flex flex-col gap-0.5 py-2 data-[state=active]:shadow-glow">
-                  <Icon className={`w-4 h-4 ${c.cls}`} />
-                  <span className="text-xs font-bold">{c.label}</span>
-                  <span className="text-[10px] text-muted-foreground">{grouped[c.id].length}</span>
+                <TabsTrigger key={c.id} value={c.id} className="flex flex-col gap-0.5 py-1.5 px-1 data-[state=active]:shadow-glow">
+                  <Icon className={`w-3.5 h-3.5 ${c.cls}`} />
+                  <span className="text-[11px] sm:text-xs font-bold leading-tight">{c.label}</span>
+                  <span className="text-[9px] text-muted-foreground leading-none">{grouped[c.id].length}</span>
                 </TabsTrigger>
               );
             })}
@@ -240,20 +240,20 @@ export default function EmployeeApp() {
               {grouped[c.id].length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-6">{t("employeeApp.noServicesCat")}</p>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-border">
+                <div className="rounded-xl border border-border">
                   <table dir="rtl" className="w-full text-sm border-collapse table-fixed">
                     <colgroup>
-                      <col style={{ width: "48px" }} />
+                      <col style={{ width: "32px" }} />
                       <col />
-                      <col style={{ width: "90px" }} />
                       <col style={{ width: "70px" }} />
+                      <col style={{ width: "50px" }} />
                     </colgroup>
                     <thead className="bg-muted/40">
                       <tr className="text-xs text-muted-foreground">
-                        <th className="px-2 py-2 text-center w-12">{t("employeeApp.colSelect", { defaultValue: "اختيار" })}</th>
-                        <th className="px-3 py-2 text-start">{t("employeeApp.colService", { defaultValue: "اسم الخدمة" })}</th>
-                        <th className="px-3 py-2 text-end whitespace-nowrap">{t("employeeApp.colPrice", { defaultValue: "السعر" })}</th>
-                        <th className="px-3 py-2 text-center whitespace-nowrap w-20">{t("employeeApp.colDuration", { defaultValue: "المدة" })}</th>
+                        <th className="px-1 py-2 text-center">{t("employeeApp.colSelect", { defaultValue: "اختيار" })}</th>
+                        <th className="px-2 py-2 text-start">{t("employeeApp.colService", { defaultValue: "اسم الخدمة" })}</th>
+                        <th className="px-1 py-2 text-end whitespace-nowrap">{t("employeeApp.colPrice", { defaultValue: "السعر" })}</th>
+                        <th className="px-1 py-2 text-center whitespace-nowrap">{t("employeeApp.colDuration", { defaultValue: "المدة" })}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -272,7 +272,7 @@ export default function EmployeeApp() {
                                 : "hover:bg-muted/30 active:bg-muted/50"
                             }`}
                           >
-                            <td className="px-2 py-3 text-center align-middle">
+                            <td className="px-1 py-2.5 text-center align-middle">
                               <div
                                 className={`inline-flex items-center justify-center w-5 h-5 rounded-full border-2 ${
                                   selected
@@ -283,22 +283,22 @@ export default function EmployeeApp() {
                                 {selected && <Check className="w-3 h-3" />}
                               </div>
                             </td>
-                            <td className="px-3 py-3 align-middle">
-                              <div className="flex items-center gap-1.5 flex-wrap">
+                            <td className="px-2 py-2.5 align-middle">
+                              <div className="flex items-center gap-1 flex-wrap">
                                 {isVip && <Crown className="w-3.5 h-3.5 text-warning shrink-0" />}
                                 {isPack && <Package className="w-3.5 h-3.5 text-success shrink-0" />}
-                                <span className={`font-semibold break-words ${selected ? "text-primary" : "text-foreground"}`}>
+                                <span className={`font-semibold break-words text-xs sm:text-sm ${selected ? "text-primary" : "text-foreground"}`}>
                                   {getServiceName(s, i18n.language)}
                                 </span>
                               </div>
                             </td>
-                            <td className="px-3 py-3 text-end align-middle whitespace-nowrap">
+                            <td className="px-1 py-2.5 text-end align-middle whitespace-nowrap">
                               {s.startingFrom && (
                                 <span className="text-[9px] text-muted-foreground block leading-none mb-0.5">
                                   {t("services.startingFrom")}
                                 </span>
                               )}
-                              <span className={`font-bold ${selected ? "text-primary" : "text-foreground"}`}>
+                              <span className={`font-bold text-xs sm:text-sm ${selected ? "text-primary" : "text-foreground"}`}>
                                 {finalRowPrice} <span className="text-[10px] text-muted-foreground">DH</span>
                               </span>
                               {carSize === "4x4" && (
@@ -307,7 +307,7 @@ export default function EmployeeApp() {
                                 </span>
                               )}
                             </td>
-                            <td className="px-3 py-3 text-center align-middle whitespace-nowrap text-xs text-muted-foreground">
+                            <td className="px-1 py-2.5 text-center align-middle whitespace-nowrap text-[11px] sm:text-xs text-muted-foreground">
                               {s.duration ? `${s.duration} د` : "—"}
                             </td>
                           </tr>
