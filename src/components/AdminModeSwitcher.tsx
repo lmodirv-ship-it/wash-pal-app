@@ -11,11 +11,11 @@ export function getAdminMode(): "platform" | "shop" {
 export function AdminModeSwitcher() {
   const navigate = useNavigate();
   const location = useLocation();
-  const isPlatform = location.pathname.startsWith("/admin");
+  const isPlatform = location.pathname.startsWith("/owner");
 
   const switchTo = (mode: "platform" | "shop") => {
     localStorage.setItem(STORAGE_KEY, mode);
-    navigate(mode === "platform" ? "/admin" : "/");
+    navigate(mode === "platform" ? "/owner" : "/dashboard");
   };
 
   return (
