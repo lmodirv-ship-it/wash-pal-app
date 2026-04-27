@@ -86,7 +86,7 @@ export default function EmployeeApp() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-3 py-3 space-y-3 pb-8">
+      <div className="max-w-2xl mx-auto px-3 py-3 space-y-3 pb-28">
         <EmployeeTopNav />
         <div className="text-center pt-1">
           <h1 className="text-xl font-bold">{t("employeeApp.title")}</h1>
@@ -150,12 +150,12 @@ export default function EmployeeApp() {
           grouped.motor.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-6">{t("employeeApp.noMotorServices")}</p>
           ) : (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {grouped.motor.map(s => {
                 const selected = s.id === serviceId;
                 return (
                   <button key={s.id} type="button" onClick={() => setServiceId(s.id)}
-                    className={`relative p-3 rounded-xl border-2 text-start transition-all active:scale-[0.97] min-h-[88px] ${
+                    className={`relative p-4 rounded-xl border-2 text-start transition-all active:scale-[0.97] min-h-[96px] ${
                       selected ? "border-success bg-success/15 shadow-glow"
                       : "border-success/30 bg-gradient-to-br from-success/5 to-transparent hover:border-success"}`}>
                     {selected ? (
@@ -163,7 +163,7 @@ export default function EmployeeApp() {
                         <Check className="w-3 h-3" />
                       </div>
                     ) : <Bike className="w-3.5 h-3.5 text-success absolute top-1.5 start-1.5" />}
-                    <p className="font-bold text-sm line-clamp-2 leading-tight">{getServiceName(s, i18n.language)}</p>
+                    <p className="font-bold text-sm leading-6 break-words ps-5">{getServiceName(s, i18n.language)}</p>
                     <div className="mt-1.5">
                       <p className={`text-lg font-bold ${selected ? "text-success" : "text-foreground"}`}>
                         {s.price} <span className="text-[10px] text-muted-foreground">DH</span>
@@ -194,14 +194,14 @@ export default function EmployeeApp() {
               {grouped[c.id].length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-6">{t("employeeApp.noServicesCat")}</p>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {grouped[c.id].map(s => {
                     const selected = s.id === serviceId;
                     const isVip = s.category === "vip";
                     const isPack = s.category === "packs";
                     return (
                       <button key={s.id} type="button" onClick={() => setServiceId(s.id)}
-                        className={`relative p-3 rounded-xl border-2 text-start transition-all active:scale-[0.97] min-h-[88px] ${
+                        className={`relative p-4 rounded-xl border-2 text-start transition-all active:scale-[0.97] min-h-[96px] ${
                           selected ? "border-primary bg-primary/15 shadow-glow"
                           : isVip ? "border-warning/40 bg-gradient-to-br from-warning/10 to-transparent hover:border-warning"
                           : isPack ? "border-success/40 bg-gradient-to-br from-success/10 to-transparent hover:border-success"
@@ -213,7 +213,7 @@ export default function EmployeeApp() {
                         )}
                         {isVip && !selected && <Crown className="w-3.5 h-3.5 text-warning absolute top-1.5 start-1.5" />}
                         {isPack && !selected && <Package className="w-3.5 h-3.5 text-success absolute top-1.5 start-1.5" />}
-                        <p className="font-bold text-sm line-clamp-2 leading-tight">{getServiceName(s, i18n.language)}</p>
+                        <p className="font-bold text-sm leading-6 break-words ps-5">{getServiceName(s, i18n.language)}</p>
                         <div className="mt-1.5">
                           {s.startingFrom && <span className="text-[9px] text-muted-foreground block leading-none">{t("services.startingFrom")}</span>}
                           <p className={`text-lg font-bold ${selected ? "text-primary" : "text-foreground"}`}>
