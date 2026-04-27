@@ -30,7 +30,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <header className="sticky top-0 z-30 bg-black/95 backdrop-blur-xl border-b border-[hsl(0_0%_12%)] px-3 md:px-5 py-3">
             <div className="flex items-center gap-2 md:gap-3 flex-wrap">
               {/* Country select */}
-              <div className="hidden md:flex items-center gap-2 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] min-w-[140px]">
+              <div className="hidden md:flex items-center gap-2 h-10 px-3 rounded-xl bg-[hsl(0_0%_6%)] border border-[hsl(0_0%_14%)] min-w-[140px]">
                 <Globe className="w-4 h-4 text-muted-foreground" />
                 <Select defaultValue="ma">
                   <SelectTrigger className="border-0 bg-transparent h-auto p-0 focus:ring-0 text-sm font-semibold">
@@ -46,7 +46,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
               {/* Branch select */}
               {isAdmin && branches.length > 1 && currentBranch && (
-                <div className="hidden md:flex items-center gap-2 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] min-w-[160px]">
+                <div className="hidden md:flex items-center gap-2 h-10 px-3 rounded-xl bg-[hsl(0_0%_6%)] border border-[hsl(0_0%_14%)] min-w-[160px]">
                   <MapPin className="w-4 h-4 text-muted-foreground" />
                   <Select
                     value={currentBranch?.id || ""}
@@ -72,11 +72,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 <Search className={`absolute ${isRtl ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
                 <Input
                   placeholder={t("common.quickSearch") || "Rechercher..."}
-                  className={`${isRtl ? "pr-9" : "pl-9"} h-10 bg-[hsl(220_25%_10%)] border-[hsl(220_20%_16%)] rounded-xl text-sm`}
+                  className={`${isRtl ? "pr-9" : "pl-9"} h-10 bg-[hsl(0_0%_6%)] border-[hsl(0_0%_14%)] rounded-xl text-sm`}
                 />
               </div>
 
-              <button className="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] text-muted-foreground hover:text-foreground transition">
+              <button className="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl bg-[hsl(0_0%_6%)] border border-[hsl(0_0%_14%)] text-muted-foreground hover:text-foreground transition">
                 <RefreshCw className="w-4 h-4" />
               </button>
 
@@ -91,15 +91,15 @@ export function Layout({ children }: { children: ReactNode }) {
 
               {/* Counters */}
               <div className="hidden lg:flex items-center gap-2">
-                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)]">
+                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(0_0%_6%)] border border-[hsl(0_0%_14%)]">
                   <Eye className="w-4 h-4 text-[hsl(190_95%_55%)]" />
                   <span className="text-sm font-bold tabular-nums text-foreground">3776</span>
                 </div>
-                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)]">
+                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(0_0%_6%)] border border-[hsl(0_0%_14%)]">
                   <Users className="w-4 h-4 text-[hsl(152_70%_55%)]" />
                   <span className="text-sm font-bold tabular-nums text-foreground">1023</span>
                 </div>
-                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)]">
+                <div className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[hsl(0_0%_6%)] border border-[hsl(0_0%_14%)]">
                   <TrendingUp className="w-4 h-4 text-[hsl(28_95%_65%)]" />
                   <span className="text-sm font-bold tabular-nums text-foreground">106</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[hsl(152_70%_55%)] animate-pulse" />
