@@ -407,7 +407,58 @@ function WorkEntriesTable({
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto -mx-1">
+          {/* Mobile: stacked rows (no horizontal scroll) */}
+          <div
+            className="md:hidden flex flex-col gap-2 pb-28"
+            style={{ paddingBottom: "max(7rem, env(safe-area-inset-bottom))" }}
+          >
+            {pageRows.map((o) => {
+              const sid = o.services[0];
+              const dur = sid ? serviceDuration(sid) : 0;
+              return (
+                <div key={o.id} className="w-full rounded-xl border px-3 py-3 min-h-[88px] flex flex-col gap-1.5 bg-card">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold leading-6 break-words whitespace-normal flex-1 min-w-0">
+                      {o.services.map(serviceName).join(", ")}
+                    </p>
+                    <span className="text-base font-bold text-primary whitespace-nowrap shrink-0">{o.totalPrice} DH</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-mono">
+                    Ref: <span className="font-bold text-foreground">{o.reference || "—"}</span>
+                    {dur > 0 && <span className="ms-2">· {dur}m</span>}
+                    <span className="ms-2">· {o.carPlate}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("employeeApp.startAt", { defaultValue: "البداية" })}: {fmtDateTime(o.startAt || o.createdAt)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("employeeApp.expectedEnd", { defaultValue: "نهاية متوقعة" })}: {fmtTime(o.expectedEndAt)}
+                    {o.completedAt && (
+                      <span className="ms-2">
+                        · {t("employeeApp.actualEnd", { defaultValue: "نهاية فعلية" })}: {fmtTime(o.completedAt)}
+                      </span>
+                    )}
+                  </p>
+                  <div className="flex items-center justify-between gap-2 pt-1">
+                    <Badge variant="outline" className={`text-[10px] ${statusColor(o.status)}`}>{statusLabel(o.status)}</Badge>
+                    {o.status !== "completed" && o.status !== "cancelled" && (
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="default" className="h-8 px-3 text-[11px]" onClick={() => handleComplete(o.id)}>
+                          <Check className="w-3.5 h-3.5 me-1" />{t("employeeApp.complete", { defaultValue: "إكمال" })}
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-8 px-3 text-[11px]" onClick={() => handleCancel(o.id)}>
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop/Tablet: full table */}
+          <div className="hidden md:block overflow-x-auto -mx-1 md:pb-6">
             <Table className="min-w-[1100px]">
               <TableHeader>
                 <TableRow>
