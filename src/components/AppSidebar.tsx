@@ -122,12 +122,12 @@ export function AppSidebar() {
     <Sidebar
       collapsible="icon"
       side={isRtl ? "right" : "left"}
-      className={`${isRtl ? "border-l" : "border-r"} border-[hsl(220_20%_14%)]`}
+      className={`${isRtl ? "border-l" : "border-r"} border-[hsl(0_0%_12%)]`}
       style={{ ["--sidebar-width" as any]: "18rem" }}
     >
-      <SidebarContent className="bg-[hsl(220_30%_7%)] p-3 gap-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[hsl(220_20%_20%)] [&::-webkit-scrollbar-thumb]:rounded-full">
+      <SidebarContent className="bg-black p-3 gap-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[hsl(0_0%_18%)] [&::-webkit-scrollbar-thumb]:rounded-full">
         {/* Brand header card */}
-        <div className="rounded-2xl bg-gradient-to-br from-[hsl(220_30%_12%)] to-[hsl(220_30%_8%)] border border-[hsl(220_20%_18%)] p-3 flex items-center gap-3 relative overflow-hidden">
+        <div className="rounded-2xl bg-gradient-to-br from-[hsl(0_0%_8%)] to-[hsl(0_0%_4%)] border border-[hsl(0_0%_14%)] p-3 flex items-center gap-3 relative overflow-hidden">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] shadow-[0_0_20px_-4px_hsl(28_90%_55%/0.7)]">
             <ShieldAlert className="w-6 h-6 text-white" />
           </div>
@@ -140,7 +140,7 @@ export function AppSidebar() {
         </div>
 
         {/* Administrator card */}
-        <div className="rounded-2xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] p-3 flex items-center gap-3">
+        <div className="rounded-2xl bg-[hsl(0_0%_6%)] border border-[hsl(0_0%_14%)] p-3 flex items-center gap-3">
           <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-[hsl(28_90%_55%/0.15)] border border-[hsl(28_90%_55%/0.4)]">
             <ShieldCheck className="w-5 h-5 text-[hsl(28_95%_65%)]" />
           </div>
@@ -163,7 +163,7 @@ export function AppSidebar() {
             <NavCard key={it.url} item={it} isActive={isPathActive(it.url)} collapsed={collapsed} />
           ))}
           {/* Sidebar toggle — directly below the Settings button */}
-          <SidebarTrigger className="w-full h-11 rounded-2xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] hover:bg-[hsl(220_25%_14%)] text-foreground/80" />
+          <SidebarTrigger className="w-full h-11 rounded-2xl bg-[hsl(0_0%_6%)] border border-[hsl(0_0%_14%)] hover:bg-[hsl(0_0%_10%)] text-foreground/80" />
         </nav>
 
         {/* Logout footer */}
