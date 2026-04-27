@@ -18,20 +18,22 @@ function NavCard({ item, isActive, collapsed }: { item: NavEntry; isActive: bool
     <NavLink
       to={item.url}
       end={item.url === "/"}
-      className={`group relative flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all duration-200 border
+      className={`group relative flex items-center gap-3 rounded-full px-3 py-2.5 transition-all duration-200 border backdrop-blur-md
         ${isActive
-          ? "bg-[hsl(28_90%_55%/0.12)] border-[hsl(28_90%_55%/0.45)] text-[hsl(28_95%_65%)] shadow-[0_0_24px_-8px_hsl(28_90%_55%/0.6)]"
-          : "bg-[hsl(220_25%_11%)] border-[hsl(220_20%_18%)] text-foreground/85 hover:bg-[hsl(220_25%_14%)] hover:border-[hsl(220_20%_24%)]"
+          ? "bg-[hsl(var(--primary)/0.10)] border-[hsl(var(--primary)/0.55)] text-[hsl(var(--primary))] shadow-[0_0_18px_-4px_hsl(var(--primary)/0.55)]"
+          : "bg-[hsl(230_35%_8%/0.55)] border-[hsl(var(--primary)/0.25)] text-foreground/85 hover:bg-[hsl(var(--primary)/0.06)] hover:border-[hsl(var(--primary)/0.5)] hover:shadow-[0_0_14px_-4px_hsl(var(--primary)/0.4)]"
         }`}
       activeClassName=""
     >
-      <span className={`flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0 transition
-        ${isActive ? "bg-[hsl(28_90%_55%/0.18)] text-[hsl(28_95%_65%)]" : "bg-[hsl(220_25%_15%)] text-foreground/70 group-hover:text-foreground"}`}>
-        <item.icon className="w-[18px] h-[18px]" />
+      <span className={`flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 transition border
+        ${isActive
+          ? "bg-[hsl(var(--primary)/0.15)] border-[hsl(var(--primary)/0.45)] text-[hsl(var(--primary))]"
+          : "bg-[hsl(230_35%_6%/0.6)] border-[hsl(var(--primary)/0.25)] text-foreground/70 group-hover:text-[hsl(var(--primary))]"}`}>
+        <item.icon className="w-[16px] h-[16px]" />
       </span>
       {!collapsed && (
         <>
-          <span className="text-sm font-semibold flex-1 truncate">{item.title}</span>
+          <span className="text-[13px] font-medium flex-1 truncate">{item.title}</span>
           {item.badge !== undefined && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-destructive/90 text-destructive-foreground tabular-nums">
               {item.badge}
