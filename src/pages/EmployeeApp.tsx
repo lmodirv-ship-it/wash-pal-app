@@ -70,7 +70,7 @@ export default function EmployeeApp() {
         carPlate: plate.trim().toUpperCase(),
         services: [picked.id],
         totalPrice: finalPrice,
-        status: "waiting",
+        status: "in_progress",
         employeeName: myName,
         branchId: currentBranch.id,
         notes: carSize === "4x4" ? `+${SURCHARGE_4X4} DH ${t("employeeApp.surchargeAdded")}` : carSize === "motor" ? t("employeeApp.motorcycle") : undefined,
