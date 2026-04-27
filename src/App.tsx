@@ -44,6 +44,9 @@ const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const AdminApiKeys = lazy(() => import("./pages/AdminApiKeys"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const RoleAuditLogs = lazy(() => import("./pages/RoleAuditLogs"));
+const OwnerShell = lazy(() =>
+  import("./components/OwnerShell").then((m) => ({ default: m.OwnerShell }))
+);
 const Entries = lazy(() => import("./pages/Entries"));
 const SupervisorProspecting = lazy(() => import("./pages/SupervisorProspecting"));
 const MessageTemplates = lazy(() => import("./pages/MessageTemplates"));
@@ -130,22 +133,31 @@ const App = () => (
             <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/invite/:token" element={<AcceptInvite />} />
 
-            {/* Platform owner only */}
+            {/* Platform owner console — fully isolated under /owner/* */}
             <Route
               element={
                 <ProtectedRoute allowedRoles={["owner"]}>
-                  <AppShell />
+                  <OwnerShell />
                 </ProtectedRoute>
               }
             >
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
-              <Route path="/admin/pricing-plans" element={<AdminPricingPlans />} />
-              <Route path="/admin/leads" element={<AdminLeads />} />
-              <Route path="/admin/api-keys" element={<AdminApiKeys />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/audit-logs" element={<RoleAuditLogs />} />
+              <Route path="/owner" element={<AdminDashboard />} />
+              <Route path="/owner/subscriptions" element={<AdminSubscriptions />} />
+              <Route path="/owner/pricing-plans" element={<AdminPricingPlans />} />
+              <Route path="/owner/leads" element={<AdminLeads />} />
+              <Route path="/owner/api-keys" element={<AdminApiKeys />} />
+              <Route path="/owner/users" element={<AdminUsers />} />
+              <Route path="/owner/audit-logs" element={<RoleAuditLogs />} />
             </Route>
+
+            {/* Legacy /admin/* paths → /owner/* (guard then runs and blocks non-owners) */}
+            <Route path="/admin" element={<Navigate to="/owner" replace />} />
+            <Route path="/admin/subscriptions" element={<Navigate to="/owner/subscriptions" replace />} />
+            <Route path="/admin/pricing-plans" element={<Navigate to="/owner/pricing-plans" replace />} />
+            <Route path="/admin/leads" element={<Navigate to="/owner/leads" replace />} />
+            <Route path="/admin/api-keys" element={<Navigate to="/owner/api-keys" replace />} />
+            <Route path="/admin/users" element={<Navigate to="/owner/users" replace />} />
+            <Route path="/admin/audit-logs" element={<Navigate to="/owner/audit-logs" replace />} />
 
             {/* Manager / Supervisor / Admin */}
             <Route

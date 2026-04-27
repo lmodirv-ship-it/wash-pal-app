@@ -12,8 +12,8 @@ export const ROLE_PRIORITY: AppRole[] = ["owner", "admin", "supervisor", "manage
 
 export function homeForRole(role: AppRole | undefined): string {
   switch (role) {
-    case "owner": return "/admin";
-    case "admin": return "/admin";
+    case "owner": return "/owner";
+    case "admin": return "/dashboard";
     case "supervisor":
     case "manager": return "/dashboard";
     case "employee": return "/employee";

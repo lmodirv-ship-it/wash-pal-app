@@ -54,20 +54,15 @@ export function AppSidebar() {
   const role = profile?.role || "employee";
   const isPathActive = (url: string) => url === "/" ? location.pathname === "/" : location.pathname.startsWith(url);
 
-  // Build menu per role
-  const adminItems: NavEntry[] = [
-    { title: "Tableau de bord", url: "/admin", icon: LayoutDashboard },
-    { title: "Superviseurs", url: "/admin/subscriptions", icon: ShieldCheck },
-    { title: "Utilisateurs inscrits", url: "/admin/pricing-plans", icon: Users },
-    { title: "Gestion utilisateurs", url: "/admin/users", icon: Users },
-    { title: "Journal d'audit", url: "/admin/audit-logs", icon: ScrollText },
-    { title: "Demandes de trajet", url: "/admin/leads", icon: ClipboardList, badge: 6 },
-    { title: "API Keys", url: "/admin/api-keys", icon: Key },
-    { title: "Chauffeurs", url: "/employees", icon: UserCog },
-    { title: "Clients", url: "/customers", icon: Users },
-    { title: "Revenus", url: "/finance", icon: Wallet },
-    { title: "Magasins", url: "/shops", icon: Store },
-    { title: t("nav.settings"), url: "/settings", icon: Settings },
+  // Owner console (platform-wide) — visible ONLY to platform owners.
+  const ownerItems: NavEntry[] = [
+    { title: "Owner Dashboard", url: "/owner", icon: LayoutDashboard },
+    { title: "Gestion utilisateurs", url: "/owner/users", icon: Users },
+    { title: "Journal d'audit", url: "/owner/audit-logs", icon: ScrollText },
+    { title: "Abonnements", url: "/owner/subscriptions", icon: ShieldCheck },
+    { title: "Plans tarifaires", url: "/owner/pricing-plans", icon: CreditCard },
+    { title: "Leads", url: "/owner/leads", icon: ClipboardList, badge: 6 },
+    { title: "API Keys", url: "/owner/api-keys", icon: Key },
   ];
 
   const supervisorItems: NavEntry[] = [
@@ -105,7 +100,7 @@ export function AppSidebar() {
   ];
 
   const items =
-    role === "owner" ? adminItems :
+    role === "owner" ? ownerItems :
     role === "admin" ? supervisorItems :
     role === "supervisor" ? supervisorItems :
     role === "manager" ? managerItems :
