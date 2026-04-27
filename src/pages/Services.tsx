@@ -234,17 +234,30 @@ export default function Services() {
       )}
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="grid grid-cols-6 w-full h-auto">
+        <TabsList className="grid grid-cols-6 w-full h-auto bg-transparent gap-2 p-0">
           {CATEGORIES.map(c => {
             const Icon = c.icon;
             const count = counts[c.id as keyof typeof counts];
             return (
-              <TabsTrigger key={c.id} value={c.id} className="flex flex-col gap-1 py-2 data-[state=active]:shadow-glow">
+              <TabsTrigger
+                key={c.id}
+                value={c.id}
+                className="group relative flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-2xl border-2 transition-all duration-200
+                  bg-gradient-to-b from-[hsl(214_100%_58%)] to-[hsl(212_100%_50%)]
+                  border-[hsl(210_100%_70%/0.6)]
+                  text-white
+                  shadow-[0_0_18px_-2px_hsl(210_100%_70%/0.55),0_8px_24px_-8px_hsl(214_100%_58%/0.7),inset_0_1px_0_hsl(0_0%_100%/0.25)]
+                  hover:shadow-[0_0_28px_-2px_hsl(210_100%_70%/0.85),0_10px_28px_-6px_hsl(214_100%_58%/0.9),inset_0_1px_0_hsl(0_0%_100%/0.3)]
+                  data-[state=active]:from-[hsl(195_100%_60%)] data-[state=active]:to-[hsl(212_100%_50%)]
+                  data-[state=active]:border-white/70
+                  data-[state=active]:scale-[1.03]
+                  data-[state=active]:shadow-[0_0_36px_-2px_hsl(195_100%_70%/1),0_12px_30px_-6px_hsl(195_100%_60%/0.9),inset_0_1px_0_hsl(0_0%_100%/0.4)]"
+              >
                 <div className="flex items-center gap-1.5">
-                  <Icon className={`w-4 h-4 ${c.cls}`} />
-                  <span className="font-bold">{c.label}</span>
+                  <Icon className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                  <span className="font-extrabold text-[15px] tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{c.label}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">{count}</span>
+                <span className="text-xs font-bold text-white/90 tabular-nums drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">{count}</span>
               </TabsTrigger>
             );
           })}
