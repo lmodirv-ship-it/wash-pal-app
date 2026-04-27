@@ -476,15 +476,9 @@ function WorkEntriesTable({
           <option value="cancelled">{statusLabel("cancelled")}</option>
           <option value="waiting">{statusLabel("waiting")}</option>
         </select>
-        <select
-          value={dateFilter}
-          onChange={(e) => { setDateFilter(e.target.value as any); setPage(1); }}
-          className="h-9 rounded-md border border-input bg-background px-3 text-xs"
-        >
-          <option value="today">{t("employeeApp.dateToday", { defaultValue: "اليوم" })}</option>
-          <option value="week">{t("employeeApp.dateWeek", { defaultValue: "آخر 7 أيام" })}</option>
-          <option value="all">{t("employeeApp.dateAll", { defaultValue: "الكل" })}</option>
-        </select>
+        <div className="h-9 rounded-md border border-input bg-muted/40 px-3 text-xs flex items-center justify-center font-semibold text-muted-foreground">
+          {t("employeeApp.dateToday", { defaultValue: "اليوم فقط" })}
+        </div>
       </div>
 
       <>
