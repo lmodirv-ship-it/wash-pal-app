@@ -52,6 +52,9 @@ const Entries = lazy(() => import("./pages/Entries"));
 const SupervisorProspecting = lazy(() => import("./pages/SupervisorProspecting"));
 const MessageTemplates = lazy(() => import("./pages/MessageTemplates"));
 const Coupons = lazy(() => import("./pages/Coupons"));
+const JoinShop = lazy(() => import("./pages/JoinShop"));
+const PendingApproval = lazy(() => import("./pages/PendingApproval"));
+const JoinRequests = lazy(() => import("./pages/JoinRequests"));
 
 const queryClient = new QueryClient();
 
@@ -133,6 +136,8 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/invite/:token" element={<AcceptInvite />} />
+            <Route path="/join-shop" element={<JoinShop />} />
+            <Route path="/pending-approval" element={<PendingApproval />} />
 
             {/* Platform owner console — fully isolated under /owner/* */}
             <Route
@@ -184,6 +189,8 @@ const App = () => (
               <Route path="/prospecting" element={<SupervisorProspecting />} />
               <Route path="/templates" element={<MessageTemplates />} />
               <Route path="/coupons" element={<Coupons />} />
+              <Route path="/dashboard/join-requests" element={<JoinRequests />} />
+              <Route path="/join-requests" element={<Navigate to="/dashboard/join-requests" replace />} />
             </Route>
 
             {/* Employee — fullscreen, no sidebar/layout */}
