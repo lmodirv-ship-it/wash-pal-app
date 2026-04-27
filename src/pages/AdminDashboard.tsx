@@ -190,6 +190,7 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <DateRangeFilter value={range} onChange={setRange} />
+          {isFetching && !loading && <span className="text-xs text-muted-foreground">تحديث...</span>}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="h-9 gap-2">
@@ -212,6 +213,13 @@ export default function AdminDashboard() {
           </Link>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          فشل تحميل مؤشرات لوحة المالك.
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="ms-2">إعادة المحاولة</Button>
+        </div>
+      )}
 
       {/* Big KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
