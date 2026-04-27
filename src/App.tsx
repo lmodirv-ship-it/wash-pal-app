@@ -10,6 +10,7 @@ import { useEffectiveRoles, homeForRole, pickPrimaryRole } from "@/hooks/useEffe
 import { Layout } from "@/components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { GlobalLogoutButton } from "@/components/GlobalLogoutButton";
 import { supabase } from "@/integrations/supabase/client";
 
 // Lazy-loaded pages — drastically reduces initial bundle
@@ -181,6 +182,7 @@ const App = () => (
         <BrowserRouter>
           <ErrorBoundary>
           <Suspense fallback={<LoadingScreen />}>
+          <GlobalLogoutButton />
           <Routes>
             {/* Public */}
             <Route path="/" element={<Landing />} />
