@@ -239,6 +239,58 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_service_overrides: {
+        Row: {
+          created_at: string
+          employee_id: string
+          enabled: boolean
+          id: string
+          service_id: string
+          shop_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          enabled?: boolean
+          id?: string
+          service_id: string
+          shop_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          enabled?: boolean
+          id?: string
+          service_id?: string
+          shop_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_service_overrides_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_service_overrides_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_service_overrides_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           branch_id: string
@@ -252,6 +304,7 @@ export type Database = {
           role: string
           role_type: string
           shop_id: string
+          user_id: string | null
         }
         Insert: {
           branch_id: string
@@ -265,6 +318,7 @@ export type Database = {
           role: string
           role_type?: string
           shop_id: string
+          user_id?: string | null
         }
         Update: {
           branch_id?: string
@@ -278,6 +332,7 @@ export type Database = {
           role?: string
           role_type?: string
           shop_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1145,6 +1200,35 @@ export type Database = {
     Functions: {
       accept_invite: { Args: { _token: string }; Returns: string }
       can_manage_shop_team: { Args: { _shop_id: string }; Returns: boolean }
+      current_employee_id: { Args: { _shop_id: string }; Returns: string }
+      effective_services_for_employee: {
+        Args: { _employee_id: string }
+        Returns: {
+          category: string
+          created_at: string
+          description: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
+          duration: number
+          id: string
+          is_active: boolean
+          name: string
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string | null
+          price: number
+          reference: string | null
+          shop_id: string
+          starting_from: boolean
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "services"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_shop_limits: {
         Args: { _shop_id: string }
         Returns: {
