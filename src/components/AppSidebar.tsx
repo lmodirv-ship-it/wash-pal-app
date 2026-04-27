@@ -59,6 +59,7 @@ export function AppSidebar() {
     { title: "Tableau de bord", url: "/admin", icon: LayoutDashboard },
     { title: "Superviseurs", url: "/admin/subscriptions", icon: ShieldCheck },
     { title: "Utilisateurs inscrits", url: "/admin/pricing-plans", icon: Users },
+    { title: "Gestion utilisateurs", url: "/admin/users", icon: Users },
     { title: "Demandes de trajet", url: "/admin/leads", icon: ClipboardList, badge: 6 },
     { title: "API Keys", url: "/admin/api-keys", icon: Key },
     { title: "Chauffeurs", url: "/employees", icon: UserCog },

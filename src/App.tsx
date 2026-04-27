@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, Suspense, lazy } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,41 +8,45 @@ import { AppProvider, useApp } from "@/contexts/AppContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useEffectiveRoles, homeForRole, pickPrimaryRole } from "@/hooks/useEffectiveRoles";
 import { Layout } from "@/components/Layout";
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Index from "./pages/Index";
-import Orders from "./pages/Orders";
-import Customers from "./pages/Customers";
-import Employees from "./pages/Employees";
-import Services from "./pages/Services";
-import Invoices from "./pages/Invoices";
-import Reports from "./pages/Reports";
-import Branches from "./pages/Branches";
-import Shops from "./pages/Shops";
-import SettingsPage from "./pages/Settings";
-import Finance from "./pages/Finance";
-import EmployeeApp from "./pages/EmployeeApp";
-import CustomerApp from "./pages/CustomerApp";
-import CreateShop from "./pages/CreateShop";
-import Team from "./pages/Team";
-import AcceptInvite from "./pages/AcceptInvite";
-import StartFree from "./pages/StartFree";
-import Pricing from "./pages/Pricing";
-import Unauthorized from "./pages/Unauthorized";
-import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminSubscriptions from "./pages/AdminSubscriptions";
-import AdminPricingPlans from "./pages/AdminPricingPlans";
-import AdminLeads from "./pages/AdminLeads";
-import AdminApiKeys from "./pages/AdminApiKeys";
-import Entries from "./pages/Entries";
-import SupervisorProspecting from "./pages/SupervisorProspecting";
-import MessageTemplates from "./pages/MessageTemplates";
-import Coupons from "./pages/Coupons";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+
+// Lazy-loaded pages — drastically reduces initial bundle
+const Landing = lazy(() => import("./pages/Landing"));
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Index = lazy(() => import("./pages/Index"));
+const Orders = lazy(() => import("./pages/Orders"));
+const Customers = lazy(() => import("./pages/Customers"));
+const Employees = lazy(() => import("./pages/Employees"));
+const Services = lazy(() => import("./pages/Services"));
+const Invoices = lazy(() => import("./pages/Invoices"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Branches = lazy(() => import("./pages/Branches"));
+const Shops = lazy(() => import("./pages/Shops"));
+const SettingsPage = lazy(() => import("./pages/Settings"));
+const Finance = lazy(() => import("./pages/Finance"));
+const EmployeeApp = lazy(() => import("./pages/EmployeeApp"));
+const CustomerApp = lazy(() => import("./pages/CustomerApp"));
+const CreateShop = lazy(() => import("./pages/CreateShop"));
+const Team = lazy(() => import("./pages/Team"));
+const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
+const StartFree = lazy(() => import("./pages/StartFree"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Unauthorized = lazy(() => import("./pages/Unauthorized"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminSubscriptions = lazy(() => import("./pages/AdminSubscriptions"));
+const AdminPricingPlans = lazy(() => import("./pages/AdminPricingPlans"));
+const AdminLeads = lazy(() => import("./pages/AdminLeads"));
+const AdminApiKeys = lazy(() => import("./pages/AdminApiKeys"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const Entries = lazy(() => import("./pages/Entries"));
+const SupervisorProspecting = lazy(() => import("./pages/SupervisorProspecting"));
+const MessageTemplates = lazy(() => import("./pages/MessageTemplates"));
+const Coupons = lazy(() => import("./pages/Coupons"));
 
 const queryClient = new QueryClient();
 
@@ -109,6 +113,8 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
+          <ErrorBoundary>
+          <Suspense fallback={<LoadingScreen />}>
           <Routes>
             {/* Public */}
             <Route path="/" element={<Landing />} />
@@ -136,6 +142,7 @@ const App = () => (
               <Route path="/admin/pricing-plans" element={<AdminPricingPlans />} />
               <Route path="/admin/leads" element={<AdminLeads />} />
               <Route path="/admin/api-keys" element={<AdminApiKeys />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
             </Route>
 
             {/* Manager / Supervisor / Admin */}
@@ -193,6 +200,8 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
+          </ErrorBoundary>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
