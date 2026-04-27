@@ -81,13 +81,18 @@ export default function Login() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("employee-login-by-reference", {
-        body: { reference: refForm.reference.trim() },
+        body: { reference: refForm.reference.trim(), password: refForm.password },
       });
       if (error) throw error;
       if (data?.error) { toast.error(data.error); setLoading(false); return; }
-      if (!data?.email) { toast.error("تعذر العثور على الحساب"); setLoading(false); return; }
-      const { error: signErr } = await signIn(data.email, refForm.password);
-      if (signErr) { toast.error(signErr); setLoading(false); return; }
+      if (!data?.access_token || !data?.refresh_token) {
+        toast.error("بيانات الدخول غير صحيحة"); setLoading(false); return;
+      }
+      const { error: sessErr } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+      if (sessErr) { toast.error(sessErr.message); setLoading(false); return; }
       toast.success(`مرحباً ${data.name || ""} 👋`);
     } catch (err: any) {
       toast.error(err?.message || "خطأ في تسجيل الدخول");
