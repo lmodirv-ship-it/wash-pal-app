@@ -1111,6 +1111,14 @@ export type Database = {
     }
     Functions: {
       accept_invite: { Args: { _token: string }; Returns: string }
+      get_shop_limits: {
+        Args: { _shop_id: string }
+        Returns: {
+          max_branches: number
+          max_employees: number
+          plan_code: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
