@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, RefreshCw, AlertTriangle, Loader2 } from "lucide-react";
+import { Shield, RefreshCw, AlertTriangle, Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { rowsToCsv, downloadCsv, logExport } from "@/lib/exportCsv";
+import { toast } from "sonner";
 
 interface Attempt {
   id: string;
@@ -40,10 +42,29 @@ export default function OwnerSecurity() {
             مراقبة محاولات الدخول المشبوهة والأحداث الأمنية الحرجة.
           </p>
         </div>
-        <Button onClick={load} variant="outline" className="gap-2">
-          <RefreshCw className="w-4 h-4" />
-          تحديث
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={async () => {
+              try {
+                const csv = rowsToCsv(attempts as any);
+                const stamp = new Date().toISOString().slice(0, 10);
+                downloadCsv(`login-attempts-${stamp}.csv`, csv || "no_data\n");
+                await logExport("audit_logs", null, attempts.length);
+                toast.success(`تم تصدير ${attempts.length} سجل`);
+              } catch (e: any) {
+                toast.error(e?.message ?? "فشل التصدير");
+              }
+            }}
+            variant="outline"
+            className="gap-2"
+            disabled={attempts.length === 0}
+          >
+            <Download className="w-4 h-4" /> تصدير CSV
+          </Button>
+          <Button onClick={load} variant="outline" className="gap-2">
+            <RefreshCw className="w-4 h-4" /> تحديث
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
