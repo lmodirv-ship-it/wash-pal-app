@@ -146,9 +146,22 @@ export default function Services() {
           >
             <Download className="w-4 h-4" /> تصدير CSV
           </Button>
-          <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
+          <Dialog open={dialogOpen} onOpenChange={(v) => {
+            if (!v) { resetForm(); return; }
+            if (!editing && atCap) {
+              toast.error(`بلغت الحد الأقصى (${SERVICE_CAP}). عطّل خدمة قبل إضافة جديدة.`);
+              return;
+            }
+            setDialogOpen(true);
+          }}>
             <DialogTrigger asChild>
-              <Button className="rounded-xl lavage-btn"><Plus className="w-4 h-4 mx-1" />{t("services.newService")}</Button>
+              <Button
+                className="rounded-xl lavage-btn"
+                disabled={atCap}
+                title={atCap ? `بلغت الحد الأقصى (${SERVICE_CAP})` : undefined}
+              >
+                <Plus className="w-4 h-4 mx-1" />{t("services.newService")}
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{editing ? t("services.editService") : t("services.addNew")}</DialogTitle></DialogHeader>
