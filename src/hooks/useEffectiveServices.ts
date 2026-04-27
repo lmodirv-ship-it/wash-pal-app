@@ -13,6 +13,7 @@ export type EmptyReason =
   | null;
 
 function mapService(r: any): Service {
+  const category = r.category === "premium" ? "vip" : r.category;
   return {
     id: r.id,
     reference: r.reference || undefined,
@@ -27,7 +28,7 @@ function mapService(r: any): Service {
     descriptionFr: r.description_fr || undefined,
     descriptionEn: r.description_en || undefined,
     isActive: !!r.is_active,
-    category: (r.category as ServiceCategory) || "standard",
+    category: (category as ServiceCategory) || "standard",
     startingFrom: !!r.starting_from,
     shopId: r.shop_id || undefined,
   };
