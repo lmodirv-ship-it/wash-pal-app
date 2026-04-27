@@ -162,10 +162,9 @@ export function AppSidebar() {
           {items.map((it) => (
             <NavCard key={it.url} item={it} isActive={isPathActive(it.url)} collapsed={collapsed} />
           ))}
+          {/* Sidebar toggle — directly below the Settings button */}
+          <SidebarTrigger className="w-full h-11 rounded-2xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] hover:bg-[hsl(220_25%_14%)] text-foreground/80" />
         </nav>
-
-        {/* Sidebar toggle — placed below the navigation list */}
-        <SidebarTrigger className="w-full h-11 rounded-2xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] hover:bg-[hsl(220_25%_14%)] text-foreground/80" />
 
         {/* Logout footer */}
         <button
