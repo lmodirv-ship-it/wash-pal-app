@@ -330,7 +330,6 @@ function WorkEntriesTable({
   const myOrders = useMemo(() => {
     const now = Date.now();
     return orders
-      .filter((o) => o.employeeName === myName)
       .filter((o) => (branchId ? o.branchId === branchId : true))
       .filter((o) => {
         if (dateFilter === "all") return true;
