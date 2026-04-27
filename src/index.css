@@ -598,31 +598,51 @@
 
 /* ============================================
    Global button override — Electric blue glow
-   Applies to ALL buttons across every page.
-   Excludes: sidebar nav, icon-only utility buttons inside selects/popovers.
+   Applies to ALL <button> elements across every page.
+   Excludes utility/role buttons (combobox/menu/tab/cmdk) and
+   sidebar nav icons so they keep their behavior.
    ============================================ */
-@layer components {
-  button:not([data-sidebar]):not([role="combobox"]):not([role="option"]):not([role="menuitem"]):not([role="tab"]):not([cmdk-item]) {
-    --btn-blue: 214 100% 58%;
-    --btn-blue-glow: 200 100% 70%;
-  }
-
-  /* Solid / primary-style buttons get blue background + glow */
-  button.bg-primary,
-  button[class*="bg-primary"]:not([class*="bg-primary/"]) {
-    background-color: hsl(var(--btn-blue, 214 100% 58%)) !important;
-    color: #fff !important;
-    box-shadow: 0 0 0 1px hsl(var(--btn-blue, 214 100% 58%) / 0.4),
-                0 8px 24px -6px hsl(var(--btn-blue, 214 100% 58%) / 0.65) !important;
-  }
-  button.bg-primary:hover,
-  button[class*="bg-primary"]:not([class*="bg-primary/"]):hover {
-    background-color: hsl(210 100% 64%) !important;
-    box-shadow: 0 0 0 1px hsl(var(--btn-blue, 214 100% 58%) / 0.55),
-                0 10px 30px -6px hsl(var(--btn-blue, 214 100% 58%) / 0.85) !important;
-  }
+:root {
+  --btn-blue: 214 100% 58%;
+  --btn-blue-2: 200 100% 65%;
+  --btn-blue-glow: 210 100% 70%;
 }
-@layer utilities {
-  /* Helper if you want to opt a button out: add class `btn-no-blue` */
-  button.btn-no-blue { background-color: revert !important; box-shadow: revert !important; }
+
+/* Universal button styling — outside @layer so it overrides Tailwind utilities */
+button:not([data-sidebar]):not([role="combobox"]):not([role="option"]):not([role="menuitem"]):not([role="tab"]):not([cmdk-item]):not([data-state]):not(.btn-no-blue) {
+  background: linear-gradient(180deg, hsl(var(--btn-blue)) 0%, hsl(212 100% 50%) 100%) !important;
+  color: #fff !important;
+  border: 1px solid hsl(var(--btn-blue) / 0.7) !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--btn-blue) / 0.35),
+    0 0 18px -2px hsl(var(--btn-blue-glow) / 0.55),
+    0 8px 24px -8px hsl(var(--btn-blue) / 0.7),
+    inset 0 1px 0 hsl(0 0% 100% / 0.18) !important;
+  text-shadow: 0 1px 0 hsl(220 60% 10% / 0.4);
+  transition: all 0.2s var(--ease-out-expo);
+}
+
+button:not([data-sidebar]):not([role="combobox"]):not([role="option"]):not([role="menuitem"]):not([role="tab"]):not([cmdk-item]):not([data-state]):not(.btn-no-blue):hover {
+  background: linear-gradient(180deg, hsl(210 100% 64%) 0%, hsl(214 100% 55%) 100%) !important;
+  border-color: hsl(var(--btn-blue) / 0.9) !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--btn-blue) / 0.55),
+    0 0 28px -2px hsl(var(--btn-blue-glow) / 0.85),
+    0 12px 30px -8px hsl(var(--btn-blue) / 0.9),
+    inset 0 1px 0 hsl(0 0% 100% / 0.25) !important;
+  transform: translateY(-1px);
+}
+
+button:not([data-sidebar]):not([role="combobox"]):not([role="option"]):not([role="menuitem"]):not([role="tab"]):not([cmdk-item]):not([data-state]):not(.btn-no-blue):active {
+  transform: translateY(0);
+}
+
+/* Icons inside buttons stay white */
+button:not([data-sidebar]):not([role="combobox"]):not([role="option"]):not([role="menuitem"]):not([role="tab"]):not([cmdk-item]):not([data-state]):not(.btn-no-blue) svg {
+  color: #fff !important;
+}
+
+/* Disabled stays muted */
+button:disabled {
+  opacity: 0.5;
 }
