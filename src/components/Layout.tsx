@@ -12,6 +12,7 @@ import { Search, LogOut, Eye, Users, TrendingUp, RefreshCw, Globe, MapPin } from
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ChangePasswordButton } from "@/components/ChangePasswordButton";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { branches, currentBranch, setCurrentBranch } = useApp();
@@ -109,6 +110,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
               <LanguageSwitcher />
               <NotificationBell />
+              <ChangePasswordButton variant="admin" />
               {isAdmin && <AdminModeSwitcher />}
             </div>
           </header>
