@@ -64,14 +64,28 @@ const JoinShop = lazy(() => import("./pages/JoinShop"));
 const PendingApproval = lazy(() => import("./pages/PendingApproval"));
 const JoinRequests = lazy(() => import("./pages/JoinRequests"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 45_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#030308]">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-        <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+    <div className="w-full p-4 md:p-6 bg-background">
+      <div className="space-y-4 rounded-2xl border border-border bg-card/60 p-5">
+        <div className="h-6 w-44 rounded-md skeleton-shimmer" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-24 rounded-xl skeleton-shimmer" />
+          ))}
+        </div>
+        <div className="h-48 rounded-xl skeleton-shimmer" />
       </div>
     </div>
   );
@@ -178,7 +192,7 @@ const App = () => (
             >
               <Route path="/owner" element={<AdminDashboard />} />
               <Route path="/owner/shops" element={<OwnerShops />} />
-              <Route path="/owner/services" element={<Services />} />
+              <Route path="/owner/services" element={<AppProvider><Services /></AppProvider>} />
               <Route path="/owner/security" element={<OwnerSecurity />} />
               <Route path="/owner/activity" element={<OwnerActivity />} />
               <Route path="/owner/notifications" element={<OwnerNotifications />} />
