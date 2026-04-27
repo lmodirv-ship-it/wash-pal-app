@@ -505,6 +505,54 @@ export type Database = {
           },
         ]
       }
+      face_entry_events: {
+        Row: {
+          branch_id: string | null
+          camera_id: string | null
+          confidence: number | null
+          created_at: string
+          event_hash: string
+          event_time: string
+          event_type: string
+          face_track_id: string | null
+          id: string
+          matched_user_id: string | null
+          person_type: string
+          shop_id: string
+          snapshot_url: string | null
+        }
+        Insert: {
+          branch_id?: string | null
+          camera_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          event_hash: string
+          event_time?: string
+          event_type?: string
+          face_track_id?: string | null
+          id?: string
+          matched_user_id?: string | null
+          person_type?: string
+          shop_id: string
+          snapshot_url?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          camera_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          event_hash?: string
+          event_time?: string
+          event_type?: string
+          face_track_id?: string | null
+          id?: string
+          matched_user_id?: string | null
+          person_type?: string
+          shop_id?: string
+          snapshot_url?: string | null
+        }
+        Relationships: []
+      }
       imou_devices: {
         Row: {
           branch_id: string | null
@@ -1249,6 +1297,90 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_plate_events: {
+        Row: {
+          branch_id: string | null
+          camera_id: string | null
+          confidence: number | null
+          created_at: string
+          event_hash: string
+          event_time: string
+          event_type: string
+          id: string
+          plate_number: string
+          shop_id: string
+          snapshot_url: string | null
+          vehicle_type: string | null
+        }
+        Insert: {
+          branch_id?: string | null
+          camera_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          event_hash: string
+          event_time?: string
+          event_type: string
+          id?: string
+          plate_number: string
+          shop_id: string
+          snapshot_url?: string | null
+          vehicle_type?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          camera_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          event_hash?: string
+          event_time?: string
+          event_type?: string
+          id?: string
+          plate_number?: string
+          shop_id?: string
+          snapshot_url?: string | null
+          vehicle_type?: string | null
+        }
+        Relationships: []
+      }
+      vehicle_sessions: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          entry_time: string
+          exit_time: string | null
+          id: string
+          plate_number: string
+          shop_id: string
+          status: string
+          stay_minutes: number | null
+          updated_at: string
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          entry_time: string
+          exit_time?: string | null
+          id?: string
+          plate_number: string
+          shop_id: string
+          status?: string
+          stay_minutes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          entry_time?: string
+          exit_time?: string | null
+          id?: string
+          plate_number?: string
+          shop_id?: string
+          status?: string
+          stay_minutes?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       video_scan_detections: {
         Row: {
           created_at: string
@@ -1337,6 +1469,28 @@ export type Database = {
       }
     }
     Views: {
+      v_daily_face_logs: {
+        Row: {
+          branch_id: string | null
+          date: string | null
+          employees_detected: number | null
+          shop_id: string | null
+          total_faces: number | null
+          unknown_detected: number | null
+        }
+        Relationships: []
+      }
+      v_daily_vehicle_logs: {
+        Row: {
+          branch_id: string | null
+          currently_inside: number | null
+          date: string | null
+          shop_id: string | null
+          total_entries: number | null
+          total_exits: number | null
+        }
+        Relationships: []
+      }
       v_employees_export: {
         Row: {
           branch_id: string | null
@@ -1611,6 +1765,7 @@ export type Database = {
         Args: { _reason?: string; _shop_id: string; _suspend: boolean }
         Returns: undefined
       }
+      purge_surveillance_data: { Args: never; Returns: Json }
       reject_join_request: {
         Args: { _reason: string; _request_id: string }
         Returns: undefined
