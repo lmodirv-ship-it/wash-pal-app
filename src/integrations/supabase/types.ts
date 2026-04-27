@@ -156,6 +156,7 @@ export type Database = {
           is_active: boolean
           name: string
           phone: string
+          reference: string | null
           shop_id: string
         }
         Insert: {
@@ -165,6 +166,7 @@ export type Database = {
           is_active?: boolean
           name: string
           phone: string
+          reference?: string | null
           shop_id: string
         }
         Update: {
@@ -174,6 +176,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           phone?: string
+          reference?: string | null
           shop_id?: string
         }
         Relationships: [
