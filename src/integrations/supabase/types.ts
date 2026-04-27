@@ -1160,13 +1160,20 @@ export type Database = {
         Returns: boolean
       }
       increment_visitor: { Args: never; Returns: number }
+      is_owner: { Args: never; Returns: boolean }
       is_shop_manager: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_member: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_readonly: { Args: { _shop_id: string }; Returns: boolean }
       user_shop_ids: { Args: never; Returns: string[] }
     }
     Enums: {
-      app_role: "admin" | "manager" | "employee" | "customer" | "supervisor"
+      app_role:
+        | "owner"
+        | "admin"
+        | "manager"
+        | "employee"
+        | "customer"
+        | "supervisor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1294,7 +1301,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "manager", "employee", "customer", "supervisor"],
+      app_role: [
+        "owner",
+        "admin",
+        "manager",
+        "employee",
+        "customer",
+        "supervisor",
+      ],
     },
   },
 } as const

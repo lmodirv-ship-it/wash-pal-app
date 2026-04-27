@@ -1,170 +1,75 @@
-# خطة ترقية المنصة إلى SaaS احترافي
+# خطة: إضافة دور `owner` (مالك المنصة)
 
-## الوضع الحالي (مبني فعلاً)
+## الفرق الجوهري
+- **حالياً:** `admin` = أعلى صلاحية، يصل لكل بيانات المنصة.
+- **بعد التغيير:** `owner` = الأعلى (عبر المنصة)، و `admin` = مالك متجر واحد فقط.
 
-- ✅ Multi-tenant: `shops`, `shop_members`, دوال `is_shop_member` / `is_shop_manager` / `user_shop_ids`
-- ✅ RLS مفعّل على كل الجداول الحساسة
-- ✅ نظام أدوار: `admin / manager / supervisor / employee / customer`
-- ✅ owner = `shops.owner_id` + دور `supervisor` تلقائي (تم اعتماده)
-- ✅ Subscriptions table + pricing_plans + trial 15 يوم تلقائي
-- ✅ Invites + accept_invite + auto-link عبر trigger
-- ✅ Dashboard + Orders + Invoices + Notifications (جداول)
-- ✅ صفحات: Admin, Dashboard, Employee, Customer, Login, Signup, CreateShop
-- ✅ التوجيه حسب الأدوار عبر `useEffectiveRoles` + `homeForRole`
-
-## الناقص — هذه الخطة
+ترتيب الأولوية الجديد: **owner > admin > supervisor > manager > employee > customer**
 
 ---
 
-### المرحلة 1 — تقوية الأمان والتوجيه
+## التنفيذ — Migration واحد
 
-**1.1 صفحة Login تستخدم homeForRole**
-- بعد نجاح تسجيل الدخول، استدعِ `useEffectiveRoles` وأعد التوجيه بناءً على أعلى دور.
-- منع الوصول إلى `/login` و`/signup` للمستخدمين المسجّلين (auto-redirect).
+### أ) إضافة الدور وترقية الحساب الرئيسي
+- `ALTER TYPE app_role ADD VALUE 'owner'`
+- ترقية الحساب الرئيسي (`lmodirv@gmail.com`) من `admin` إلى `owner` في `user_roles` و `profiles.role`
+- باقي حسابات `admin` تبقى `admin` (سيمثلون مالكي متاجر)
 
-**1.2 ProtectedRoute صارم**
-- التحقق من الجلسة + الدور قبل عرض أي صفحة.
-- عند عدم التطابق → redirect إلى صفحة المستخدم الصحيحة (بدلاً من `/unauthorized`).
+### ب) دالة جديدة `is_owner()`
+`SECURITY DEFINER` تعيد `true` لمن لديه دور `owner` — لاستخدامها في RLS
 
-**1.3 تشديد RLS على `notifications`**
-- منع المستخدم من إنشاء notifications لمستخدمين آخرين خارج نطاق محله.
+### ج) إضافة سياسات `*_owner_all` (مضافة بجانب السياسات القائمة، آمنة)
+على 24 جدول: `orders, invoices, customers, employees, branches, services, expenses, discount_coupons, message_templates, b2b_partners, shops, shop_members, subscriptions, pricing_plans, notifications, notification_settings, profiles, user_roles, role_audit_logs, login_attempts, video_scans, video_scan_detections, imou_devices, invites`
 
-**1.4 منع تصاعد الأدوار**
-- التأكد من أن trigger `prevent_role_self_escalation` مفعّل على `profiles` و`user_roles`.
+كل سياسة: `USING (is_owner()) WITH CHECK (is_owner())` — تمنح owner وصولاً كاملاً.
 
----
+> **لا نحذف سياسات `admin_all` الموجودة** — تبقى تماماً (admin يحتفظ بصلاحياته الحالية لئلا ينكسر شيء). التضييق الدلالي لـ admin يأتي تدريجياً في مرحلة لاحقة.
 
-### المرحلة 2 — إدارة المستخدمين (AdminUsers + ShopMembers UI)
-
-**2.1 صفحة `/admin/users`**
-- جدول بكل المستخدمين (من `profiles` + emails من edge function آمن)
-- تعديل الدور (admin فقط)
-- تعطيل/تفعيل الحساب
-- بحث/فلترة حسب الدور
-
-**2.2 صفحة `/dashboard/team` محسّنة**
-- عرض أعضاء المتجر الحالي من `shop_members`
-- دعوة عضو جديد (موجود) + تعديل دور العضو + إزالته
-- صلاحية: supervisor/manager للمحل فقط
-
-**2.3 Edge function `admin-users-list`**
-- يجلب قائمة المستخدمين مع الإيميل من `auth.users` (service role)
-- محمي بـ `verify_jwt` + فحص `has_role(admin)`
+### د) تحديث الـ triggers
+- `sync_profile_role_from_user_roles`: إضافة `owner` في أعلى أولوية المزامنة
+- `prevent_role_self_escalation`: فقط `owner` يمنح/يزيل دور `owner`؛ `owner` و `admin` يغيّران باقي الأدوار
+- `handle_new_user`: منع تعيين `owner` من بيانات signup (لا يمكن لأحد التسجيل كـ owner)
 
 ---
 
-### المرحلة 3 — Realtime + Notifications
+## التنفيذ — Frontend (5 ملفات)
 
-**3.1 تفعيل Realtime على الجداول الحرجة**
-```sql
-ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.invoices;
-ALTER TABLE public.orders REPLICA IDENTITY FULL;
-ALTER TABLE public.notifications REPLICA IDENTITY FULL;
+### `src/hooks/useEffectiveRoles.ts`
+```ts
+export type AppRole = "owner" | "admin" | "supervisor" | "manager" | "employee" | "customer";
+export const ALL_ROLES = ["owner", "admin", "supervisor", "manager", "employee", "customer"];
+export const ROLE_PRIORITY = ["owner", "admin", "supervisor", "manager", "employee", "customer"];
+
+homeForRole("owner") → "/admin"
+homeForRole("admin") → "/admin"   // مؤقتاً نفس owner، حتى لا نكسر تدفق المالك الحالي
 ```
 
-**3.2 Hook `useRealtimeOrders(shopId)`**
-- يستمع لتغيّرات orders في المحل ويحدّث React Query cache تلقائياً.
+### `src/App.tsx` و `ProtectedRoute`
+- `/admin/*` → `allowedRoles: ["owner", "admin"]` (سيُضيَّق لاحقاً لـ owner فقط)
+- باقي المسارات بدون تغيير
 
-**3.3 In-app Notifications**
-- مكوّن `<NotificationBell />` في الـ AppShell
-- عدّاد غير المقروءة + dropdown
-- realtime subscription على `notifications` للمستخدم
-- إنشاء notification تلقائياً عند: طلب جديد، اشتراك سينتهي، invite مقبول
-- Triggers في DB لإنشاء notifications تلقائية
+### `src/components/AppSidebar.tsx`
+- إضافة `owner` كحالة موازية لـ `admin` في عرض القائمة
 
----
+### `AdminUsers.tsx` و `RoleAuditLogs.tsx`
+- إضافة `owner` و `manager` إلى:
+  - `ROLE_LABELS`: `owner: "Propriétaire"`, `manager: "Gérant / Manager"`
+  - `ROLE_COLORS`: ألوان البادج
+- إضافة `owner` إلى dropdown تغيير الدور (لكن RLS يمنع غير owner من اختياره)
 
-### المرحلة 4 — Subscription Limits Enforcement
-
-**4.1 دالة `get_shop_limits(shop_id)` في DB**
-- ترجع `max_employees`, `max_branches`, `max_orders_per_month` من خطة المحل.
-
-**4.2 دوال فحص قبل الإدراج**
-- Trigger BEFORE INSERT على `employees` و`branches` يرفض إذا تجاوز الحد.
-- رسالة خطأ واضحة بالعربية.
-
-**4.3 شاشة "ترقية الخطة"**
-- عند رفض الإدراج، dialog يقترح ترقية + رابط `/pricing`.
-
-**4.4 Dashboard usage widget**
-- عرض: 4/5 موظفين، 12/100 طلب هذا الشهر، إلخ.
+### ذاكرة المشروع
+- تحديث `mem://features/saas-architecture` بترتيب الأولوية الجديد + معنى كل دور
 
 ---
 
-### المرحلة 5 — تحسين الأداء
+## ضمانات السلامة
+- **لا يُحذف أي شيء** — كل التغييرات إضافية (سياسات جديدة، trigger محدّث، enum value جديد)
+- **حساب الأدمن الرئيسي يُرقّى تلقائياً** ضمن نفس migration → لا انقطاع في الوصول
+- **admin يحتفظ بكل صلاحياته الحالية** — التضييق التدريجي (admin = متجره فقط) يُؤجَّل لمرحلة لاحقة بعد التأكد من الاستقرار
+- **`owner` لا يمكن إنشاؤه عبر signup** — يُمنح يدوياً فقط
 
-**5.1 Lazy loading للصفحات**
-- تحويل كل `import Page from ...` في `App.tsx` إلى `lazy(() => import(...))`
-- `<Suspense fallback={<LoadingScreen />}>` حول `<Routes>`
-- توفير ~60-70% من حجم bundle الأولي.
-
-**5.2 React Query optimization**
-- `staleTime: 30s` افتراضياً للـ queries الثابتة
-- `refetchOnWindowFocus: false` للـ dashboards
-- `prefetchQuery` للصفحات الشائعة
-
-**5.3 إزالة الـ requests المكرّرة**
-- توحيد `useEffectiveRoles` كـ single source (موجود) ومنع جلب الأدوار في كل مكان.
-
----
-
-### المرحلة 6 — UI/UX
-
-**6.1 Loading states موحّدة**
-- مكوّن `<PageSkeleton />` لكل الصفحات
-- `<TableSkeleton rows={5} />` للجداول
-
-**6.2 Error boundaries**
-- `<ErrorBoundary>` حول كل route رئيسي
-- صفحة fallback مع زر "إعادة المحاولة"
-
-**6.3 Empty states**
-- "لا توجد طلبات بعد" + CTA لإنشاء أول طلب
-- موحّد عبر مكوّن `<EmptyState icon title description action />`
-
----
-
-## الملفات المتأثّرة (تقريبي)
-
-```text
-ملفات جديدة:
-  src/pages/AdminUsers.tsx
-  src/pages/AdminUsers/RoleEditor.tsx
-  src/components/NotificationBell.tsx
-  src/components/PageSkeleton.tsx
-  src/components/EmptyState.tsx
-  src/components/ErrorBoundary.tsx
-  src/hooks/useRealtimeOrders.ts
-  src/hooks/useNotifications.ts
-  src/hooks/useShopLimits.ts
-  supabase/functions/admin-users-list/index.ts
-  supabase/migrations/<new>.sql  (realtime, limits triggers, notification triggers)
-
-ملفات معدّلة:
-  src/App.tsx               (lazy loading + ErrorBoundary)
-  src/pages/Login.tsx       (homeForRole redirect)
-  src/pages/Signup.tsx      (auto-redirect إذا مسجّل)
-  src/components/ProtectedRoute.tsx  (redirect صارم)
-  src/components/AppShell.tsx        (NotificationBell)
-  src/pages/Team.tsx        (تحسين edit/remove)
-  src/pages/Dashboard.tsx   (usage widget)
-```
-
-## ما لن يُنفَّذ في هذه الجولة
-
-- **بوابة الدفع** (Stripe/Paddle) — مؤجّل بناءً على طلبك
-- **Email notifications** — تتطلب نطاق email مُفعَّل
-- **i18n كامل** — موجود حالياً عربي/إنجليزي/فرنسي في الجداول، لا يحتاج تغيير
-
-## المخرجات المتوقّعة
-
-- نظام أدوار صلب لا يمكن تجاوزه عبر URL manipulation
-- لوحة admin كاملة لإدارة المستخدمين والأدوار
-- تحديثات لحظية للطلبات والإشعارات
-- فرض حدود الخطط على مستوى DB (لا يمكن تجاوزها من الواجهة)
-- Bundle أصغر بـ ~60% وتحميل أسرع
-- UX احترافي مع loading/error/empty states موحّدة
-
-بعد الموافقة، سأنفّذ المراحل بالترتيب في رسالة واحدة موسّعة.
+## ما لن يتم
+- لا حذف لـ `profiles.role`
+- لا تعديل لسياسات `is_shop_member` الحالية
+- لا تضييق لصلاحيات `admin` الحالية في هذه المرحلة (مرحلة منفصلة لاحقاً)
+- لا تغيير في schema الجداول

@@ -27,14 +27,16 @@ interface AdminUser {
 }
 
 const ROLE_LABELS: Record<string, string> = {
+  owner: "Propriétaire plateforme",
   admin: "مدير عام",
   supervisor: "صاحب محل",
-  manager: "مدير",
+  manager: "Gérant / Manager",
   employee: "موظف",
   customer: "عميل",
 };
 
 const ROLE_COLORS: Record<string, string> = {
+  owner: "bg-fuchsia-500/15 text-fuchsia-400 border-fuchsia-500/30",
   admin: "bg-red-500/15 text-red-400 border-red-500/30",
   supervisor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
   manager: "bg-blue-500/15 text-blue-400 border-blue-500/30",
