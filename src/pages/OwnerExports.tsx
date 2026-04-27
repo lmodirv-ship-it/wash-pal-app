@@ -53,6 +53,24 @@ export default function OwnerExports() {
     }
   };
 
+  const onExportTable = async (t: typeof OWNER_TABLE_TILES[number]) => {
+    setBusy(t.prefix);
+    try {
+      const { data, error } = await supabase.from(t.table as any).select("*").limit(10000);
+      if (error) throw error;
+      const rows = (data as Record<string, unknown>[]) ?? [];
+      const csv = rowsToCsv(rows);
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadCsv(`${t.prefix}-${stamp}.csv`, csv || "no_data\n");
+      await logExport(t.type, null, rows.length);
+      toast.success(`تم تصدير ${rows.length} سجل`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "فشل التصدير");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -93,6 +111,26 @@ export default function OwnerExports() {
             </Button>
           </div>
         ))}
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mt-8 mb-3">تصدير المنصة (Owner فقط)</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {OWNER_TABLE_TILES.map((t) => (
+            <div key={t.prefix}
+              className="rounded-2xl border border-[hsl(220_20%_16%)] bg-[hsl(220_25%_7%)] p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <t.icon className="w-5 h-5 text-amber-400" />
+                <h3 className="font-semibold">{t.title}</h3>
+              </div>
+              <p className="text-xs text-muted-foreground">table: {t.table}</p>
+              <Button onClick={() => onExportTable(t)} disabled={busy !== null} variant="outline" className="gap-2 mt-2">
+                {busy === t.prefix ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                تصدير CSV
+              </Button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
