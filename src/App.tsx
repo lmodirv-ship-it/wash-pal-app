@@ -130,10 +130,10 @@ const App = () => (
             <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/invite/:token" element={<AcceptInvite />} />
 
-            {/* Super-admin */}
+            {/* Platform owner only */}
             <Route
               element={
-                <ProtectedRoute allowedRoles={["owner", "admin"]}>
+                <ProtectedRoute allowedRoles={["owner"]}>
                   <AppShell />
                 </ProtectedRoute>
               }

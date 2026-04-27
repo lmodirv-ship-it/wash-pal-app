@@ -106,7 +106,7 @@ export function AppSidebar() {
 
   const items =
     role === "owner" ? adminItems :
-    role === "admin" ? adminItems :
+    role === "admin" ? supervisorItems :
     role === "supervisor" ? supervisorItems :
     role === "manager" ? managerItems :
     employeeItems;
