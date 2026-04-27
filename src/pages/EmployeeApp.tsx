@@ -20,6 +20,13 @@ import { getServiceName } from "@/lib/serviceI18n";
 
 import { useEffectiveServices } from "@/hooks/useEffectiveServices";
 
+const CAR_BRANDS = [
+  "Audi", "BMW", "Chevrolet", "Citroën", "Dacia", "Fiat", "Ford", "Honda",
+  "Hyundai", "Jeep", "Kia", "Land Rover", "Lexus", "Mazda", "Mercedes",
+  "Mitsubishi", "Nissan", "Opel", "Peugeot", "Porsche", "Renault", "Seat",
+  "Skoda", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo",
+];
+
 export default function EmployeeApp() {
   const { currentBranch, addOrder, orders, services: shopServices } = useApp();
   const { services: effectiveServices } = useEffectiveServices();
