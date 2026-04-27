@@ -324,43 +324,55 @@
      Dark translucent surface, thin 1px cyan-tinted border,
      subtle hover lift, no heavy glow / no "box-in-box". */
   .btn-pill {
-    backdrop-filter: blur(10px) saturate(140%);
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
-    background: hsl(230 35% 8% / 0.55);
-    border: 1px solid hsl(var(--primary) / 0.30);
-    box-shadow: 0 1px 2px hsl(220 60% 2% / 0.4);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    background: linear-gradient(180deg, hsl(230 35% 10% / 0.85), hsl(230 40% 5% / 0.92));
+    border: 1px solid hsl(var(--primary) / 0.32);
+    box-shadow:
+      0 2px 8px -2px hsl(220 60% 2% / 0.5),
+      inset 0 1px 0 hsl(0 0% 100% / 0.05);
     color: hsl(var(--foreground));
   }
   .btn-pill:hover {
-    background: hsl(230 35% 10% / 0.70);
-    border-color: hsl(var(--primary) / 0.55);
-    box-shadow: 0 2px 10px -2px hsl(var(--primary) / 0.25);
+    border-color: hsl(var(--primary) / 0.6);
+    box-shadow:
+      0 0 18px -4px hsl(var(--primary) / 0.5),
+      inset 0 1px 0 hsl(0 0% 100% / 0.08);
   }
   .btn-pill:active { transform: translateY(0.5px); }
 
   .btn-pill--primary {
-    background: hsl(230 35% 8% / 0.55);
-    border-color: hsl(var(--primary) / 0.45);
+    background: linear-gradient(180deg, hsl(var(--primary) / 0.14), hsl(230 40% 5% / 0.92));
+    border-color: hsl(var(--primary) / 0.55);
+    box-shadow:
+      0 0 18px -4px hsl(var(--primary) / 0.45),
+      inset 0 1px 0 hsl(0 0% 100% / 0.08);
   }
   .btn-pill--primary:hover {
-    background: hsl(var(--primary) / 0.10);
-    border-color: hsl(var(--primary) / 0.7);
+    border-color: hsl(var(--primary) / 0.8);
+    box-shadow:
+      0 0 26px -4px hsl(var(--primary) / 0.65),
+      inset 0 1px 0 hsl(0 0% 100% / 0.12);
   }
   .btn-pill--secondary {
-    background: hsl(230 25% 12% / 0.55);
-    border-color: hsl(220 30% 100% / 0.12);
+    background: linear-gradient(180deg, hsl(230 30% 14% / 0.85), hsl(230 40% 6% / 0.92));
+    border-color: hsl(220 30% 100% / 0.14);
   }
   .btn-pill--secondary:hover {
-    background: hsl(230 25% 14% / 0.7);
-    border-color: hsl(220 30% 100% / 0.22);
+    border-color: hsl(220 30% 100% / 0.28);
+    box-shadow:
+      0 0 16px -4px hsl(220 30% 100% / 0.18),
+      inset 0 1px 0 hsl(0 0% 100% / 0.08);
   }
   .btn-pill--outline {
-    background: transparent;
-    border-color: hsl(var(--primary) / 0.45);
+    background: linear-gradient(180deg, hsl(230 35% 10% / 0.55), hsl(230 40% 5% / 0.7));
+    border-color: hsl(var(--primary) / 0.5);
   }
   .btn-pill--outline:hover {
-    background: hsl(var(--primary) / 0.08);
-    border-color: hsl(var(--primary) / 0.7);
+    border-color: hsl(var(--primary) / 0.75);
+    box-shadow:
+      0 0 18px -4px hsl(var(--primary) / 0.45),
+      inset 0 1px 0 hsl(0 0% 100% / 0.08);
   }
   .btn-pill--ghost {
     background: transparent;
@@ -368,19 +380,23 @@
     box-shadow: none;
   }
   .btn-pill--ghost:hover {
-    background: hsl(220 30% 100% / 0.05);
-    border-color: hsl(220 30% 100% / 0.10);
-    box-shadow: none;
+    background: linear-gradient(180deg, hsl(230 35% 10% / 0.7), hsl(230 40% 5% / 0.8));
+    border-color: hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 14px -4px hsl(var(--primary) / 0.35);
   }
   .btn-pill--destructive {
-    background: hsl(var(--destructive) / 0.10);
+    background: linear-gradient(180deg, hsl(var(--destructive) / 0.16), hsl(230 40% 5% / 0.92));
     border-color: hsl(var(--destructive) / 0.55);
     color: hsl(var(--destructive-foreground));
+    box-shadow:
+      0 0 16px -4px hsl(var(--destructive) / 0.4),
+      inset 0 1px 0 hsl(0 0% 100% / 0.08);
   }
   .btn-pill--destructive:hover {
-    background: hsl(var(--destructive) / 0.18);
     border-color: hsl(var(--destructive) / 0.8);
-    box-shadow: 0 2px 12px -2px hsl(var(--destructive) / 0.35);
+    box-shadow:
+      0 0 24px -4px hsl(var(--destructive) / 0.6),
+      inset 0 1px 0 hsl(0 0% 100% / 0.1);
   }
 
   .glass-strong {
