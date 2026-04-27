@@ -435,17 +435,17 @@ function WorkEntriesTable({
         </select>
       </div>
 
-      {pageRows.length === 0 ? (
-        <p className="text-center text-xs text-muted-foreground py-6">
-          {t("employeeApp.noEntries", { defaultValue: "لا توجد عمليات." })}
-        </p>
-      ) : (
-        <>
+      <>
           {/* Mobile: stacked rows (no horizontal scroll) */}
           <div
             className="md:hidden flex flex-col gap-2 pb-28"
             style={{ paddingBottom: "max(7rem, env(safe-area-inset-bottom))" }}
           >
+            {pageRows.length === 0 && (
+              <div className="w-full rounded-xl border px-3 py-6 text-center text-xs text-muted-foreground bg-card">
+                {t("employeeApp.noEntries", { defaultValue: "لا توجد عمليات." })}
+              </div>
+            )}
             {pageRows.map((o) => {
               const sid = o.services[0];
               const dur = sid ? serviceDuration(sid) : 0;
@@ -511,6 +511,13 @@ function WorkEntriesTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {pageRows.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={12} className="text-center text-xs text-muted-foreground py-6">
+                      {t("employeeApp.noEntries", { defaultValue: "لا توجد عمليات." })}
+                    </TableCell>
+                  </TableRow>
+                )}
                 {pageRows.map((o) => {
                   const sid = o.services[0];
                   const dur = sid ? serviceDuration(sid) : 0;
@@ -569,8 +576,7 @@ function WorkEntriesTable({
               </div>
             </div>
           )}
-        </>
-      )}
+      </>
     </Card>
   );
 }
