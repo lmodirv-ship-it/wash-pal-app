@@ -12,13 +12,13 @@
 @layer base {
   :root {
     /* Surfaces — Deep cosmic obsidian */
-    --background: 230 40% 3%;
+    --background: 0 0% 0%;
     --foreground: 220 15% 96%;
 
-    --card: 230 30% 7%;
+    --card: 0 0% 4%;
     --card-foreground: 220 15% 96%;
 
-    --popover: 230 35% 6%;
+    --popover: 0 0% 3%;
     --popover-foreground: 220 15% 96%;
 
     /* Brand — Electric cyan + violet aurora */
@@ -97,11 +97,11 @@
   }
 
   .dark {
-    --background: 230 40% 4%;
+    --background: 0 0% 0%;
     --foreground: 220 20% 96%;
-    --card: 230 30% 8%;
+    --card: 0 0% 4%;
     --card-foreground: 220 20% 96%;
-    --popover: 230 35% 7%;
+    --popover: 0 0% 3%;
     --popover-foreground: 220 20% 96%;
     --primary: 195 100% 60%;
     --primary-foreground: 0 0% 100%;
