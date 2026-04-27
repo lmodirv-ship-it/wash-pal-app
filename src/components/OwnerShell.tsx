@@ -1,7 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { AppProvider } from "@/contexts/AppContext";
-import { Layout } from "@/components/Layout";
+import { OwnerLayout } from "@/components/OwnerLayout";
 import { useEffectiveRoles } from "@/hooks/useEffectiveRoles";
 
 function LoadingScreen() {
@@ -41,11 +40,9 @@ export function OwnerShell({ children }: { children?: ReactNode }) {
   if (!roles.includes("owner")) return <Navigate to="/dashboard" replace />;
 
   return (
-    <AppProvider>
-      <Layout>
-        {children ?? <Outlet />}
-      </Layout>
-    </AppProvider>
+    <OwnerLayout>
+      {children ?? <Outlet />}
+    </OwnerLayout>
   );
 }
 
