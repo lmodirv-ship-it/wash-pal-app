@@ -90,29 +90,6 @@ export default function EmployeeApp() {
           <Label className="text-sm font-semibold flex items-center gap-1.5 mb-2">
             <Car className="w-4 h-4 text-primary" /> {t("employeeApp.carType")}
           </Label>
-          <div className="grid grid-cols-3 gap-1.5 mb-2">
-            <button type="button" onClick={() => setCarSize("normal")}
-              className={`h-11 rounded-lg text-xs font-bold border-2 transition-all flex items-center justify-center gap-1 ${
-                carSize === "normal" ? "border-primary bg-primary text-primary-foreground shadow-glow"
-                : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-              <Car className="w-3.5 h-3.5" />
-              {t("employeeApp.normal")}
-            </button>
-            <button type="button" onClick={() => setCarSize("4x4")}
-              className={`h-11 rounded-lg text-xs font-bold border-2 transition-all flex flex-col items-center justify-center leading-none ${
-                carSize === "4x4" ? "border-warning bg-warning text-warning-foreground shadow-glow"
-                : "border-border bg-card text-muted-foreground hover:border-warning/50"}`}>
-              <span>4×4</span>
-              <span className="text-[9px] opacity-80 mt-0.5">{t("employeeApp.surcharge4x4")}</span>
-            </button>
-            <button type="button" onClick={() => setCarSize("motor")}
-              className={`h-11 rounded-lg text-xs font-bold border-2 transition-all flex items-center justify-center gap-1 ${
-                carSize === "motor" ? "border-success bg-success text-success-foreground shadow-glow"
-                : "border-border bg-card text-muted-foreground hover:border-success/50"}`}>
-              <Bike className="w-3.5 h-3.5" />
-              {t("employeeApp.motor")}
-            </button>
-          </div>
           <Input
             autoFocus
             placeholder={carSize === "motor" ? t("employeeApp.placeholderMotor") : t("employeeApp.plateExample")}
@@ -126,9 +103,29 @@ export default function EmployeeApp() {
       </Card>
 
       <Card className="p-3 rounded-2xl shadow-soft">
-        <Label className="text-sm font-semibold mb-3 block px-1">
-          {carSize === "motor" ? t("employeeApp.motorServices") : t("employeeApp.chooseService")}
-        </Label>
+        <div className="flex items-center gap-1.5 mb-3 px-1">
+          <button type="button" onClick={() => setCarSize("normal")}
+            className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
+              carSize === "normal" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+              : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
+            <Car className="w-3 h-3" />
+            {t("employeeApp.normal")}
+          </button>
+          <button type="button" onClick={() => setCarSize("4x4")}
+            className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
+              carSize === "4x4" ? "border-warning bg-warning text-warning-foreground shadow-glow"
+              : "border-border bg-card text-muted-foreground hover:border-warning/50"}`}>
+            <span>4×4</span>
+            <span className="text-[9px] opacity-80">+10</span>
+          </button>
+          <button type="button" onClick={() => setCarSize("motor")}
+            className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
+              carSize === "motor" ? "border-success bg-success text-success-foreground shadow-glow"
+              : "border-border bg-card text-muted-foreground hover:border-success/50"}`}>
+            <Bike className="w-3 h-3" />
+            {t("employeeApp.motor")}
+          </button>
+        </div>
         {carSize === "motor" ? (
           grouped.motor.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-6">{t("employeeApp.noMotorServices")}</p>
