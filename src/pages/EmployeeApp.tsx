@@ -114,8 +114,8 @@ export default function EmployeeApp() {
           <Popover>
             <PopoverTrigger asChild>
               <button type="button"
-                className="h-8 px-2.5 rounded-md text-[11px] font-bold border border-border bg-card text-muted-foreground hover:border-primary/50 transition-all flex items-center gap-1">
-                <CalendarIcon className="w-3 h-3" />
+                className="h-7 px-2 rounded-md text-[10px] font-bold border border-border bg-card text-muted-foreground hover:border-primary/50 transition-all flex items-center gap-1">
+                <CalendarIcon className="w-2.5 h-2.5" />
                 {format(orderDate, "dd/MM HH:mm")}
               </button>
             </PopoverTrigger>
@@ -150,23 +150,23 @@ export default function EmployeeApp() {
             </PopoverContent>
           </Popover>
           <button type="button" onClick={() => setCarSize("normal")}
-            className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
+            className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
               carSize === "normal" ? "border-primary bg-primary text-primary-foreground shadow-glow"
               : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-            <Car className="w-3 h-3" />
+            <Car className="w-2.5 h-2.5" />
             {t("employeeApp.normal")}
           </button>
           <button type="button" onClick={() => setCarSize("4x4")}
-            className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
+            className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
               carSize === "4x4" ? "border-primary bg-primary text-primary-foreground shadow-glow"
               : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
             <span>4×4</span>
           </button>
           <button type="button" onClick={() => setCarSize("motor")}
-            className={`h-8 px-2.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${
+            className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
               carSize === "motor" ? "border-primary bg-primary text-primary-foreground shadow-glow"
               : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-            <Bike className="w-3 h-3" />
+            <Bike className="w-2.5 h-2.5" />
             {t("employeeApp.motor")}
           </button>
         </div>
