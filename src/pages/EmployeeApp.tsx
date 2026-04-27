@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { getServiceName } from "@/lib/serviceI18n";
-import { EmployeeTopNav } from "@/components/EmployeeTopNav";
 
 import { useEffectiveServices } from "@/hooks/useEffectiveServices";
 
@@ -86,12 +85,7 @@ export default function EmployeeApp() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <div className="max-w-2xl mx-auto px-3 py-3 space-y-3 pb-28">
-        <EmployeeTopNav />
-        <div className="text-center pt-1">
-          <h1 className="text-xl font-bold">{t("employeeApp.title")}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{myName}</p>
-        </div>
+      <div className="max-w-2xl mx-auto px-3 py-2 space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
         <div>
