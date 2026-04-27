@@ -133,7 +133,7 @@ const App = () => (
             {/* Super-admin */}
             <Route
               element={
-                <ProtectedRoute allowedRoles={["admin"]}>
+                <ProtectedRoute allowedRoles={["owner", "admin"]}>
                   <AppShell />
                 </ProtectedRoute>
               }
@@ -150,7 +150,7 @@ const App = () => (
             {/* Manager / Supervisor / Admin */}
             <Route
               element={
-                <ProtectedRoute allowedRoles={["admin", "supervisor", "manager"]}>
+                <ProtectedRoute allowedRoles={["owner", "admin", "supervisor", "manager"]}>
                   <AppShell />
                 </ProtectedRoute>
               }
@@ -176,7 +176,7 @@ const App = () => (
             {/* Employee — fullscreen, no sidebar/layout */}
             <Route
               element={
-                <ProtectedRoute allowedRoles={["employee", "supervisor", "manager"]}>
+                <ProtectedRoute allowedRoles={["owner", "employee", "supervisor", "manager"]}>
                   <AppProvider>
                     <ShopGate needsShop={false}>
                       <Outlet />
