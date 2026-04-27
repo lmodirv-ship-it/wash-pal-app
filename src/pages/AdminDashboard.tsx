@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, useState } from "react";
-import { Building2, DollarSign, Users, TrendingUp, Sparkles, FileText, Zap, Package, Crown, CreditCard, BarChart3, Download, ChevronDown, Eye, Pause, Play } from "lucide-react";
+import { Building2, DollarSign, Users, TrendingUp, Sparkles, FileText, Zap, Package, Crown, CreditCard, BarChart3, Download, ChevronDown, Eye, Pause, Play, ChevronUp, Search } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, AreaChart, Area,
@@ -14,6 +14,9 @@ import { rowsToCsv, downloadCsv, logExport } from "@/lib/exportCsv";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 interface BigStatProps {
@@ -38,22 +41,25 @@ function BigStat({ label, value, icon: Icon, tone, loading }: BigStatProps) {
   const c = TONE_MAP[tone];
   return (
     <div
-      className="rounded-2xl bg-[hsl(220_25%_9%)] border p-5 md:p-6 transition hover:border-[hsl(220_20%_24%)] hover:shadow-[0_0_30px_-12px_var(--ring)] relative overflow-hidden"
+      className="rounded-xl bg-[hsl(220_25%_9%)] border p-3 sm:p-3.5 transition hover:border-[hsl(220_20%_24%)] hover:shadow-[0_0_22px_-12px_var(--ring)] relative overflow-hidden flex items-center gap-3 min-h-[78px]"
       style={{ borderColor: "hsl(220 20% 16%)", ["--ring" as any]: c.ring }}
     >
       <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center mb-6"
+        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
         style={{ backgroundColor: c.bg, color: c.fg }}
+        aria-hidden
       >
-        <Icon className="w-[22px] h-[22px]" />
+        <Icon className="w-[18px] h-[18px]" />
       </div>
-      {loading ? (
-        <div className="h-12 w-20 rounded-md skeleton-shimmer" />
-      ) : (
-        <h3 className="text-4xl md:text-5xl font-bold tabular-nums tracking-tight text-foreground">{value}</h3>
-      )}
-      <p className="text-[13px] text-muted-foreground mt-2 font-medium">{label}</p>
-      <span className="absolute -bottom-8 -end-8 w-24 h-24 rounded-full opacity-30" style={{ background: `radial-gradient(circle, ${c.fg} 0%, transparent 70%)` }} />
+      <div className="min-w-0 flex-1">
+        {loading ? (
+          <div className="h-7 w-16 rounded-md skeleton-shimmer" />
+        ) : (
+          <h3 className="text-xl md:text-2xl font-bold tabular-nums tracking-tight text-foreground leading-tight truncate">{value}</h3>
+        )}
+        <p className="text-[11px] text-muted-foreground mt-0.5 font-medium truncate">{label}</p>
+      </div>
+      <span className="absolute -bottom-6 -end-6 w-16 h-16 rounded-full opacity-25" style={{ background: `radial-gradient(circle, ${c.fg} 0%, transparent 70%)` }} />
     </div>
   );
 }
@@ -109,6 +115,11 @@ const UsersChart = memo(function UsersChart({ data }: { data: any[] }) {
 export default function AdminDashboard() {
   const [range, setRange] = useState<DateRange>(() => buildPresetRange("30d"));
   const { loading, isFetching, error, refetch, shops, subs, orders, kpis, series, topShops } = useDashboardMetrics(range);
+  const [extraOpen, setExtraOpen] = useState(false);
+  const [chartTab, setChartTab] = useState<"revenue" | "shops" | "users">("revenue");
+  const [tableSearch, setTableSearch] = useState("");
+  const [tablePage, setTablePage] = useState(0);
+  const PAGE_SIZE = 10;
 
   const downloadShops = useCallback(async () => {
     const rows = shops.map((s) => ({
@@ -175,18 +186,26 @@ export default function AdminDashboard() {
 
   const today = new Date().toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
+  const filteredShops = useMemo(() => {
+    const q = tableSearch.trim().toLowerCase();
+    return q ? topShops.filter((s) => s.name?.toLowerCase().includes(q)) : topShops;
+  }, [topShops, tableSearch]);
+  const pageCount = Math.max(1, Math.ceil(filteredShops.length / PAGE_SIZE));
+  const safePage = Math.min(tablePage, pageCount - 1);
+  const pagedShops = filteredShops.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+
   return (
-    <div className="space-y-6" dir="rtl">
-      {/* Header */}
-      <div className="flex items-end justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold flex items-center gap-3 text-foreground">
-            <span className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] shadow-[0_0_24px_-6px_hsl(28_90%_55%/0.6)]">
-              <BarChart3 className="w-6 h-6 text-white" />
-            </span>
-            Tableau de bord
-          </h1>
-          <p className="text-sm text-muted-foreground mt-2 ms-14">{today}</p>
+    <div className="space-y-4" dir="rtl">
+      {/* Sticky filter / actions bar */}
+      <div className="sticky top-0 z-30 -mx-4 px-4 py-2.5 backdrop-blur bg-[hsl(220_30%_4%/0.85)] border-b border-[hsl(220_20%_14%)] flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] shadow-[0_0_18px_-6px_hsl(28_90%_55%/0.6)] shrink-0">
+            <BarChart3 className="w-4 h-4 text-white" />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-base md:text-lg font-bold text-foreground leading-tight truncate">Tableau de bord</h1>
+            <p className="text-[11px] text-muted-foreground truncate">{today}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <DateRangeFilter value={range} onChange={setRange} />
@@ -207,7 +226,7 @@ export default function AdminDashboard() {
             </DropdownMenuContent>
           </DropdownMenu>
           <Link to="/owner/subscriptions">
-            <Button className="h-9 rounded-xl bg-gradient-to-r from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] hover:opacity-90 text-white font-bold px-4 shadow-[0_8px_24px_-8px_hsl(28_90%_55%/0.6)]">
+            <Button className="h-9 rounded-lg bg-gradient-to-r from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] hover:opacity-90 text-white font-bold px-3.5 shadow-[0_8px_24px_-8px_hsl(28_90%_55%/0.6)]">
               الاشتراكات
             </Button>
           </Link>
@@ -221,45 +240,87 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Big KPI grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-        <BigStat label="إجمالي الطلبات (الفترة)" value={kpis.totalOrders} icon={FileText} tone="blue" loading={loading} />
-        <BigStat label="موظفون نشطون" value={kpis.activeEmployees} icon={Users} tone="orange" loading={loading} />
-        <BigStat label="طلبات قيد التنفيذ" value={kpis.activeOrders} icon={Zap} tone="green" loading={loading} />
-        <BigStat label="طلبات قيد الانتظار" value={kpis.waitingOrders} icon={Package} tone="purple" loading={loading} />
-        <BigStat label="طلبات مكتملة" value={kpis.completedOrders} icon={Package} tone="cyan" loading={loading} />
-        <BigStat label="اشتراكات نشطة" value={kpis.activeSubs} icon={Crown} tone="yellow" loading={loading} />
-        <BigStat label="مستخدمون مرتبطون" value={kpis.totalUsers} icon={CreditCard} tone="pink" loading={loading} />
-        <BigStat label="إيرادات (MRR)" value={`${kpis.mrr.toLocaleString()} د.م`} icon={DollarSign} tone="green" loading={loading} />
+      {/* Primary KPIs (top 6) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3">
         <BigStat label="إيرادات الفترة" value={`${kpis.revenueRange.toLocaleString()} د.م`} icon={DollarSign} tone="cyan" loading={loading} />
-        <BigStat label="إجمالي المتاجر" value={kpis.totalShops} icon={Building2} tone="blue" loading={loading} />
+        <BigStat label="إيرادات (MRR)" value={`${kpis.mrr.toLocaleString()} د.م`} icon={DollarSign} tone="green" loading={loading} />
+        <BigStat label="إجمالي الطلبات (الفترة)" value={kpis.totalOrders} icon={FileText} tone="blue" loading={loading} />
+        <BigStat label="طلبات قيد التنفيذ" value={kpis.activeOrders} icon={Zap} tone="orange" loading={loading} />
+        <BigStat label="اشتراكات نشطة" value={kpis.activeSubs} icon={Crown} tone="yellow" loading={loading} />
+        <BigStat label="إجمالي المتاجر" value={kpis.totalShops} icon={Building2} tone="purple" loading={loading} />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5">
-          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><DollarSign className="w-4 h-4 text-[hsl(152_70%_55%)]" /> إيرادات الطلبات المكتملة</h3>
-          {loading ? <div className="h-[240px] rounded-xl skeleton-shimmer" /> : <RevenueChart data={series.revenue} />}
-        </div>
+      {/* Additional KPIs (collapsible) */}
+      <Collapsible open={extraOpen} onOpenChange={setExtraOpen}>
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="outline"
+            className="h-9 w-full justify-between rounded-lg border-[hsl(220_20%_16%)] bg-[hsl(220_25%_9%)] text-sm font-medium text-foreground hover:bg-[hsl(220_25%_11%)]"
+            aria-expanded={extraOpen}
+          >
+            <span className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[hsl(28_95%_65%)]" />
+              مؤشرات إضافية ({4})
+            </span>
+            {extraOpen ? <ChevronUp className="w-4 h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <BigStat label="موظفون نشطون" value={kpis.activeEmployees} icon={Users} tone="orange" loading={loading} />
+            <BigStat label="طلبات قيد الانتظار" value={kpis.waitingOrders} icon={Package} tone="purple" loading={loading} />
+            <BigStat label="طلبات مكتملة" value={kpis.completedOrders} icon={Package} tone="cyan" loading={loading} />
+            <BigStat label="مستخدمون مرتبطون" value={kpis.totalUsers} icon={CreditCard} tone="pink" loading={loading} />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
-        <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5">
-          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-[hsl(210_95%_65%)]" /> متاجر جديدة</h3>
-          {loading ? <div className="h-[240px] rounded-xl skeleton-shimmer" /> : <ShopsChart data={series.shopsB} />}
-        </div>
-
-        <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5 lg:col-span-2">
-          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-[hsl(280_80%_70%)]" /> أعضاء جدد</h3>
-          {loading ? <div className="h-[220px] rounded-xl skeleton-shimmer" /> : <UsersChart data={series.usersB} />}
-        </div>
+      {/* Charts (tabbed) */}
+      <div className="rounded-xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-4">
+        <Tabs value={chartTab} onValueChange={(v) => setChartTab(v as any)}>
+          <TabsList className="bg-[hsl(220_25%_11%)] border border-[hsl(220_20%_16%)] h-9">
+            <TabsTrigger value="revenue" className="text-xs gap-1.5 data-[state=active]:bg-[hsl(28_90%_55%/0.18)] data-[state=active]:text-[hsl(28_95%_75%)]">
+              <DollarSign className="w-3.5 h-3.5" /> الإيرادات
+            </TabsTrigger>
+            <TabsTrigger value="shops" className="text-xs gap-1.5 data-[state=active]:bg-[hsl(210_95%_55%/0.18)] data-[state=active]:text-[hsl(210_95%_75%)]">
+              <Building2 className="w-3.5 h-3.5" /> المتاجر
+            </TabsTrigger>
+            <TabsTrigger value="users" className="text-xs gap-1.5 data-[state=active]:bg-[hsl(280_80%_65%/0.18)] data-[state=active]:text-[hsl(280_80%_80%)]">
+              <Users className="w-3.5 h-3.5" /> الأعضاء
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="revenue" className="mt-3">
+            {loading ? <div className="h-[200px] rounded-xl skeleton-shimmer" /> : <RevenueChart data={series.revenue} />}
+          </TabsContent>
+          <TabsContent value="shops" className="mt-3">
+            {loading ? <div className="h-[200px] rounded-xl skeleton-shimmer" /> : <ShopsChart data={series.shopsB} />}
+          </TabsContent>
+          <TabsContent value="users" className="mt-3">
+            {loading ? <div className="h-[200px] rounded-xl skeleton-shimmer" /> : <UsersChart data={series.usersB} />}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Top shops + insights */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5 lg:col-span-2">
-          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Crown className="w-4 h-4 text-[hsl(48_95%_60%)]" /> أفضل المتاجر أداءً (في الفترة)</h3>
-          <div className="overflow-x-auto">
+        <div className="rounded-xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-4 lg:col-span-2">
+          <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+            <h3 className="font-bold text-foreground flex items-center gap-2 text-sm">
+              <Crown className="w-4 h-4 text-[hsl(48_95%_60%)]" /> أفضل المتاجر أداءً (في الفترة)
+            </h3>
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={tableSearch}
+                onChange={(e) => { setTableSearch(e.target.value); setTablePage(0); }}
+                placeholder="بحث..."
+                className="h-8 w-40 pr-8 text-xs bg-[hsl(220_25%_11%)] border-[hsl(220_20%_16%)]"
+              />
+            </div>
+          </div>
+          <div className="max-h-[420px] overflow-auto rounded-lg border border-[hsl(220_20%_14%)]">
             <table className="w-full text-sm">
-              <thead className="text-muted-foreground text-xs uppercase">
+              <thead className="text-muted-foreground text-[10px] uppercase sticky top-0 bg-[hsl(220_25%_9%)] z-10">
                 <tr className="border-b border-[hsl(220_20%_16%)]">
                   <th className="text-right py-2 px-2">#</th>
                   <th className="text-right py-2 px-2">المتجر</th>
@@ -270,30 +331,30 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {topShops.length === 0 ? (
+                {pagedShops.length === 0 ? (
                   <tr><td colSpan={6} className="text-center py-6 text-muted-foreground">لا توجد بيانات في هذه الفترة</td></tr>
-                ) : topShops.map((s, i) => (
+                ) : pagedShops.map((s, i) => (
                   <tr key={s.id} className="border-b border-[hsl(220_20%_14%)] hover:bg-[hsl(220_25%_11%)] transition">
-                    <td className="py-3 px-2 font-bold text-[hsl(28_95%_65%)]">{i+1}</td>
-                    <td className="py-3 px-2 font-medium text-foreground">{s.name}</td>
-                    <td className="py-3 px-2 tabular-nums">{s.count}</td>
-                    <td className="py-3 px-2 tabular-nums font-bold text-[hsl(152_70%_55%)]">{s.revenue.toLocaleString()} د.م</td>
-                    <td className="py-3 px-2">
+                    <td className="py-2 px-2 font-bold text-[hsl(28_95%_65%)] text-xs">{safePage * PAGE_SIZE + i + 1}</td>
+                    <td className="py-2 px-2 font-medium text-foreground text-xs">{s.name}</td>
+                    <td className="py-2 px-2 tabular-nums text-xs">{s.count}</td>
+                    <td className="py-2 px-2 tabular-nums font-bold text-[hsl(152_70%_55%)] text-xs">{s.revenue.toLocaleString()} د.م</td>
+                    <td className="py-2 px-2">
                       {s.suspended ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] bg-red-500/10 text-red-400 border border-red-500/30">مجمّد</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] bg-red-500/10 text-red-400 border border-red-500/30">مجمّد</span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] bg-green-500/10 text-green-400 border border-green-500/30">نشط</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] bg-green-500/10 text-green-400 border border-green-500/30">نشط</span>
                       )}
                     </td>
-                    <td className="py-3 px-2">
+                    <td className="py-2 px-2">
                       <div className="flex items-center justify-center gap-1">
-                        <Link to={`/owner/shops?focus=${s.id}`}>
-                          <Button size="sm" variant="outline" className="h-8 gap-1">
+                        <Link to={`/owner/shops?focus=${s.id}`} aria-label={`عرض ${s.name}`}>
+                          <Button size="sm" variant="outline" className="h-7 gap-1 px-2 text-[11px]">
                             <Eye className="w-3 h-3" /> عرض
                           </Button>
                         </Link>
-                        <Link to={`/owner/shops?suspend=${s.id}`}>
-                          <Button size="sm" variant={s.suspended ? "default" : "outline"} className="h-8 gap-1">
+                        <Link to={`/owner/shops?suspend=${s.id}`} aria-label={s.suspended ? `تفعيل ${s.name}` : `تجميد ${s.name}`}>
+                          <Button size="sm" variant={s.suspended ? "default" : "outline"} className="h-7 gap-1 px-2 text-[11px]">
                             {s.suspended ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
                             {s.suspended ? "تفعيل" : "تجميد"}
                           </Button>
@@ -305,16 +366,25 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {filteredShops.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+              <span>صفحة {safePage + 1} من {pageCount} — {filteredShops.length} عنصر</span>
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]" disabled={safePage === 0} onClick={() => setTablePage((p) => Math.max(0, p - 1))}>السابق</Button>
+                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]" disabled={safePage >= pageCount - 1} onClick={() => setTablePage((p) => Math.min(pageCount - 1, p + 1))}>التالي</Button>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="rounded-2xl bg-gradient-to-br from-[hsl(28_90%_55%/0.12)] to-[hsl(15_90%_50%/0.05)] border border-[hsl(28_90%_55%/0.3)] p-5">
+        <div className="rounded-xl bg-gradient-to-br from-[hsl(28_90%_55%/0.12)] to-[hsl(15_90%_50%/0.05)] border border-[hsl(28_90%_55%/0.3)] p-4">
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-5 h-5 text-[hsl(28_95%_65%)]" />
-            <h3 className="font-bold text-foreground">رؤى ذكية</h3>
+            <Sparkles className="w-4 h-4 text-[hsl(28_95%_65%)]" />
+            <h3 className="font-bold text-foreground text-sm">رؤى ذكية</h3>
           </div>
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2 text-xs">
             {insights.map((ins, i) => (
-              <li key={i} className="p-3 rounded-xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] text-foreground/90">{ins}</li>
+              <li key={i} className="p-2.5 rounded-lg bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] text-foreground/90 leading-relaxed">{ins}</li>
             ))}
           </ul>
         </div>
