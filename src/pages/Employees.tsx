@@ -4,7 +4,7 @@ import { Employee } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Edit, Sliders, Download } from "lucide-react";
@@ -32,14 +32,19 @@ export default function Employees() {
     if (!form.name || !form.phone || !form.role) { toast.error(t("common.fillRequired")); return; }
     const targetBranchId = form.branchId || branchId;
     if (!targetBranchId) { toast.error(t("common.fillRequired")); return; }
-    if (editing) {
-      await updateEmployee(editing.id, { ...form, branchId: targetBranchId });
-      toast.success(t("employees.employeeUpdated"));
-    } else {
-      await addEmployee({ name: form.name, phone: form.phone, role: form.role, roleType: form.roleType, branchId: targetBranchId, isActive: true });
-      toast.success(t("employees.employeeAdded"));
+    try {
+      if (editing) {
+        await updateEmployee(editing.id, { ...form, branchId: targetBranchId });
+        toast.success(t("employees.employeeUpdated"));
+      } else {
+        await addEmployee({ name: form.name, phone: form.phone, role: form.role, roleType: form.roleType, branchId: targetBranchId, isActive: true });
+        toast.success(t("employees.employeeAdded"));
+      }
+      resetForm();
+    } catch (err: any) {
+      console.error("Employee save error:", err);
+      toast.error(err?.message || "فشل حفظ الموظف");
     }
-    resetForm();
   };
 
   const resetForm = () => { setForm({ name: "", phone: "", role: "", roleType: "employee", branchId: "" }); setEditing(null); setDialogOpen(false); };
@@ -76,6 +81,9 @@ export default function Employees() {
           <DialogTrigger asChild><Button className="lavage-btn"><Plus className="w-4 h-4 mx-2" />{t("employees.newEmployee")}</Button></DialogTrigger>
           <DialogContent className="bg-card border-border">
             <DialogHeader><DialogTitle>{editing ? t("employees.editEmployee") : t("employees.addNew")}</DialogTitle></DialogHeader>
+            <DialogDescription className="sr-only">
+              {editing ? "تعديل بيانات الموظف" : "إضافة موظف جديد"}
+            </DialogDescription>
             <div className="space-y-4">
               <Input placeholder={t("common.name")} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
               <Input placeholder={t("common.phone")} value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
