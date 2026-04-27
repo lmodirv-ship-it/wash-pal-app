@@ -43,6 +43,7 @@ const AdminPricingPlans = lazy(() => import("./pages/AdminPricingPlans"));
 const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const AdminApiKeys = lazy(() => import("./pages/AdminApiKeys"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const RoleAuditLogs = lazy(() => import("./pages/RoleAuditLogs"));
 const Entries = lazy(() => import("./pages/Entries"));
 const SupervisorProspecting = lazy(() => import("./pages/SupervisorProspecting"));
 const MessageTemplates = lazy(() => import("./pages/MessageTemplates"));
@@ -143,6 +144,7 @@ const App = () => (
               <Route path="/admin/leads" element={<AdminLeads />} />
               <Route path="/admin/api-keys" element={<AdminApiKeys />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/audit-logs" element={<RoleAuditLogs />} />
             </Route>
 
             {/* Manager / Supervisor / Admin */}
