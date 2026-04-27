@@ -42,6 +42,7 @@ const groups: { label: string; items: { title: string; url: string; icon: string
     label: "الأمان والامتثال",
     items: [
       { title: "الأمان", url: "/owner/security", icon: iconSecurity },
+      { title: "الجلسات النشطة", url: "/owner/security/sessions", icon: iconUsers },
       { title: "نشاط النظام", url: "/owner/activity", icon: iconSecurity },
       { title: "سجل التدقيق", url: "/owner/audit-logs", icon: iconRoleAudit },
       { title: "تصدير البيانات", url: "/owner/exports", icon: iconExports },
