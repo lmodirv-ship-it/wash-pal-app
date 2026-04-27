@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks, Coins, Hash } from "lucide-react";
+import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks, Coins, Hash, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
@@ -266,39 +266,101 @@ export default function EmployeeApp() {
         {saving ? t("common.saving") : t("employeeApp.saveOrder")}
       </Button>
 
-        <DailyOrdersTable orders={orders} services={shopServices} myName={myName} branchId={currentBranch?.id} locale={i18n.language === "ar" ? "ar-MA" : "fr-FR"} />
+        <WorkEntriesTable services={shopServices} myName={myName} branchId={currentBranch?.id} locale={i18n.language === "ar" ? "ar-MA" : "fr-FR"} />
       </div>
     </div>
   );
 }
 
-function DailyOrdersTable({
-  orders, services, myName, branchId, locale,
+function WorkEntriesTable({
+  services, myName, branchId, locale,
 }: {
-  orders: ReturnType<typeof useApp>["orders"];
   services: ReturnType<typeof useApp>["services"];
   myName: string; branchId?: string; locale: string;
 }) {
   const { t, i18n } = useTranslation();
-  const todayOrders = useMemo(() => {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    return orders.filter(o => {
-      if (o.employeeName !== myName) return false;
-      if (branchId && o.branchId !== branchId) return false;
-      return new Date(o.createdAt) >= today;
-    });
-  }, [orders, myName, branchId]);
+  const { orders, updateOrder } = useApp();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "in_progress" | "completed" | "cancelled" | "waiting">("all");
+  const [dateFilter, setDateFilter] = useState<"today" | "week" | "all">("today");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
 
-  const totalRevenue = todayOrders.reduce((sum, o) => sum + o.totalPrice, 0);
-  const serviceName = (id: string) => { const sv = services.find(s => s.id === id); return sv ? getServiceName(sv, i18n.language) : "—"; };
+  const serviceName = (id: string) => {
+    const sv = services.find((s) => s.id === id);
+    return sv ? getServiceName(sv, i18n.language) : "—";
+  };
+  const serviceDuration = (id: string) => services.find((s) => s.id === id)?.duration ?? 0;
+
+  const myOrders = useMemo(() => {
+    const now = Date.now();
+    return orders
+      .filter((o) => o.employeeName === myName)
+      .filter((o) => (branchId ? o.branchId === branchId : true))
+      .filter((o) => {
+        if (dateFilter === "all") return true;
+        const t = new Date(o.startAt || o.createdAt).getTime();
+        if (dateFilter === "today") {
+          const d = new Date(); d.setHours(0, 0, 0, 0);
+          return t >= d.getTime();
+        }
+        return t >= now - 7 * 24 * 60 * 60 * 1000;
+      })
+      .filter((o) => (statusFilter === "all" ? true : o.status === statusFilter))
+      .filter((o) => {
+        if (!search.trim()) return true;
+        const q = search.trim().toLowerCase();
+        if ((o.reference || "").toLowerCase().includes(q)) return true;
+        return o.services.some((sid) => serviceName(sid).toLowerCase().includes(q));
+      })
+      .sort((a, b) => new Date(b.startAt || b.createdAt).getTime() - new Date(a.startAt || a.createdAt).getTime());
+  }, [orders, myName, branchId, statusFilter, dateFilter, search, services, i18n.language]);
+
+  const totalPages = Math.max(1, Math.ceil(myOrders.length / PAGE_SIZE));
+  const pageRows = myOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalRevenue = myOrders.filter((o) => o.status === "completed").reduce((s, o) => s + o.totalPrice, 0);
+
+  const fmtDateTime = (iso?: string) => {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return d.toLocaleString(locale, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  };
+  const fmtTime = (iso?: string) => {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const statusColor = (s: string) => {
+    switch (s) {
+      case "completed": return "bg-success/20 text-success border-success/40";
+      case "in_progress": return "bg-primary/20 text-primary border-primary/40";
+      case "cancelled": return "bg-destructive/20 text-destructive border-destructive/40";
+      default: return "bg-muted text-muted-foreground border-border";
+    }
+  };
+  const statusLabel = (s: string) => {
+    if (s === "completed") return t("employeeApp.statusCompleted", { defaultValue: "مكتمل" });
+    if (s === "in_progress") return t("employeeApp.statusInProgress", { defaultValue: "جارٍ" });
+    if (s === "cancelled") return t("employeeApp.statusCancelled", { defaultValue: "ملغى" });
+    return t("employeeApp.statusWaiting", { defaultValue: "قيد الانتظار" });
+  };
+
+  const handleComplete = async (id: string) => {
+    try { await updateOrder(id, { status: "completed", completedAt: new Date().toISOString() }); toast.success(t("employeeApp.markedCompleted", { defaultValue: "تم إكمال العملية" })); }
+    catch (e: any) { toast.error(e?.message || "Error"); }
+  };
+  const handleCancel = async (id: string) => {
+    try { await updateOrder(id, { status: "cancelled" }); toast.success(t("employeeApp.markedCancelled", { defaultValue: "تم إلغاء العملية" })); }
+    catch (e: any) { toast.error(e?.message || "Error"); }
+  };
 
   return (
     <Card className="p-3 rounded-2xl shadow-soft">
-      <div className="flex items-center justify-between mb-3 px-1">
+      <div className="flex items-center justify-between mb-3 px-1 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <ListChecks className="w-4 h-4 text-primary" />
-          <h3 className="font-bold text-sm">{t("employeeApp.myWorkToday")}</h3>
-          <Badge variant="secondary" className="text-[10px]">{todayOrders.length}</Badge>
+          <h3 className="font-bold text-sm">{t("employeeApp.workEntries", { defaultValue: "سجل العمليات" })}</h3>
+          <Badge variant="secondary" className="text-[10px]">{myOrders.length}</Badge>
         </div>
         <div className="flex items-center gap-1 text-success font-bold text-sm">
           <Coins className="w-4 h-4" />
@@ -306,39 +368,123 @@ function DailyOrdersTable({
         </div>
       </div>
 
-      {todayOrders.length === 0 ? (
-        <p className="text-center text-xs text-muted-foreground py-6">{t("employeeApp.noOrdersToday")}</p>
-      ) : (
-        <div className="overflow-x-auto -mx-1">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-start text-[10px] h-8 px-2"><Hash className="w-3 h-3 inline" /></TableHead>
-                <TableHead className="text-start text-[10px] h-8 px-2">{t("employeeApp.time")}</TableHead>
-                <TableHead className="text-start text-[10px] h-8 px-2">{t("orders.plate")}</TableHead>
-                <TableHead className="text-start text-[10px] h-8 px-2">{t("employeeApp.car")}</TableHead>
-                <TableHead className="text-start text-[10px] h-8 px-2">{t("employeeApp.service")}</TableHead>
-                <TableHead className="text-start text-[10px] h-8 px-2">{t("common.price")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {todayOrders.map((o, idx) => (
-                <TableRow key={o.id}>
-                  <TableCell className="text-[11px] px-2 py-1.5 text-muted-foreground">{todayOrders.length - idx}</TableCell>
-                  <TableCell className="text-[11px] px-2 py-1.5 whitespace-nowrap">
-                    {new Date(o.createdAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
-                  </TableCell>
-                  <TableCell className="text-[11px] px-2 py-1.5 font-bold">{o.carPlate}</TableCell>
-                  <TableCell className="text-[11px] px-2 py-1.5 max-w-[120px] truncate">{o.carType}</TableCell>
-                  <TableCell className="text-[11px] px-2 py-1.5 max-w-[140px] truncate">
-                    {o.services.map(serviceName).join(", ")}
-                  </TableCell>
-                  <TableCell className="text-[11px] px-2 py-1.5 font-bold text-primary whitespace-nowrap">{o.totalPrice} DH</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      {/* Filters */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
+        <div className="relative">
+          <Search className="w-4 h-4 absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder={t("employeeApp.searchRefOrService", { defaultValue: "بحث بالمرجع أو اسم الخدمة..." })}
+            className="ps-9 h-9 text-xs"
+          />
         </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value as any); setPage(1); }}
+          className="h-9 rounded-md border border-input bg-background px-3 text-xs"
+        >
+          <option value="all">{t("employeeApp.allStatuses", { defaultValue: "كل الحالات" })}</option>
+          <option value="in_progress">{statusLabel("in_progress")}</option>
+          <option value="completed">{statusLabel("completed")}</option>
+          <option value="cancelled">{statusLabel("cancelled")}</option>
+          <option value="waiting">{statusLabel("waiting")}</option>
+        </select>
+        <select
+          value={dateFilter}
+          onChange={(e) => { setDateFilter(e.target.value as any); setPage(1); }}
+          className="h-9 rounded-md border border-input bg-background px-3 text-xs"
+        >
+          <option value="today">{t("employeeApp.dateToday", { defaultValue: "اليوم" })}</option>
+          <option value="week">{t("employeeApp.dateWeek", { defaultValue: "آخر 7 أيام" })}</option>
+          <option value="all">{t("employeeApp.dateAll", { defaultValue: "الكل" })}</option>
+        </select>
+      </div>
+
+      {pageRows.length === 0 ? (
+        <p className="text-center text-xs text-muted-foreground py-6">
+          {t("employeeApp.noEntries", { defaultValue: "لا توجد عمليات." })}
+        </p>
+      ) : (
+        <>
+          <div className="overflow-x-auto -mx-1">
+            <Table className="min-w-[1100px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap"><Hash className="w-3 h-3 inline me-1" />Ref</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.service", { defaultValue: "الخدمة" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.car", { defaultValue: "السيارة" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.employee", { defaultValue: "الموظف" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.startAt", { defaultValue: "البداية" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.expectedEnd", { defaultValue: "نهاية متوقعة" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.actualEnd", { defaultValue: "نهاية فعلية" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.duration", { defaultValue: "المدة" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("common.price", { defaultValue: "السعر" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.status", { defaultValue: "الحالة" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.notes", { defaultValue: "ملاحظات" })}</TableHead>
+                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("common.actions", { defaultValue: "إجراء" })}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pageRows.map((o) => {
+                  const sid = o.services[0];
+                  const dur = sid ? serviceDuration(sid) : 0;
+                  return (
+                    <TableRow key={o.id}>
+                      <TableCell className="text-[11px] px-2 py-1.5 font-mono font-bold whitespace-nowrap">{o.reference || "—"}</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 max-w-[180px] truncate">{o.services.map(serviceName).join(", ")}</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 max-w-[140px] truncate">
+                        <span className="font-bold">{o.carPlate}</span>
+                        <span className="text-muted-foreground"> · {o.carType}</span>
+                      </TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 max-w-[120px] truncate">{o.employeeName || "—"}</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 whitespace-nowrap">{fmtDateTime(o.startAt || o.createdAt)}</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 whitespace-nowrap">{fmtTime(o.expectedEndAt)}</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 whitespace-nowrap">{fmtTime(o.completedAt)}</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 whitespace-nowrap">{dur > 0 ? `${dur}m` : "—"}</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 font-bold text-primary whitespace-nowrap">{o.totalPrice} DH</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5">
+                        <Badge variant="outline" className={`text-[10px] ${statusColor(o.status)}`}>{statusLabel(o.status)}</Badge>
+                      </TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 max-w-[140px] truncate text-muted-foreground">{o.notes || "—"}</TableCell>
+                      <TableCell className="text-[11px] px-2 py-1.5 whitespace-nowrap">
+                        {o.status !== "completed" && o.status !== "cancelled" ? (
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="default" className="h-7 px-2 text-[10px]" onClick={() => handleComplete(o.id)}>
+                              <Check className="w-3 h-3 me-1" />{t("employeeApp.complete", { defaultValue: "إكمال" })}
+                            </Button>
+                            <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={() => handleCancel(o.id)}>
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-3 px-1">
+              <span className="text-[11px] text-muted-foreground">
+                {t("common.page", { defaultValue: "صفحة" })} {page} / {totalPages}
+              </span>
+              <div className="flex gap-1">
+                <Button size="sm" variant="outline" className="h-8 px-2" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                  <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+                </Button>
+                <Button size="sm" variant="outline" className="h-8 px-2" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                  <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </Card>
   );
