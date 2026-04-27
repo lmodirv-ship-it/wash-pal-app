@@ -19,12 +19,14 @@ import iconDatabase from "@/assets/icons/owner/database.png";
 import iconNotifications from "@/assets/icons/owner/notifications.png";
 import iconApiKeys from "@/assets/icons/owner/api-keys.png";
 import iconSettings from "@/assets/icons/owner/settings.png";
+// Reuse existing icons for new entries (no new asset deletion).
 
 const groups: { label: string; items: { title: string; url: string; icon: string }[] }[] = [
   {
     label: "نظرة عامة",
     items: [
       { title: "لوحة التحكم", url: "/owner", icon: iconDashboard },
+      { title: "الطلبات المباشرة", url: "/owner/live-orders", icon: iconActivity },
     ],
   },
   {
@@ -40,7 +42,8 @@ const groups: { label: string; items: { title: string; url: string; icon: string
     label: "الأمان والامتثال",
     items: [
       { title: "الأمان", url: "/owner/security", icon: iconSecurity },
-      { title: "سجل التدقيق", url: "/owner/activity", icon: iconActivity },
+      { title: "النشاط", url: "/owner/activity", icon: iconActivity },
+      { title: "سجل التدقيق", url: "/owner/audit-logs", icon: iconRoleAudit },
       { title: "تصدير البيانات", url: "/owner/exports", icon: iconExports },
     ],
   },
@@ -49,6 +52,7 @@ const groups: { label: string; items: { title: string; url: string; icon: string
     items: [
       { title: "الاشتراكات", url: "/owner/subscriptions", icon: iconSubscriptions },
       { title: "خطط الأسعار", url: "/owner/pricing-plans", icon: iconPricing },
+      { title: "الفواتير", url: "/owner/invoices", icon: iconExports },
       { title: "العملاء المحتملون", url: "/owner/leads", icon: iconLeads },
     ],
   },
