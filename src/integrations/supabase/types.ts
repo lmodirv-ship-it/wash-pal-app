@@ -1060,6 +1060,7 @@ export type Database = {
           reference: string | null
           shop_id: string
           starting_from: boolean
+          updated_at: string
         }
         Insert: {
           category?: string
@@ -1079,6 +1080,7 @@ export type Database = {
           reference?: string | null
           shop_id: string
           starting_from?: boolean
+          updated_at?: string
         }
         Update: {
           category?: string
@@ -1098,6 +1100,7 @@ export type Database = {
           reference?: string | null
           shop_id?: string
           starting_from?: boolean
+          updated_at?: string
         }
         Relationships: [
           {
@@ -1543,6 +1546,7 @@ export type Database = {
           reference: string | null
           shop_id: string
           starting_from: boolean
+          updated_at: string
         }[]
         SetofOptions: {
           from: "*"
@@ -1583,6 +1587,19 @@ export type Database = {
           _old_value?: Json
           _target_id: string
           _target_type: string
+        }
+        Returns: string
+      }
+      log_owner_action_v2: {
+        Args: {
+          _action: string
+          _ip?: string
+          _metadata?: Json
+          _new_value?: Json
+          _old_value?: Json
+          _target_id: string
+          _target_type: string
+          _user_agent?: string
         }
         Returns: string
       }

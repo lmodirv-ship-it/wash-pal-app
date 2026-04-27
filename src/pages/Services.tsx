@@ -61,14 +61,20 @@ export default function Services() {
       descriptionAr: form.descriptionAr, descriptionFr: form.descriptionFr, descriptionEn: form.descriptionEn,
       category: form.category, startingFrom: form.startingFrom,
     };
-    if (editing) {
-      await updateService(editing.id, payload);
-      toast.success(t("services.serviceUpdated"));
-    } else {
-      await addService({ ...payload, isActive: true });
-      toast.success(t("services.serviceAdded"));
+    try {
+      if (editing) {
+        await updateService(editing.id, payload);
+        toast.success(t("services.serviceUpdated"));
+      } else {
+        await addService({ ...payload, isActive: true });
+        toast.success(t("services.serviceAdded"));
+      }
+      resetForm();
+    } catch (e: any) {
+      const msg = e?.message || "";
+      // Surface backend cap (P0001) and any other DB error nicely
+      toast.error(msg || "تعذر حفظ الخدمة");
     }
-    resetForm();
   };
 
   const resetForm = () => {
@@ -104,12 +110,20 @@ export default function Services() {
     motor: services.filter(s => s.category === "motor").length,
   }), [services]);
 
+  const SERVICE_CAP = 60;
+  const activeCount = useMemo(() => services.filter((s) => s.isActive).length, [services]);
+  const atCap = activeCount >= SERVICE_CAP;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold">{t("services.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("services.subtitle")}</p>
+          <p className="text-sm text-muted-foreground">
+            {t("services.subtitle")} <span className="ms-2 inline-flex items-center rounded-full border border-border px-2 py-0.5 text-[10px] font-mono">
+              {activeCount} / {SERVICE_CAP}
+            </span>
+          </p>
         </div>
         {isAdmin && (
           <>
@@ -132,9 +146,22 @@ export default function Services() {
           >
             <Download className="w-4 h-4" /> تصدير CSV
           </Button>
-          <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
+          <Dialog open={dialogOpen} onOpenChange={(v) => {
+            if (!v) { resetForm(); return; }
+            if (!editing && atCap) {
+              toast.error(`بلغت الحد الأقصى (${SERVICE_CAP}). عطّل خدمة قبل إضافة جديدة.`);
+              return;
+            }
+            setDialogOpen(true);
+          }}>
             <DialogTrigger asChild>
-              <Button className="rounded-xl lavage-btn"><Plus className="w-4 h-4 mx-1" />{t("services.newService")}</Button>
+              <Button
+                className="rounded-xl lavage-btn"
+                disabled={atCap}
+                title={atCap ? `بلغت الحد الأقصى (${SERVICE_CAP})` : undefined}
+              >
+                <Plus className="w-4 h-4 mx-1" />{t("services.newService")}
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>{editing ? t("services.editService") : t("services.addNew")}</DialogTitle></DialogHeader>
