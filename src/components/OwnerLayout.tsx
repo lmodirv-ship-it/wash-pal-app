@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut, Crown } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ChangePasswordButton } from "@/components/ChangePasswordButton";
 
 export function OwnerLayout({ children }: { children: ReactNode }) {
   const { signOut, user } = useAuth();
@@ -35,6 +36,7 @@ export function OwnerLayout({ children }: { children: ReactNode }) {
               )}
 
               <NotificationBell />
+              <ChangePasswordButton variant="owner" />
 
               <Button
                 onClick={signOut}
