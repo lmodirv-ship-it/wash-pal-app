@@ -7,12 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit, Sliders, Download } from "lucide-react";
+import { Plus, Trash2, Edit, Sliders, Download, KeyRound, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { EmployeeServiceOverridesDialog } from "@/components/EmployeeServiceOverridesDialog";
 import { exportFromView } from "@/lib/exportCsv";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Label } from "@/components/ui/label";
 
 export default function Employees() {
   const { employees, branches, currentBranch, currentShopId, addEmployee, updateEmployee, deleteEmployee } = useApp();
@@ -23,6 +25,10 @@ export default function Employees() {
   const [editing, setEditing] = useState<Employee | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", role: "", roleType: "employee", branchId: "" });
   const [overridesFor, setOverridesFor] = useState<Employee | null>(null);
+  const [pwdFor, setPwdFor] = useState<Employee | null>(null);
+  const [pwdValue, setPwdValue] = useState("");
+  const [pwdEmail, setPwdEmail] = useState("");
+  const [pwdLoading, setPwdLoading] = useState(false);
 
   const branchId = currentBranch?.id || "";
   const branchEmployees = employees.filter((e) => e.branchId === branchId);
@@ -50,6 +56,38 @@ export default function Employees() {
   const resetForm = () => { setForm({ name: "", phone: "", role: "", roleType: "employee", branchId: "" }); setEditing(null); setDialogOpen(false); };
   const startEdit = (e: Employee) => { setForm({ name: e.name, phone: e.phone, role: e.role, roleType: e.roleType, branchId: e.branchId }); setEditing(e); setDialogOpen(true); };
   const toggleActive = async (e: Employee) => { await updateEmployee(e.id, { isActive: !e.isActive }); };
+
+  const openPwdDialog = (e: Employee) => {
+    setPwdFor(e);
+    setPwdValue("");
+    setPwdEmail("");
+  };
+
+  const submitPassword = async () => {
+    if (!pwdFor) return;
+    if (pwdValue.length < 6) { toast.error("كلمة السر يجب 6 أحرف على الأقل"); return; }
+    setPwdLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-set-employee-password", {
+        body: {
+          employee_id: pwdFor.id,
+          new_password: pwdValue,
+          email: pwdEmail.trim() || undefined,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast.success("تم تحديث كلمة سر الموظف");
+      setPwdFor(null);
+      setPwdValue("");
+      setPwdEmail("");
+    } catch (err: any) {
+      console.error("Set employee password error:", err);
+      toast.error(err?.message || "فشل تحديث كلمة السر");
+    } finally {
+      setPwdLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -141,6 +179,9 @@ export default function Employees() {
                     <Button variant="ghost" size="icon" onClick={() => setOverridesFor(e)} className="lavage-glow" title="خدمات الموظف">
                       <Sliders className="w-4 h-4" />
                     </Button>
+                    <Button variant="ghost" size="icon" onClick={() => openPwdDialog(e)} className="lavage-glow" title="تغيير كلمة السر">
+                      <KeyRound className="w-4 h-4 text-primary" />
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => startEdit(e)} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
                     <Button variant="ghost" size="icon" onClick={async () => { await deleteEmployee(e.id); toast.success(t("employees.employeeDeleted")); }} className="lavage-glow">
                       <Trash2 className="w-4 h-4 text-destructive" />
@@ -158,6 +199,57 @@ export default function Employees() {
         onOpenChange={(v) => { if (!v) setOverridesFor(null); }}
         employee={overridesFor}
       />
+
+      {/* Password Dialog */}
+      <Dialog open={!!pwdFor} onOpenChange={(v) => { if (!v) { setPwdFor(null); setPwdValue(""); setPwdEmail(""); } }}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-primary" />
+              تعيين كلمة سر للموظف
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {pwdFor?.name} — سيتم تحديث كلمة السر، أو إنشاء حساب جديد إذا لم يكن للموظف حساب بعد.
+          </DialogDescription>
+          <div className="space-y-3 pt-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="emp-email">البريد الإلكتروني (مطلوب فقط للحسابات الجديدة)</Label>
+              <Input
+                id="emp-email"
+                type="email"
+                value={pwdEmail}
+                onChange={(e) => setPwdEmail(e.target.value)}
+                placeholder="employee@example.com (اختياري)"
+                autoComplete="off"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                إذا كان الموظف لا يملك حساباً بعد ولم تُدخل بريداً، سيتم إنشاء بريد افتراضي تلقائياً.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="emp-pwd">كلمة السر الجديدة</Label>
+              <Input
+                id="emp-pwd"
+                type="text"
+                value={pwdValue}
+                onChange={(e) => setPwdValue(e.target.value)}
+                placeholder="6 أحرف على الأقل"
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setPwdFor(null)} disabled={pwdLoading}>
+                إلغاء
+              </Button>
+              <Button className="flex-1 lavage-btn" onClick={submitPassword} disabled={pwdLoading}>
+                {pwdLoading && <Loader2 className="w-4 h-4 ms-2 animate-spin" />}
+                حفظ
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
