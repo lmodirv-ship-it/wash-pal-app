@@ -241,7 +241,13 @@ export default function EmployeeApp() {
                 <p className="text-center text-sm text-muted-foreground py-6">{t("employeeApp.noServicesCat")}</p>
               ) : (
                 <div className="overflow-x-auto rounded-xl border border-border">
-                  <table dir="rtl" className="w-full text-sm border-collapse">
+                  <table dir="rtl" className="w-full text-sm border-collapse table-fixed">
+                    <colgroup>
+                      <col style={{ width: "48px" }} />
+                      <col />
+                      <col style={{ width: "90px" }} />
+                      <col style={{ width: "70px" }} />
+                    </colgroup>
                     <thead className="bg-muted/40">
                       <tr className="text-xs text-muted-foreground">
                         <th className="px-2 py-2 text-center w-12">{t("employeeApp.colSelect", { defaultValue: "اختيار" })}</th>
