@@ -3,15 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 // Must match the public.app_role enum in the database EXACTLY.
-export type AppRole = "admin" | "manager" | "supervisor" | "employee" | "customer";
+export type AppRole = "owner" | "admin" | "supervisor" | "manager" | "employee" | "customer";
 
-export const ALL_ROLES: AppRole[] = ["admin", "manager", "supervisor", "employee", "customer"];
+export const ALL_ROLES: AppRole[] = ["owner", "admin", "supervisor", "manager", "employee", "customer"];
 
 /** Highest-priority role first. Used to pick a "home" route. */
-export const ROLE_PRIORITY: AppRole[] = ["admin", "supervisor", "manager", "employee", "customer"];
+export const ROLE_PRIORITY: AppRole[] = ["owner", "admin", "supervisor", "manager", "employee", "customer"];
 
 export function homeForRole(role: AppRole | undefined): string {
   switch (role) {
+    case "owner": return "/admin";
     case "admin": return "/admin";
     case "supervisor":
     case "manager": return "/dashboard";
