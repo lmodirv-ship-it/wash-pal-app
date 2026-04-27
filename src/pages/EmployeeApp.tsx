@@ -85,7 +85,7 @@ export default function EmployeeApp() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <div className="max-w-2xl mx-auto px-3 py-3 space-y-3 pb-28">
         <EmployeeTopNav />
         <div className="text-center pt-1">
