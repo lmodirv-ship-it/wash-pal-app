@@ -210,25 +210,23 @@ export default function Employees() {
             </DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-sm text-muted-foreground">
-            {pwdFor?.name} — {pwdFor?.user_id ? "سيتم تحديث كلمة السر" : "سيتم إنشاء حساب جديد لهذا الموظف"}
+            {pwdFor?.name} — سيتم تحديث كلمة السر، أو إنشاء حساب جديد إذا لم يكن للموظف حساب بعد.
           </DialogDescription>
           <div className="space-y-3 pt-2">
-            {!pwdFor?.user_id && (
-              <div className="space-y-1.5">
-                <Label htmlFor="emp-email">البريد الإلكتروني للموظف</Label>
-                <Input
-                  id="emp-email"
-                  type="email"
-                  value={pwdEmail}
-                  onChange={(e) => setPwdEmail(e.target.value)}
-                  placeholder="employee@example.com (اختياري)"
-                  autoComplete="off"
-                />
-                <p className="text-[11px] text-muted-foreground">
-                  إذا تركته فارغاً، سيتم إنشاء بريد افتراضي للحساب.
-                </p>
-              </div>
-            )}
+            <div className="space-y-1.5">
+              <Label htmlFor="emp-email">البريد الإلكتروني (مطلوب فقط للحسابات الجديدة)</Label>
+              <Input
+                id="emp-email"
+                type="email"
+                value={pwdEmail}
+                onChange={(e) => setPwdEmail(e.target.value)}
+                placeholder="employee@example.com (اختياري)"
+                autoComplete="off"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                إذا كان الموظف لا يملك حساباً بعد ولم تُدخل بريداً، سيتم إنشاء بريد افتراضي تلقائياً.
+              </p>
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="emp-pwd">كلمة السر الجديدة</Label>
               <Input
