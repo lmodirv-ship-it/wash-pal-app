@@ -29,7 +29,6 @@ export default function EmployeeApp() {
     { id: "packs", label: t("services.cats.packs"), icon: Package, cls: "text-success" },
   ];
 
-  const [plate, setPlate] = useState("");
   const [carType, setCarType] = useState("");
   const [carSize, setCarSize] = useState<"normal" | "4x4" | "motor">("normal");
   const [serviceId, setServiceId] = useState<string>("");
@@ -54,7 +53,6 @@ export default function EmployeeApp() {
   const finalPrice = picked ? picked.price + (carSize === "4x4" ? SURCHARGE_4X4 : 0) : 0;
 
   const submit = async () => {
-    if (!plate.trim()) { toast.error(t("employeeApp.plateRequired")); return; }
     if (!carType.trim()) { toast.error(t("employeeApp.carTypeRequired")); return; }
     if (!picked) { toast.error(t("employeeApp.chooseServiceErr")); return; }
     if (!currentBranch) { toast.error(t("employeeApp.noBranch")); return; }
@@ -66,7 +64,7 @@ export default function EmployeeApp() {
         customerId: "",
         customerName: t("employeeApp.directCustomer"),
         carType: `${carType.trim()} (${sizeLabel})`,
-        carPlate: plate.trim().toUpperCase(),
+        carPlate: carType.trim().toUpperCase(),
         services: [picked.id],
         totalPrice: finalPrice,
         status: "in_progress",
@@ -75,7 +73,7 @@ export default function EmployeeApp() {
         notes: carSize === "4x4" ? `+${SURCHARGE_4X4} DH ${t("employeeApp.surchargeAdded")}` : carSize === "motor" ? t("employeeApp.motorcycle") : undefined,
       });
       toast.success(`${t("employeeApp.saved")} - ${finalPrice} DH`);
-      setPlate(""); setCarType(""); setServiceId(""); setCarSize("normal");
+      setCarType(""); setServiceId(""); setCarSize("normal");
     } catch (e: any) {
       toast.error(t("employeeApp.saveFailed") + ": " + (e?.message || ""));
     } finally {
@@ -90,18 +88,8 @@ export default function EmployeeApp() {
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
         <div>
           <Label className="text-sm font-semibold flex items-center gap-1.5 mb-2">
-            <Car className="w-4 h-4 text-primary" /> {t("employeeApp.carPlate")}
+            <Car className="w-4 h-4 text-primary" /> {t("employeeApp.carType")}
           </Label>
-          <Input
-            autoFocus
-            placeholder={t("employeeApp.plateExample")}
-            value={plate}
-            onChange={e => setPlate(e.target.value)}
-            className="h-12 text-lg font-bold text-center uppercase"
-          />
-        </div>
-        <div>
-          <Label className="text-sm font-semibold mb-2 block">{t("employeeApp.carType")}</Label>
           <div className="grid grid-cols-3 gap-1.5 mb-2">
             <button type="button" onClick={() => setCarSize("normal")}
               className={`h-11 rounded-lg text-xs font-bold border-2 transition-all flex items-center justify-center gap-1 ${
@@ -126,10 +114,11 @@ export default function EmployeeApp() {
             </button>
           </div>
           <Input
-            placeholder={carSize === "motor" ? t("employeeApp.placeholderMotor") : t("employeeApp.placeholderType")}
+            autoFocus
+            placeholder={carSize === "motor" ? t("employeeApp.placeholderMotor") : t("employeeApp.plateExample")}
             value={carType}
             onChange={e => setCarType(e.target.value)}
-            className="h-11 w-full"
+            className="h-12 w-full text-lg font-bold text-center uppercase"
           />
           {carSize === "4x4" && <p className="text-[11px] text-warning mt-1.5">{t("employeeApp.surchargeNote")}</p>}
           {carSize === "motor" && <p className="text-[11px] text-success mt-1.5">{t("employeeApp.motorNote")}</p>}
