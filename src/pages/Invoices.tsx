@@ -14,6 +14,13 @@ export default function Invoices() {
   const handlePrint = (inv: typeof branchInvoices[0]) => {
     const w = window.open("", "_blank");
     if (!w) return;
+    const esc = (s: unknown) =>
+      String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     w.document.write(`
       <html dir="${i18n.language === "ar" ? "rtl" : "ltr"}"><head><title>${t("invoices.invoiceTitle")} #${inv.id}</title>
       <style>body{font-family:Arial,sans-serif;padding:40px;max-width:600px;margin:auto;background:#0a0a0a;color:#fff}
@@ -21,11 +28,11 @@ export default function Invoices() {
       td,th{border:1px solid #333;padding:8px}th{background:#1a1a2e;color:#facc15}
       .total{font-size:1.2em;font-weight:bold;text-align:center;margin-top:20px;color:#facc15}</style></head>
       <body><h1>H&Lavage - ${t("invoices.invoiceTitle")}</h1>
-      <p>${t("invoices.customer")}: ${inv.customerName}</p>
+      <p>${t("invoices.customer")}: ${esc(inv.customerName)}</p>
       <p>${t("common.date")}: ${new Date(inv.createdAt).toLocaleDateString(locale)}</p>
       <table><tr><th>${t("orders.services")}</th><th>${t("common.price")}</th></tr>
-      ${inv.services.map((s) => `<tr><td>${s.name}</td><td>${s.price} DH</td></tr>`).join("")}
-      </table><p class="total">${t("common.total")}: ${inv.totalAmount} DH</p></body></html>
+      ${inv.services.map((s) => `<tr><td>${esc(s.name)}</td><td>${esc(s.price)} DH</td></tr>`).join("")}
+      </table><p class="total">${t("common.total")}: ${esc(inv.totalAmount)} DH</p></body></html>
     `);
     w.document.close();
     w.print();
