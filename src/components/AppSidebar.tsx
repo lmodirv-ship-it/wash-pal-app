@@ -105,6 +105,7 @@ export function AppSidebar() {
   ];
 
   const items =
+    role === "owner" ? adminItems :
     role === "admin" ? adminItems :
     role === "supervisor" ? supervisorItems :
     role === "manager" ? managerItems :
@@ -112,9 +113,10 @@ export function AppSidebar() {
 
   const refCode = (user?.id || "").replace(/-/g, "").slice(-7).toUpperCase() || "GUEST00";
   const roleLabel =
-    role === "admin" ? "Admin système" :
+    role === "owner" ? "Propriétaire plateforme" :
+    role === "admin" ? "Admin / Propriétaire magasin" :
     role === "supervisor" ? "صاحب المحل" :
-    role === "manager" ? "مسير" :
+    role === "manager" ? "Gérant / Manager" :
     role === "customer" ? "زبون" : t("common.employee");
 
   return (
