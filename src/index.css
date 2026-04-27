@@ -595,3 +595,34 @@
     animation: holo-shift 8s ease infinite;
   }
 }
+
+/* ============================================
+   Global button override — Electric blue glow
+   Applies to ALL buttons across every page.
+   Excludes: sidebar nav, icon-only utility buttons inside selects/popovers.
+   ============================================ */
+@layer components {
+  button:not([data-sidebar]):not([role="combobox"]):not([role="option"]):not([role="menuitem"]):not([role="tab"]):not([cmdk-item]) {
+    --btn-blue: 214 100% 58%;
+    --btn-blue-glow: 200 100% 70%;
+  }
+
+  /* Solid / primary-style buttons get blue background + glow */
+  button.bg-primary,
+  button[class*="bg-primary"]:not([class*="bg-primary/"]) {
+    background-color: hsl(var(--btn-blue, 214 100% 58%)) !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 1px hsl(var(--btn-blue, 214 100% 58%) / 0.4),
+                0 8px 24px -6px hsl(var(--btn-blue, 214 100% 58%) / 0.65) !important;
+  }
+  button.bg-primary:hover,
+  button[class*="bg-primary"]:not([class*="bg-primary/"]):hover {
+    background-color: hsl(210 100% 64%) !important;
+    box-shadow: 0 0 0 1px hsl(var(--btn-blue, 214 100% 58%) / 0.55),
+                0 10px 30px -6px hsl(var(--btn-blue, 214 100% 58%) / 0.85) !important;
+  }
+}
+@layer utilities {
+  /* Helper if you want to opt a button out: add class `btn-no-blue` */
+  button.btn-no-blue { background-color: revert !important; box-shadow: revert !important; }
+}
