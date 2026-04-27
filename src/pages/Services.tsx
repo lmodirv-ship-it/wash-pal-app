@@ -61,14 +61,20 @@ export default function Services() {
       descriptionAr: form.descriptionAr, descriptionFr: form.descriptionFr, descriptionEn: form.descriptionEn,
       category: form.category, startingFrom: form.startingFrom,
     };
-    if (editing) {
-      await updateService(editing.id, payload);
-      toast.success(t("services.serviceUpdated"));
-    } else {
-      await addService({ ...payload, isActive: true });
-      toast.success(t("services.serviceAdded"));
+    try {
+      if (editing) {
+        await updateService(editing.id, payload);
+        toast.success(t("services.serviceUpdated"));
+      } else {
+        await addService({ ...payload, isActive: true });
+        toast.success(t("services.serviceAdded"));
+      }
+      resetForm();
+    } catch (e: any) {
+      const msg = e?.message || "";
+      // Surface backend cap (P0001) and any other DB error nicely
+      toast.error(msg || "تعذر حفظ الخدمة");
     }
-    resetForm();
   };
 
   const resetForm = () => {
@@ -103,6 +109,10 @@ export default function Services() {
     packs: services.filter(s => s.category === "packs").length,
     motor: services.filter(s => s.category === "motor").length,
   }), [services]);
+
+  const SERVICE_CAP = 60;
+  const activeCount = useMemo(() => services.filter((s) => s.isActive).length, [services]);
+  const atCap = activeCount >= SERVICE_CAP;
 
   return (
     <div className="space-y-6">
