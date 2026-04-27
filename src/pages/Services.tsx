@@ -99,9 +99,16 @@ export default function Services() {
   };
 
   const filtered = useMemo(() => services
+    .filter(s => isOwner && ownerShopFilter !== "all" ? s.shopId === ownerShopFilter : true)
     .filter(s => getServiceName(s, lang).toLowerCase().includes(search.toLowerCase()))
     .filter(s => tab === "all" || s.category === tab),
-    [services, search, tab, lang]);
+    [services, search, tab, lang, isOwner, ownerShopFilter]);
+
+  const shopNameById = useMemo(() => {
+    const map: Record<string, string> = {};
+    tenantShops.forEach((sh: any) => { map[sh.id] = sh.name; });
+    return map;
+  }, [tenantShops]);
 
   const counts = useMemo(() => ({
     all: services.length,
