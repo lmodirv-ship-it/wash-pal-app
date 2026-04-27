@@ -67,6 +67,7 @@ const Coupons = lazy(() => import("./pages/Coupons"));
 const JoinShop = lazy(() => import("./pages/JoinShop"));
 const PendingApproval = lazy(() => import("./pages/PendingApproval"));
 const JoinRequests = lazy(() => import("./pages/JoinRequests"));
+const DataStatus = lazy(() => import("./pages/DataStatus"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -260,6 +261,7 @@ const App = () => (
               <Route path="/coupons" element={<Coupons />} />
               <Route path="/dashboard/join-requests" element={<JoinRequests />} />
               <Route path="/join-requests" element={<Navigate to="/dashboard/join-requests" replace />} />
+              <Route path="/data-status" element={<DataStatus />} />
             </Route>
 
             {/* Employee — fullscreen, no sidebar/layout */}

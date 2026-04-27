@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket, ShieldAlert, Key, ScrollText,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket, ShieldAlert, Key, ScrollText, Database,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -81,6 +81,7 @@ export function AppSidebar() {
     { title: "🎟️ كوبونات", url: "/coupons", icon: Ticket },
     { title: "📧 رسائل", url: "/templates", icon: Mail },
     { title: "🔍 تنقيب", url: "/prospecting", icon: Globe2 },
+    { title: t("ds.title"), url: "/data-status", icon: Database },
     { title: t("nav.settings"), url: "/settings", icon: Settings },
   ];
 
