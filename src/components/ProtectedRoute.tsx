@@ -29,12 +29,18 @@ export default function ProtectedRoute({ children, allowedRoles }: Props) {
   if (!user) return <Navigate to="/login" replace />;
   if (rolesLoading || roles === null) return <LoadingScreen />;
 
-  // Admin always passes
-  if (roles.includes("admin")) return <>{children}</>;
-
-  const hasAccess = roles.some((r) => allowedRoles.includes(r));
+  // Owner is the only role with implicit access to every protected route.
+  const isOwner = roles.includes("owner");
+  const hasAccess = isOwner || roles.some((r) => allowedRoles.includes(r));
   if (!hasAccess) {
-    return <Navigate to={homeForRole(pickPrimaryRole(roles))} replace />;
+    // For owner-only routes, send everyone else to the operational dashboard.
+    const ownerOnly = allowedRoles.length === 1 && allowedRoles[0] === "owner";
+    return (
+      <Navigate
+        to={ownerOnly ? "/dashboard" : homeForRole(pickPrimaryRole(roles))}
+        replace
+      />
+    );
   }
   return <>{children}</>;
 }
