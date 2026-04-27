@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-type ExportType = "services" | "employees" | "work_entries" | "shops" | "audit_logs";
+type ExportType = "services" | "employees" | "work_entries" | "shops" | "audit_logs" | "subscriptions";
 
 function csvCell(v: unknown): string {
   if (v === null || v === undefined) return "";
