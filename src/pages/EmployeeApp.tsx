@@ -114,7 +114,7 @@ export default function EmployeeApp() {
           <Popover>
             <PopoverTrigger asChild>
               <button type="button"
-                className="h-8 px-2.5 rounded-md text-[11px] font-bold border border-border bg-card text-foreground hover:border-primary/50 transition-all flex items-center gap-1">
+                className="h-8 px-2.5 rounded-md text-[11px] font-bold border border-border bg-card text-muted-foreground hover:border-primary/50 transition-all flex items-center gap-1">
                 <CalendarIcon className="w-3 h-3" />
                 {format(orderDate, "dd/MM HH:mm")}
               </button>
