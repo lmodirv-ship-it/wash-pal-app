@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Download, Loader2, Database, Users, ClipboardList, Sparkles } from "lucide-react";
+import { Download, Loader2, Database, Users, ClipboardList, Sparkles, Shield, ScrollText, Building2, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { exportFromView } from "@/lib/exportCsv";
+import { exportFromView, rowsToCsv, downloadCsv, logExport } from "@/lib/exportCsv";
+import { useEffectiveRoles } from "@/hooks/useEffectiveRoles";
 
 interface ShopOpt { id: string; name: string; }
 
@@ -12,6 +13,14 @@ const TILES = [
   { type: "services" as const,     view: "v_services_export"     as const, prefix: "services",     title: "الخدمات",       icon: Sparkles },
   { type: "employees" as const,    view: "v_employees_export"    as const, prefix: "employees",    title: "الموظفون",      icon: Users },
   { type: "work_entries" as const, view: "v_work_entries_export" as const, prefix: "work-entries", title: "سجلات العمل",   icon: ClipboardList },
+];
+
+/** Owner-only direct table exports (no view needed; relies on owner_all RLS). */
+const OWNER_TABLE_TILES = [
+  { type: "shops" as const,            table: "shops",             prefix: "shops",            title: "المتاجر",          icon: Building2 },
+  { type: "subscriptions" as const,    table: "subscriptions",     prefix: "subscriptions",    title: "الاشتراكات",       icon: CreditCard },
+  { type: "audit_logs" as const,       table: "role_audit_logs",   prefix: "role-audit-logs",  title: "سجل تدقيق الأدوار", icon: ScrollText },
+  { type: "audit_logs" as const,       table: "login_attempts",    prefix: "login-attempts",   title: "محاولات الدخول",    icon: Shield },
 ];
 
 export default function OwnerExports() {
