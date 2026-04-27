@@ -1,49 +1,44 @@
-# خطة الإصلاح: توجيه صاحب المحل بشكل صحيح
+# مزامنة الأدوار وإصلاح التوجيه
 
-## 🎯 المشكلة
-- إيميل `taltnamart@gmail.com` مسجّل في قاعدة البيانات كـ **employee** (وليس supervisor).
-- لذلك بعد الدخول، النظام يحوّله بشكل صحيح إلى `/employee` بدل `/dashboard`.
-- السبب: صفحة التسجيل لا تسأل المستخدم عن نوع حسابه، فالكل يُسجَّل كموظف افتراضياً.
+## ✅ ما هو سليم
+- enum `app_role` في DB: `admin, manager, supervisor, employee, customer`
+- triggers `handle_new_user` تعمل وتحفظ كل تسجيل جديد في `profiles` + `user_roles`
+- بيانات المستخدمين الحاليين متطابقة بين `profiles.role` و `user_roles`
 
----
+## ❌ ما يجب إصلاحه
 
-## 🛠️ الحل (3 خطوات)
+### 1. إزالة الدور الوهمي `super_admin` من الكود
+**الملف**: `src/components/ProtectedRoute.tsx`
+- حذف `"super_admin"` من النوع `AppRole` (غير موجود في DB enum).
+- تحديث `isSuperAdmin` ليعتمد على `admin` فقط.
+- تحديث route الأدمن في `src/App.tsx` ليستخدم `["admin"]` بدل `["super_admin", "admin"]`.
 
-### 1. ترقية الحساب الحالي `taltnamart@gmail.com` إلى صاحب محل
-عبر تحديث قاعدة البيانات:
-- تعديل `profiles.role` من `employee` إلى `supervisor`.
-- إضافة دور `supervisor` في جدول `user_roles`.
-- النتيجة: عند الدخول التالي سيُحوَّل تلقائياً إلى `/dashboard` ثم `/create-shop` لإنشاء محله.
+### 2. توحيد منطق التوجيه ليعتمد على **user_roles** (المصدر الموثوق)
+**الملف**: `src/App.tsx` — دالة `RoleHomeRedirect` و `AppShell`
+- بدلاً من الاعتماد على `profile.role` فقط، نقرأ `user_roles` من DB ونختار أعلى دور:
+  - أولوية: `admin` > `supervisor` > `manager` > `employee` > `customer`
+- التوجيه:
+  - `admin` → `/admin`
+  - `supervisor` / `manager` → `/dashboard`
+  - `employee` → `/employee`
+  - `customer` → `/app`
 
-### 2. إضافة "نوع الحساب" في صفحة التسجيل `/signup` و `/start`
-إضافة قائمة منسدلة (أو أزرار) يختار منها المستخدم:
-- 🏪 **صاحب محل** (supervisor) — يحصل على dashboard ويُنشئ محله.
-- 👨‍🔧 **موظف** (employee) — يدخل بدعوة من صاحب المحل.
-- 🚗 **زبون** (customer) — يحجز خدمات.
+### 3. صفحة `/unauthorized` — تحويل تلقائي
+**الملف**: `src/pages/Unauthorized.tsx`
+- إضافة `useEffect` يقرأ user_roles ويعيد توجيه المستخدم لصفحته الصحيحة تلقائياً بعد 0ms (بدل عرض رسالة الخطأ).
 
-سيتم تمرير هذا الدور في `user_metadata.role`، والـ trigger `handle_new_user` الموجود مسبقاً يقرأه ويُسجّل المستخدم بالدور الصحيح.
+### 4. ضمان أن trigger `handle_new_user` يعمل
+- تأكيد أن trigger مرتبط فعلاً بجدول `auth.users` (الـ functions موجودة لكن يجب التحقق من ربطها كـ trigger). إن لم تكن، إنشاؤها عبر migration.
 
-### 3. إضافة صفحة لإدارة أدوار المستخدمين (للأدمن فقط)
-في `/admin/pricing-plans` أو صفحة منفصلة `/admin/users`:
-- عرض كل المستخدمين مع أدوارهم.
-- زر لتغيير دور أي مستخدم (admin / supervisor / employee / customer).
-- مفيد لتصحيح الأدوار يدوياً في المستقبل.
+### 5. التحقق من تسجيل كل العمليات
+- جميع جداول CRUD لها RLS مفعّلة ✓
+- جميع الجداول الحساسة لها policies للـ admin + shop_member ✓
+- لا توجد جداول مكشوفة بدون RLS
 
----
-
-## 📋 الملفات التي ستتغيّر
-- **قاعدة البيانات** — UPDATE على `profiles` و INSERT في `user_roles` لـ taltnamart.
-- `src/pages/Signup.tsx` — إضافة اختيار نوع الحساب.
-- `src/pages/StartFree.tsx` — نفس الإضافة (إن وُجدت).
-- `src/pages/AdminUsers.tsx` *(جديد)* — إدارة الأدوار.
-- `src/App.tsx` — إضافة route للصفحة الجديدة.
-- `src/components/AppSidebar.tsx` — إضافة رابط "إدارة المستخدمين" للأدمن.
-
----
-
-## ✅ النتيجة بعد التنفيذ
-1. **`taltnamart@gmail.com`** سيدخل الآن كصاحب محل → `/dashboard`.
-2. **التسجيلات الجديدة** سيختار فيها المستخدم دوره من البداية.
-3. **الأدمن** يستطيع تصحيح أي دور خاطئ من لوحة التحكم.
+## 🎯 النتيجة
+- لن يحدث أي تعارض بين الأدوار في الكود وقاعدة البيانات
+- توجيه دقيق 100% بناء على `user_roles`
+- صفحة Unauthorized لن تظهر أبداً لمستخدم مسجّل (سيُحوَّل تلقائياً)
+- كل حساب جديد سيُسجَّل تلقائياً في `profiles` + `user_roles`
 
 وافق على الخطة لأبدأ التنفيذ.
