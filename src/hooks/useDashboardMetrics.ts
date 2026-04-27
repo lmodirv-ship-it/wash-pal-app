@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { DateRange } from "@/components/DateRangeFilter";
 
@@ -13,36 +14,38 @@ export interface EmployeeRow { id: string; shop_id: string; is_active: boolean; 
 function monthKey(d: Date) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; }
 
 export function useDashboardMetrics(range: DateRange) {
-  const [loading, setLoading] = useState(true);
-  const [shops, setShops] = useState<ShopRow[]>([]);
-  const [subs, setSubs] = useState<SubRow[]>([]);
-  const [orders, setOrders] = useState<OrderRow[]>([]);
-  const [members, setMembers] = useState<MemberRow[]>([]);
-  const [employees, setEmployees] = useState<EmployeeRow[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      const fromIso = range.from.toISOString();
-      const toIso = range.to.toISOString();
+  const fromMs = range.from.getTime();
+  const toMs = range.to.getTime();
+  const { data, isLoading, isFetching, error, refetch } = useQuery({
+    queryKey: ["owner-dashboard-metrics", fromMs, toMs],
+    staleTime: 60_000,
+    queryFn: async ({ signal }) => {
+      const fromIso = new Date(fromMs).toISOString();
+      const toIso = new Date(toMs).toISOString();
       const [s, sb, o, m, e] = await Promise.all([
-        supabase.from("shops").select("id,name,created_at,suspended"),
-        supabase.from("subscriptions").select("id,shop_id,plan,status,monthly_price,current_period_end,created_at"),
-        supabase.from("orders").select("id,shop_id,total_price,status,created_at,completed_at").gte("created_at", fromIso).lte("created_at", toIso),
-        supabase.from("shop_members").select("user_id,shop_id,created_at"),
-        supabase.from("employees").select("id,shop_id,is_active").eq("is_active", true),
+        supabase.from("shops").select("id,name,created_at,suspended").abortSignal(signal),
+        supabase.from("subscriptions").select("id,shop_id,plan,status,monthly_price,current_period_end,created_at").abortSignal(signal),
+        supabase.from("orders").select("id,shop_id,total_price,status,created_at,completed_at").gte("created_at", fromIso).lte("created_at", toIso).limit(1000).abortSignal(signal),
+        supabase.from("shop_members").select("user_id,shop_id,created_at").limit(1000).abortSignal(signal),
+        supabase.from("employees").select("id,shop_id,is_active").eq("is_active", true).limit(1000).abortSignal(signal),
       ]);
-      if (cancelled) return;
-      setShops((s.data as any) || []);
-      setSubs((sb.data as any) || []);
-      setOrders((o.data as any) || []);
-      setMembers((m.data as any) || []);
-      setEmployees((e.data as any) || []);
-      setLoading(false);
-    })();
-    return () => { cancelled = true; };
-  }, [range.from.getTime(), range.to.getTime()]);
+      const firstError = s.error || sb.error || o.error || m.error || e.error;
+      if (firstError) throw firstError;
+      return {
+        shops: (s.data as ShopRow[]) || [],
+        subs: (sb.data as SubRow[]) || [],
+        orders: (o.data as OrderRow[]) || [],
+        members: (m.data as MemberRow[]) || [],
+        employees: (e.data as EmployeeRow[]) || [],
+      };
+    },
+  });
+
+  const shops = data?.shops ?? [];
+  const subs = data?.subs ?? [];
+  const orders = data?.orders ?? [];
+  const members = data?.members ?? [];
+  const employees = data?.employees ?? [];
 
   const kpis = useMemo(() => {
     const activeSubs = subs.filter((x) => x.status === "active" || x.status === "trialing" || x.status === "trial");
@@ -150,5 +153,5 @@ export function useDashboardMetrics(range: DateRange) {
       .slice(0, 5);
   }, [orders, shops]);
 
-  return { loading, shops, subs, orders, members, employees, kpis, series, topShops };
+  return { loading: isLoading, isFetching, error, refetch, shops, subs, orders, members, employees, kpis, series, topShops };
 }

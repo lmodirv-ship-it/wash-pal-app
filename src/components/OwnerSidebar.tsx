@@ -21,7 +21,7 @@ const groups: { label: string; items: { title: string; url: string; icon: any }[
       { title: "المتاجر", url: "/owner/shops", icon: Building2 },
       { title: "الخدمات", url: "/owner/services", icon: Droplets },
       { title: "المستخدمون والأدوار", url: "/owner/users", icon: Users },
-      { title: "سجل الأدوار", url: "/owner/audit-logs", icon: ScrollText },
+      { title: "سجل الأدوار", url: "/owner/role-audit-logs", icon: ScrollText },
     ],
   },
   {

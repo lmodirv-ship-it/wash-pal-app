@@ -5,10 +5,15 @@ import { useEffectiveRoles } from "@/hooks/useEffectiveRoles";
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#030308]">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-        <p className="text-sm text-muted-foreground">جاري التحقق من صلاحيات المالك...</p>
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="space-y-4 rounded-2xl border border-border bg-card/60 p-5">
+        <div className="h-6 w-56 rounded-md skeleton-shimmer" />
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-20 rounded-xl skeleton-shimmer" />
+          ))}
+        </div>
+        <div className="h-72 rounded-xl skeleton-shimmer" />
       </div>
     </div>
   );

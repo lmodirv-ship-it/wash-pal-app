@@ -12,10 +12,15 @@ interface Props {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#030308]">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-        <p className="text-sm text-muted-foreground">جاري التحقق من الصلاحيات...</p>
+    <div className="w-full p-4 md:p-6 bg-background">
+      <div className="space-y-4 rounded-2xl border border-border bg-card/60 p-5">
+        <div className="h-6 w-52 rounded-md skeleton-shimmer" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-20 rounded-xl skeleton-shimmer" />
+          ))}
+        </div>
+        <div className="h-56 rounded-xl skeleton-shimmer" />
       </div>
     </div>
   );

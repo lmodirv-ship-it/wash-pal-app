@@ -41,14 +41,17 @@ Deno.serve(async (req) => {
     // Service-role client for elevated reads
     const admin = createClient(supabaseUrl, serviceKey);
 
-    // Check admin role
+    const body = await req.json().catch(() => ({}));
+    const page = Math.max(1, Number(body?.page ?? 1));
+    const perPage = Math.min(50, Math.max(20, Number(body?.perPage ?? 50)));
+
+    // Check owner/admin role
     const { data: roleCheck } = await admin
       .from("user_roles")
       .select("role")
       .eq("user_id", callerId)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!roleCheck) {
+      .in("role", ["owner", "admin"]);
+    if (!roleCheck?.length) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -57,8 +60,8 @@ Deno.serve(async (req) => {
 
     // List users from auth + merge with profiles
     const { data: usersList, error: listErr } = await admin.auth.admin.listUsers({
-      page: 1,
-      perPage: 200,
+      page,
+      perPage,
     });
     if (listErr) throw listErr;
 
@@ -90,7 +93,7 @@ Deno.serve(async (req) => {
       roles: rolesByUser.get(u.id) ?? [],
     }));
 
-    return new Response(JSON.stringify({ users: result }), {
+    return new Response(JSON.stringify({ users: result, total: usersList.total ?? result.length, page, perPage }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

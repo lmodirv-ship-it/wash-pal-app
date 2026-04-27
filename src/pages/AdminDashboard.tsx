@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Building2, DollarSign, Users, TrendingUp, Sparkles, FileText, Zap, Package, Crown, CreditCard, BarChart3, Download, ChevronDown, Eye, Pause, Play } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -58,11 +58,59 @@ function BigStat({ label, value, icon: Icon, tone, loading }: BigStatProps) {
   );
 }
 
+const RevenueChart = memo(function RevenueChart({ data }: { data: any[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }} />
+        <Line type="monotone" dataKey="revenue" stroke="hsl(var(--warning))" strokeWidth={3} dot={{ r: 4, fill: "hsl(var(--warning))" }} />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+});
+
+const ShopsChart = memo(function ShopsChart({ data }: { data: any[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }} />
+        <Bar dataKey="shops" fill="hsl(var(--primary))" radius={[8,8,0,0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+});
+
+const UsersChart = memo(function UsersChart({ data }: { data: any[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <AreaChart data={data}>
+        <defs>
+          <linearGradient id="usersGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity={0.6} />
+            <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }} />
+        <Area type="monotone" dataKey="users" stroke="hsl(var(--accent))" fill="url(#usersGrad)" strokeWidth={2.5} />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+});
+
 export default function AdminDashboard() {
   const [range, setRange] = useState<DateRange>(() => buildPresetRange("30d"));
-  const { loading, shops, subs, orders, kpis, series, topShops } = useDashboardMetrics(range);
+  const { loading, isFetching, error, refetch, shops, subs, orders, kpis, series, topShops } = useDashboardMetrics(range);
 
-  const downloadShops = async () => {
+  const downloadShops = useCallback(async () => {
     const rows = shops.map((s) => ({
       id: s.id, name: s.name, created_at: s.created_at, suspended: s.suspended,
     }));
@@ -71,9 +119,9 @@ export default function AdminDashboard() {
     downloadCsv(`shops-${stamp}.csv`, csv || "no_data\n");
     await logExport("shops", null, rows.length);
     toast.success(`تم تصدير ${rows.length} متجر`);
-  };
+  }, [shops]);
 
-  const downloadOrders = async () => {
+  const downloadOrders = useCallback(async () => {
     const rows = orders.map((o) => ({
       id: o.id, shop_id: o.shop_id, status: o.status,
       total_price: o.total_price, created_at: o.created_at, completed_at: o.completed_at,
@@ -85,9 +133,9 @@ export default function AdminDashboard() {
     // record under 'work_entries' (operational data) so the audit row still lands.
     await logExport("work_entries", null, rows.length);
     toast.success(`تم تصدير ${rows.length} طلب`);
-  };
+  }, [orders]);
 
-  const downloadSubs = async () => {
+  const downloadSubs = useCallback(async () => {
     const rows = subs.map((s) => ({
       id: s.id, shop_id: s.shop_id, plan: s.plan, status: s.status,
       monthly_price: s.monthly_price, current_period_end: s.current_period_end, created_at: s.created_at,
@@ -97,9 +145,9 @@ export default function AdminDashboard() {
     downloadCsv(`subscriptions-${stamp}.csv`, csv || "no_data\n");
     await logExport("subscriptions", null, rows.length);
     toast.success(`تم تصدير ${rows.length} اشتراك`);
-  };
+  }, [subs]);
 
-  const downloadTopShops = async () => {
+  const downloadTopShops = useCallback(async () => {
     const rows = topShops.map((t, i) => ({
       rank: i+1, id: t.id, name: t.name, orders_count: t.count, revenue: t.revenue,
     }));
@@ -108,7 +156,7 @@ export default function AdminDashboard() {
     downloadCsv(`top-shops-${stamp}.csv`, csv || "no_data\n");
     await logExport("shops", null, rows.length);
     toast.success(`تم تصدير ${rows.length} متجر`);
-  };
+  }, [topShops]);
 
   const insights = useMemo(() => {
     const out: string[] = [];
@@ -142,6 +190,7 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <DateRangeFilter value={range} onChange={setRange} />
+          {isFetching && !loading && <span className="text-xs text-muted-foreground">تحديث...</span>}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="h-9 gap-2">
@@ -165,6 +214,13 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {error && (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          فشل تحميل مؤشرات لوحة المالك.
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="ms-2">إعادة المحاولة</Button>
+        </div>
+      )}
+
       {/* Big KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         <BigStat label="إجمالي الطلبات (الفترة)" value={kpis.totalOrders} icon={FileText} tone="blue" loading={loading} />
@@ -183,47 +239,17 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5">
           <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><DollarSign className="w-4 h-4 text-[hsl(152_70%_55%)]" /> إيرادات الطلبات المكتملة</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={series.revenue}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
-              <Line type="monotone" dataKey="revenue" stroke="hsl(28 95% 60%)" strokeWidth={3} dot={{ r: 4, fill: "hsl(28 95% 60%)" }} />
-            </LineChart>
-          </ResponsiveContainer>
+          {loading ? <div className="h-[240px] rounded-xl skeleton-shimmer" /> : <RevenueChart data={series.revenue} />}
         </div>
 
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5">
           <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-[hsl(210_95%_65%)]" /> متاجر جديدة</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={series.shopsB}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
-              <Bar dataKey="shops" fill="hsl(210 95% 60%)" radius={[8,8,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {loading ? <div className="h-[240px] rounded-xl skeleton-shimmer" /> : <ShopsChart data={series.shopsB} />}
         </div>
 
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5 lg:col-span-2">
           <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-[hsl(280_80%_70%)]" /> أعضاء جدد</h3>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={series.usersB}>
-              <defs>
-                <linearGradient id="usersGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(280 80% 70%)" stopOpacity={0.6} />
-                  <stop offset="100%" stopColor="hsl(280 80% 70%)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
-              <Area type="monotone" dataKey="users" stroke="hsl(280 80% 70%)" fill="url(#usersGrad)" strokeWidth={2.5} />
-            </AreaChart>
-          </ResponsiveContainer>
+          {loading ? <div className="h-[220px] rounded-xl skeleton-shimmer" /> : <UsersChart data={series.usersB} />}
         </div>
       </div>
 
