@@ -62,7 +62,7 @@ export default function EmployeeServices() {
               {CATS.map((c) => {
                 const Icon = c.icon;
                 const count =
-                  c.id === "all" ? activeServices.length : activeServices.filter((s) => s.category === c.id).length;
+                  c.id === "all" ? services.length : services.filter((s) => s.category === c.id).length;
                 return (
                   <TabsTrigger
                     key={c.id}
