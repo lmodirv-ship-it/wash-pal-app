@@ -87,6 +87,13 @@ export default function AdminUsers() {
   }, [users, search, roleFilter]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
+    const target = users.find((u) => u.id === userId);
+    const targetIsOwner =
+      target?.profile_role === "owner" || target?.roles.includes("owner");
+    if (targetIsOwner && !isPlatformOwner) {
+      toast.error("لا يمكنك تعديل دور مالك المنصة");
+      return;
+    }
     if (newRole === "owner" && !isPlatformOwner) {
       toast.error("فقط مالك المنصة يمكنه تعيين دور owner");
       return;
@@ -201,7 +208,11 @@ export default function AdminUsers() {
                     <Select
                       value={u.profile_role}
                       onValueChange={(v) => handleRoleChange(u.id, v)}
-                      disabled={updatingId === u.id}
+                      disabled={
+                        updatingId === u.id ||
+                        ((u.profile_role === "owner" || u.roles.includes("owner")) &&
+                          !isPlatformOwner)
+                      }
                     >
                       <SelectTrigger className="w-[140px] h-9 bg-[hsl(220_25%_10%)] border-[hsl(220_20%_16%)]">
                         <SelectValue />
