@@ -90,7 +90,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     price: Number(r.price), duration: r.duration, description: r.description || '',
     descriptionAr: r.description_ar || undefined, descriptionFr: r.description_fr || undefined, descriptionEn: r.description_en || undefined,
     isActive: r.is_active !== false,
-    category: (r.category as any) || 'standard',
+    category: ((r.category === 'premium' ? 'vip' : r.category) as any) || 'standard',
     startingFrom: r.starting_from === true,
     shopId: r.shop_id || undefined,
   });
@@ -258,7 +258,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('services').update(u).eq('id', id);
     await refreshAll();
   };
-  const deleteService = async (id: string) => { await supabase.from('services').delete().eq('id', id); await refreshAll(); };
+  const deleteService = async (id: string) => {
+    await supabase.from('services').update({ is_active: false }).eq('id', id);
+    await refreshAll();
+  };
 
   // Invoice
   const addInvoice = async (i: Omit<Invoice, 'id'>) => {

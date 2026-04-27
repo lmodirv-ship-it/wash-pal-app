@@ -282,7 +282,7 @@ export default function SettingsPage() {
                     <TableCell>
                       <div className="flex gap-1">
                         <Button variant="ghost" size="icon" onClick={() => { setSvcForm({ name: s.name, price: s.price.toString(), duration: s.duration.toString(), description: s.description }); setEditingSvc(s); setSvcDialog(true); }} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success(t("services.serviceDeleted")); }} className="lavage-glow"><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                        <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success(t("services.serviceDisabled")); }} className="lavage-glow" title={t("services.serviceDisabled")}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>

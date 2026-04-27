@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { Service, ServiceCategory } from "@/types";
+import { getEmployeeVisibleServices } from "@/lib/serviceVisibility";
 
 export type EmptyReason =
   | "NO_SHOP_LINK"
@@ -12,6 +13,7 @@ export type EmptyReason =
   | null;
 
 function mapService(r: any): Service {
+  const category = r.category === "premium" ? "vip" : r.category;
   return {
     id: r.id,
     reference: r.reference || undefined,
@@ -26,8 +28,9 @@ function mapService(r: any): Service {
     descriptionFr: r.description_fr || undefined,
     descriptionEn: r.description_en || undefined,
     isActive: !!r.is_active,
-    category: (r.category as ServiceCategory) || "standard",
+    category: (category as ServiceCategory) || "standard",
     startingFrom: !!r.starting_from,
+    shopId: r.shop_id || undefined,
   };
 }
 
@@ -96,7 +99,7 @@ export function useEffectiveServices() {
 
         const disabled = new Set((ovRows || []).filter((o: any) => o.enabled === false).map((o: any) => o.service_id));
         const all = (svcRows || []).map(mapService);
-        const effective = all.filter((s) => !disabled.has(s.id));
+        const effective = getEmployeeVisibleServices(all, shopId, disabled);
 
         if (cancelled) return;
         setServices(effective);
