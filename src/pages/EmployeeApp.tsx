@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslation } from "react-i18next";
 import { getServiceName } from "@/lib/serviceI18n";
+import { EmployeeTopNav } from "@/components/EmployeeTopNav";
 
 export default function EmployeeApp() {
   const { services, currentBranch, addOrder, orders } = useApp();
@@ -80,6 +81,7 @@ export default function EmployeeApp() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-3 py-3 space-y-3 pb-8">
+        <EmployeeTopNav />
         <div className="text-center pt-1">
           <h1 className="text-xl font-bold">{t("employeeApp.title")}</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{myName}</p>
