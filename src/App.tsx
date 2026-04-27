@@ -56,6 +56,9 @@ const OwnerNotifications = lazy(() => import("./pages/OwnerNotifications"));
 const OwnerDatabase = lazy(() => import("./pages/OwnerDatabase"));
 const OwnerSettings = lazy(() => import("./pages/OwnerSettings"));
 const OwnerExports = lazy(() => import("./pages/OwnerExports"));
+const OwnerAuditLogs = lazy(() => import("./pages/OwnerAuditLogs"));
+const OwnerLiveOrders = lazy(() => import("./pages/OwnerLiveOrders"));
+const OwnerInvoices = lazy(() => import("./pages/OwnerInvoices"));
 const Entries = lazy(() => import("./pages/Entries"));
 const SupervisorProspecting = lazy(() => import("./pages/SupervisorProspecting"));
 const MessageTemplates = lazy(() => import("./pages/MessageTemplates"));
@@ -214,8 +217,10 @@ const App = () => (
               <Route path="/owner/leads" element={<AdminLeads />} />
               <Route path="/owner/api-keys" element={<AdminApiKeys />} />
               <Route path="/owner/users" element={<AdminUsers />} />
-              <Route path="/owner/audit-logs" element={<RoleAuditLogs />} />
+              <Route path="/owner/audit-logs" element={<OwnerAuditLogs />} />
               <Route path="/owner/role-audit-logs" element={<RoleAuditLogs />} />
+              <Route path="/owner/live-orders" element={<OwnerLiveOrders />} />
+              <Route path="/owner/invoices" element={<OwnerInvoices />} />
             </Route>
 
             {/* Legacy /admin/* paths → /owner/* (guard then runs and blocks non-owners) */}
