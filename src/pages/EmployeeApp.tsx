@@ -20,6 +20,13 @@ import { getServiceName } from "@/lib/serviceI18n";
 
 import { useEffectiveServices } from "@/hooks/useEffectiveServices";
 
+const CAR_BRANDS = [
+  "Audi", "BMW", "Chevrolet", "Citroën", "Dacia", "Fiat", "Ford", "Honda",
+  "Hyundai", "Jeep", "Kia", "Land Rover", "Lexus", "Mazda", "Mercedes",
+  "Mitsubishi", "Nissan", "Opel", "Peugeot", "Porsche", "Renault", "Seat",
+  "Skoda", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen", "Volvo",
+];
+
 export default function EmployeeApp() {
   const { currentBranch, addOrder, orders, services: shopServices } = useApp();
   const { services: effectiveServices } = useEffectiveServices();
@@ -111,7 +118,14 @@ export default function EmployeeApp() {
               value={carType}
               onChange={e => setCarType(e.target.value)}
               className="h-9 text-sm font-bold text-center"
+              list="car-brands-list"
+              autoComplete="off"
             />
+            <datalist id="car-brands-list">
+              {CAR_BRANDS.map((b) => (
+                <option key={b} value={b} />
+              ))}
+            </datalist>
           </div>
           {carSize === "motor" && <p className="text-[11px] text-success mt-1.5">{t("employeeApp.motorNote")}</p>}
         </div>
