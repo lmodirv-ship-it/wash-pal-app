@@ -1,1 +1,4 @@
 project_id = "nfyluhiadqsggtqrsgen"
+
+[functions.employee-login-by-reference]
+verify_jwt = false
