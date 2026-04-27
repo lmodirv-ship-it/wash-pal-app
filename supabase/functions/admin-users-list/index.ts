@@ -74,6 +74,11 @@ Deno.serve(async (req) => {
       .from("user_roles")
       .select("user_id, role")
       .in("user_id", userIds);
+    const { data: employeesData } = await admin
+      .from("employees")
+      .select("user_id, reference")
+      .in("user_id", userIds)
+      .not("reference", "is", null);
 
     const profileByUser = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
     const rolesByUser = new Map<string, string[]>();
@@ -82,6 +87,9 @@ Deno.serve(async (req) => {
       arr.push(r.role);
       rolesByUser.set(r.user_id, arr);
     });
+    const referenceByUser = new Map(
+      employeesData?.filter((e) => e.user_id).map((e) => [e.user_id, e.reference]) ?? [],
+    );
 
     const result = usersList.users.map((u) => ({
       id: u.id,
@@ -91,6 +99,7 @@ Deno.serve(async (req) => {
       name: profileByUser.get(u.id)?.name ?? "",
       profile_role: profileByUser.get(u.id)?.role ?? "employee",
       roles: rolesByUser.get(u.id) ?? [],
+      reference: referenceByUser.get(u.id) ?? null,
     }));
 
     return new Response(JSON.stringify({ users: result, total: usersList.total ?? result.length, page, perPage }), {
