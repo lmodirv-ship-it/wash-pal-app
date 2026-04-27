@@ -27,8 +27,9 @@ const catBadge: Record<ServiceCategory, string> = {
 };
 
 export default function Services() {
-  const { services, addService, updateService, deleteService, currentShopId } = useApp();
-  const { isAdmin } = useAuth();
+  const { services, addService, updateService, deleteService, currentShopId, tenantShops } = useApp();
+  const { isAdmin, profile } = useAuth();
+  const isOwner = profile?.role === 'owner';
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -41,6 +42,7 @@ export default function Services() {
   });
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<string>("all");
+  const [ownerShopFilter, setOwnerShopFilter] = useState<string>("all");
 
   const CATEGORIES: { id: ServiceCategory | "all"; label: string; icon: any; cls: string }[] = [
     { id: "all", label: t("services.cats.all"), icon: Droplets, cls: "" },
@@ -97,9 +99,16 @@ export default function Services() {
   };
 
   const filtered = useMemo(() => services
+    .filter(s => isOwner && ownerShopFilter !== "all" ? s.shopId === ownerShopFilter : true)
     .filter(s => getServiceName(s, lang).toLowerCase().includes(search.toLowerCase()))
     .filter(s => tab === "all" || s.category === tab),
-    [services, search, tab, lang]);
+    [services, search, tab, lang, isOwner, ownerShopFilter]);
+
+  const shopNameById = useMemo(() => {
+    const map: Record<string, string> = {};
+    tenantShops.forEach((sh: any) => { map[sh.id] = sh.name; });
+    return map;
+  }, [tenantShops]);
 
   const counts = useMemo(() => ({
     all: services.length,
@@ -205,6 +214,25 @@ export default function Services() {
         <Input className="pe-9" placeholder={t("services.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
+      {isOwner && tenantShops.length > 0 && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">المتجر:</span>
+          <Select value={ownerShopFilter} onValueChange={setOwnerShopFilter}>
+            <SelectTrigger className="w-64 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل المتاجر ({services.length})</SelectItem>
+              {tenantShops.map((sh: any) => (
+                <SelectItem key={sh.id} value={sh.id}>
+                  {sh.name} ({services.filter(s => s.shopId === sh.id).length})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="grid grid-cols-6 w-full h-auto">
           {CATEGORIES.map(c => {
@@ -232,6 +260,7 @@ export default function Services() {
                   <TableRow className="border-border hover:bg-secondary/50">
                     <TableHead className="text-muted-foreground">{t("common.reference")}</TableHead>
                     <TableHead className="text-muted-foreground">{t("services.serviceName")}</TableHead>
+                    {isOwner && <TableHead className="text-muted-foreground">المتجر</TableHead>}
                     <TableHead className="text-muted-foreground">{t("common.price")}</TableHead>
                     <TableHead className="text-muted-foreground">{t("common.duration")}</TableHead>
                     <TableHead className="text-muted-foreground">{t("common.description")}</TableHead>
@@ -244,6 +273,13 @@ export default function Services() {
                     <TableRow key={s.id} className={`lavage-table-row border-border ${!s.isActive ? "opacity-50" : ""}`}>
                       <TableCell className="font-mono text-xs text-primary">{s.reference || "—"}</TableCell>
                       <TableCell className="font-medium text-foreground">{getServiceName(s, lang)}</TableCell>
+                      {isOwner && (
+                        <TableCell>
+                          <Badge variant="outline" className="text-[10px] font-normal">
+                            {s.shopId ? (shopNameById[s.shopId] || s.shopId.slice(0, 8)) : "—"}
+                          </Badge>
+                        </TableCell>
+                      )}
                       <TableCell>
                         {s.startingFrom && <span className="text-[10px] text-muted-foreground block">{t("services.startingFrom")}</span>}
                         <span className="font-bold text-primary">{s.price}</span>
