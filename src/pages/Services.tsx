@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { getServiceName, getServiceDescription } from "@/lib/serviceI18n";
-import { useApp } from "@/contexts/AppContext";
 import { exportFromView } from "@/lib/exportCsv";
 
 const catBadge: Record<ServiceCategory, string> = {
@@ -28,9 +27,8 @@ const catBadge: Record<ServiceCategory, string> = {
 };
 
 export default function Services() {
-  const { services, addService, updateService, deleteService } = useApp();
+  const { services, addService, updateService, deleteService, currentShopId } = useApp();
   const { isAdmin } = useAuth();
-  const { currentShopId } = useApp();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [dialogOpen, setDialogOpen] = useState(false);
