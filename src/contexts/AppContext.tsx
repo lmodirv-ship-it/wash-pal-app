@@ -258,7 +258,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('services').update(u).eq('id', id);
     await refreshAll();
   };
-  const deleteService = async (id: string) => { await supabase.from('services').delete().eq('id', id); await refreshAll(); };
+  const deleteService = async (id: string) => {
+    await supabase.from('services').update({ is_active: false }).eq('id', id);
+    await refreshAll();
+  };
 
   // Invoice
   const addInvoice = async (i: Omit<Invoice, 'id'>) => {
