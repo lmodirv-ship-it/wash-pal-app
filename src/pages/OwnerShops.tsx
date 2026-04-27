@@ -50,10 +50,7 @@ export default function OwnerShops() {
     queryFn: async ({ signal }) => {
       let query = supabase
         .from("shops")
-        .select("id,name,reference_code,owner_id,created_at,suspended,suspended_reason", { count: "exact" })
-        .order("created_at", { ascending: false })
-        .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1)
-        .abortSignal(signal);
+        .select("id,name,reference_code,owner_id,created_at,suspended,suspended_reason", { count: "exact" });
 
       if (filter === "active") query = query.eq("suspended", false);
       if (filter === "suspended") query = query.eq("suspended", true);
@@ -64,7 +61,10 @@ export default function OwnerShops() {
           : query.or(`name.ilike.%${term.replace(/%/g, "") }%,reference_code.ilike.%${term.replace(/%/g, "") }%`);
       }
 
-      const { data: shopRows, count, error: shopsError } = await query;
+      const { data: shopRows, count, error: shopsError } = await query
+        .order("created_at", { ascending: false })
+        .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1)
+        .abortSignal(signal);
       if (shopsError) throw shopsError;
 
       const ids = (shopRows || []).map((s) => s.id);
