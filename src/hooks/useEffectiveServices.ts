@@ -29,6 +29,7 @@ function mapService(r: any): Service {
     isActive: !!r.is_active,
     category: (r.category as ServiceCategory) || "standard",
     startingFrom: !!r.starting_from,
+    shopId: r.shop_id || undefined,
   };
 }
 
