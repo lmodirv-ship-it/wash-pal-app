@@ -202,7 +202,7 @@ const App = () => (
             >
               <Route path="/owner" element={<AdminDashboard />} />
               <Route path="/owner/shops" element={<OwnerShops />} />
-              <Route path="/owner/services" element={<Navigate to="/owner/shops" replace />} />
+              <Route path="/owner/services" element={<Services />} />
               <Route path="/owner/security" element={<OwnerSecurity />} />
               <Route path="/owner/activity" element={<OwnerActivity />} />
               <Route path="/owner/notifications" element={<OwnerNotifications />} />
