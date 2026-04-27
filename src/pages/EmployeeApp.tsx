@@ -15,8 +15,11 @@ import { useTranslation } from "react-i18next";
 import { getServiceName } from "@/lib/serviceI18n";
 import { EmployeeTopNav } from "@/components/EmployeeTopNav";
 
+import { useEffectiveServices } from "@/hooks/useEffectiveServices";
+
 export default function EmployeeApp() {
-  const { services, currentBranch, addOrder, orders } = useApp();
+  const { currentBranch, addOrder, orders, services: shopServices } = useApp();
+  const { services: effectiveServices } = useEffectiveServices();
   const { profile } = useAuth();
   const { t, i18n } = useTranslation();
 
@@ -36,7 +39,10 @@ export default function EmployeeApp() {
 
   const SURCHARGE_4X4 = 10;
 
-  const activeServices = useMemo(() => services.filter(s => s.isActive), [services]);
+  const activeServices = useMemo(
+    () => effectiveServices.filter((s) => s.isActive),
+    [effectiveServices]
+  );
   const picked = activeServices.find(s => s.id === serviceId);
   const myName = profile?.name || t("employeeApp.employeeNote");
 
@@ -260,7 +266,7 @@ export default function EmployeeApp() {
         {saving ? t("common.saving") : t("employeeApp.saveOrder")}
       </Button>
 
-        <DailyOrdersTable orders={orders} services={services} myName={myName} branchId={currentBranch?.id} locale={i18n.language === "ar" ? "ar-MA" : "fr-FR"} />
+        <DailyOrdersTable orders={orders} services={shopServices} myName={myName} branchId={currentBranch?.id} locale={i18n.language === "ar" ? "ar-MA" : "fr-FR"} />
       </div>
     </div>
   );
