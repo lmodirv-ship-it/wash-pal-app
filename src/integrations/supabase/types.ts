@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          new_value: Json | null
+          old_value: Json | null
+          target_id: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_value?: Json | null
+          old_value?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          new_value?: Json | null
+          old_value?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       b2b_partners: {
         Row: {
           address: string
@@ -1073,6 +1118,9 @@ export type Database = {
           name: string
           owner_id: string
           reference_code: string | null
+          suspended: boolean
+          suspended_at: string | null
+          suspended_reason: string | null
           updated_at: string
         }
         Insert: {
@@ -1082,6 +1130,9 @@ export type Database = {
           name: string
           owner_id: string
           reference_code?: string | null
+          suspended?: boolean
+          suspended_at?: string | null
+          suspended_reason?: string | null
           updated_at?: string
         }
         Update: {
@@ -1091,6 +1142,9 @@ export type Database = {
           name?: string
           owner_id?: string
           reference_code?: string | null
+          suspended?: boolean
+          suspended_at?: string | null
+          suspended_reason?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1304,6 +1358,25 @@ export type Database = {
       is_shop_manager: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_member: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_readonly: { Args: { _shop_id: string }; Returns: boolean }
+      log_owner_action: {
+        Args: {
+          _action: string
+          _metadata?: Json
+          _new_value?: Json
+          _old_value?: Json
+          _target_id: string
+          _target_type: string
+        }
+        Returns: string
+      }
+      owner_broadcast: {
+        Args: { _message: string; _scope?: string; _title: string }
+        Returns: number
+      }
+      owner_set_shop_suspension: {
+        Args: { _reason?: string; _shop_id: string; _suspend: boolean }
+        Returns: undefined
+      }
       reject_join_request: {
         Args: { _reason: string; _request_id: string }
         Returns: undefined
