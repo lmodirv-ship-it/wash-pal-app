@@ -18,22 +18,22 @@ function NavCard({ item, isActive, collapsed }: { item: NavEntry; isActive: bool
     <NavLink
       to={item.url}
       end={item.url === "/"}
-      className={`group relative flex items-center gap-3 rounded-full px-3 py-2.5 transition-all duration-200 border backdrop-blur-md
+      className={`group relative flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all duration-200 border backdrop-blur-md
         ${isActive
-          ? "bg-[hsl(var(--primary)/0.10)] border-[hsl(var(--primary)/0.55)] text-[hsl(var(--primary))] shadow-[0_0_18px_-4px_hsl(var(--primary)/0.55)]"
-          : "bg-[hsl(230_35%_8%/0.55)] border-[hsl(var(--primary)/0.25)] text-foreground/85 hover:bg-[hsl(var(--primary)/0.06)] hover:border-[hsl(var(--primary)/0.5)] hover:shadow-[0_0_14px_-4px_hsl(var(--primary)/0.4)]"
+          ? "bg-[hsl(var(--primary)/0.12)] border-[hsl(var(--primary)/0.6)] text-[hsl(var(--primary))] shadow-[0_0_24px_-4px_hsl(var(--primary)/0.6),inset_0_1px_0_hsl(0_0%_100%/0.08)]"
+          : "bg-gradient-to-b from-[hsl(230_35%_10%/0.85)] to-[hsl(230_40%_5%/0.9)] border-[hsl(var(--primary)/0.3)] text-foreground/90 shadow-[0_2px_8px_-2px_hsl(220_60%_2%/0.5),inset_0_1px_0_hsl(0_0%_100%/0.05)] hover:border-[hsl(var(--primary)/0.55)] hover:shadow-[0_0_18px_-4px_hsl(var(--primary)/0.45),inset_0_1px_0_hsl(0_0%_100%/0.08)]"
         }`}
       activeClassName=""
     >
-      <span className={`flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 transition border
+      <span className={`flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0 transition border
         ${isActive
-          ? "bg-[hsl(var(--primary)/0.15)] border-[hsl(var(--primary)/0.45)] text-[hsl(var(--primary))]"
-          : "bg-[hsl(230_35%_6%/0.6)] border-[hsl(var(--primary)/0.25)] text-foreground/70 group-hover:text-[hsl(var(--primary))]"}`}>
-        <item.icon className="w-[16px] h-[16px]" />
+          ? "bg-[hsl(var(--primary)/0.18)] border-[hsl(var(--primary)/0.5)] text-[hsl(var(--primary))]"
+          : "bg-[hsl(230_40%_5%/0.7)] border-[hsl(var(--primary)/0.25)] text-foreground/75 group-hover:text-[hsl(var(--primary))]"}`}>
+        <item.icon className="w-[20px] h-[20px]" />
       </span>
       {!collapsed && (
         <>
-          <span className="text-[13px] font-medium flex-1 truncate">{item.title}</span>
+          <span className="text-[15px] font-bold flex-1 truncate">{item.title}</span>
           {item.badge !== undefined && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-destructive/90 text-destructive-foreground tabular-nums">
               {item.badge}
