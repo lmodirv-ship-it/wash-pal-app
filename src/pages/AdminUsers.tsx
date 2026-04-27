@@ -19,6 +19,7 @@ interface AdminUser {
   roles: string[];
   created_at: string;
   last_sign_in_at: string | null;
+  reference: string | null;
 }
 
 interface UsersResponse {
@@ -78,7 +79,12 @@ export default function AdminUsers() {
       if (roleFilter !== "all" && !u.roles.includes(roleFilter) && u.profile_role !== roleFilter) return false;
       if (search) {
         const q = search.toLowerCase();
-        return u.email?.toLowerCase().includes(q) || u.name?.toLowerCase().includes(q) || u.id.includes(q);
+        return (
+          u.email?.toLowerCase().includes(q) ||
+          u.name?.toLowerCase().includes(q) ||
+          u.id.includes(q) ||
+          (u.reference || "").toLowerCase().includes(q)
+        );
       }
       return true;
     });
@@ -151,6 +157,7 @@ export default function AdminUsers() {
             <table className="w-full text-sm">
               <thead className="bg-muted/40 text-muted-foreground">
                 <tr>
+                  <th className="text-start p-3 font-semibold">المرجع</th>
                   <th className="text-start p-3 font-semibold">الاسم</th>
                   <th className="text-start p-3 font-semibold">البريد</th>
                   <th className="text-start p-3 font-semibold">الأدوار</th>
@@ -161,6 +168,15 @@ export default function AdminUsers() {
               <tbody>
                 {filtered.map((u) => (
                   <tr key={u.id} className="border-t border-border/70 hover:bg-muted/30 transition-colors">
+                    <td className="p-3">
+                      {u.reference ? (
+                        <span className="font-mono text-xs px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20 tracking-wider">
+                          {u.reference}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="p-3 font-semibold text-foreground">{u.name || "—"}</td>
                     <td className="p-3 text-muted-foreground">{u.email}</td>
                     <td className="p-3">
