@@ -12,9 +12,12 @@ import { Plus, Search, Trash2, Edit3 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { getServiceName } from "@/lib/serviceI18n";
+import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
+import { EtaBadge } from "@/components/EtaBadge";
 
 export default function Orders() {
-  const { orders, services, employees, currentBranch, addOrder, updateOrder, deleteOrder, addInvoice } = useApp();
+  const { orders, services, employees, currentBranch, currentShopId, addOrder, updateOrder, deleteOrder, addInvoice } = useApp();
+  useRealtimeOrders(currentShopId);
   const { t, i18n } = useTranslation();
   const locale = i18n.language === "ar" ? "ar-MA" : "fr-FR";
 
@@ -171,13 +174,14 @@ export default function Orders() {
               <TableHead className="text-muted-foreground">{t("orders.price")}</TableHead>
               <TableHead className="text-muted-foreground">{t("orders.employee")}</TableHead>
               <TableHead className="text-muted-foreground">{t("common.status")}</TableHead>
+              <TableHead className="text-muted-foreground">ETA</TableHead>
               <TableHead className="text-muted-foreground">{t("common.date")}</TableHead>
               <TableHead className="text-muted-foreground">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {branchOrders.length === 0 ? (
-              <TableRow className="border-border"><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">{t("orders.noOrders")}</TableCell></TableRow>
+              <TableRow className="border-border"><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">{t("orders.noOrders")}</TableCell></TableRow>
             ) : branchOrders.map((o, idx) => {
               const isEditing = priceEdits[o.id] !== undefined;
               return (
@@ -224,6 +228,9 @@ export default function Orders() {
                         <SelectItem value="cancelled">{t("dashboard.cancelled")}</SelectItem>
                       </SelectContent>
                     </Select>
+                  </TableCell>
+                  <TableCell>
+                    <EtaBadge expectedEndAt={o.expectedEndAt} status={o.status} compact />
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleDateString(locale)}</TableCell>
                   <TableCell>

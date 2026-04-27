@@ -10,10 +10,13 @@ import { Droplets, Clock, CheckCircle2, Loader2, Sparkles, History, Plus } from 
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { getServiceName } from "@/lib/serviceI18n";
+import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
+import { EtaBadge } from "@/components/EtaBadge";
 
 export default function CustomerApp() {
-  const { services, orders, currentBranch, addOrder } = useApp();
+  const { services, orders, currentBranch, currentShopId, addOrder } = useApp();
   const { profile } = useAuth();
+  useRealtimeOrders(currentShopId);
   const { t, i18n } = useTranslation();
   const locale = i18n.language === "ar" ? "ar-MA" : "fr-FR";
   const [open, setOpen] = useState(false);
@@ -158,9 +161,12 @@ function OrderTrackCard({ order }: { order: any }) {
           <p className="font-bold">{order.carPlate}</p>
           <p className="text-xs text-muted-foreground">{order.services.length} · {order.totalPrice} {t("common.currency")}</p>
         </div>
-        <Badge variant="outline" className="border-primary/40 text-primary">
-          {steps[activeIdx]?.label}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <EtaBadge expectedEndAt={order.expectedEndAt} status={order.status} compact />
+          <Badge variant="outline" className="border-primary/40 text-primary">
+            {steps[activeIdx]?.label}
+          </Badge>
+        </div>
       </div>
       <div className="flex items-center gap-1">
         {steps.map((s, i) => (
@@ -176,6 +182,11 @@ function OrderTrackCard({ order }: { order: any }) {
           </div>
         ))}
       </div>
+      {order.expectedEndAt && order.status !== "completed" && order.status !== "cancelled" && (
+        <p className="text-[11px] text-muted-foreground mt-2 text-end">
+          {t("customerApp.expectedFinish", { defaultValue: "النهاية المتوقعة" })}: {new Date(order.expectedEndAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </p>
+      )}
     </Card>
   );
 }
