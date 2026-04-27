@@ -190,6 +190,7 @@ const App = () => (
               <Route path="/owner/api-keys" element={<AdminApiKeys />} />
               <Route path="/owner/users" element={<AdminUsers />} />
               <Route path="/owner/audit-logs" element={<RoleAuditLogs />} />
+              <Route path="/owner/role-audit-logs" element={<RoleAuditLogs />} />
             </Route>
 
             {/* Legacy /admin/* paths → /owner/* (guard then runs and blocks non-owners) */}
