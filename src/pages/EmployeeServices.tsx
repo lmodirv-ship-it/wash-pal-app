@@ -37,7 +37,7 @@ export default function EmployeeServices() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-3 py-3 space-y-3 pb-8">
+      <div className="max-w-2xl mx-auto px-3 py-3 space-y-3 pb-28">
         <EmployeeTopNav />
         <div className="text-center pt-3">
           <h1 className="text-xl font-bold">{t("services.title", { defaultValue: "الخدمات" })}</h1>
@@ -83,7 +83,7 @@ export default function EmployeeServices() {
               ) : filtered.length === 0 ? (
                 <ReasonEmptyState reason={reason} onRetry={refresh} />
               ) : (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {filtered.map((s) => {
                     const isVip = s.category === "vip";
                     const isPack = s.category === "packs";
@@ -91,7 +91,7 @@ export default function EmployeeServices() {
                     return (
                       <div
                         key={s.id}
-                        className={`relative p-3 rounded-xl border-2 min-h-[110px] flex flex-col ${
+                        className={`relative p-4 rounded-xl border-2 min-h-[96px] flex flex-col ${
                           isVip
                             ? "border-warning/40 bg-gradient-to-br from-warning/10 to-transparent"
                             : isPack
@@ -105,7 +105,7 @@ export default function EmployeeServices() {
                         {isPack && <Package className="w-3.5 h-3.5 text-success absolute top-1.5 start-1.5" />}
                         {isMotor && <Bike className="w-3.5 h-3.5 text-success absolute top-1.5 start-1.5" />}
 
-                        <p className="font-bold text-sm leading-tight line-clamp-2 ps-5">
+                        <p className="font-bold text-sm leading-6 break-words ps-5">
                           {getServiceName(s, lang)}
                         </p>
 
