@@ -260,6 +260,7 @@ export default function Services() {
                   <TableRow className="border-border hover:bg-secondary/50">
                     <TableHead className="text-muted-foreground">{t("common.reference")}</TableHead>
                     <TableHead className="text-muted-foreground">{t("services.serviceName")}</TableHead>
+                    {isOwner && <TableHead className="text-muted-foreground">المتجر</TableHead>}
                     <TableHead className="text-muted-foreground">{t("common.price")}</TableHead>
                     <TableHead className="text-muted-foreground">{t("common.duration")}</TableHead>
                     <TableHead className="text-muted-foreground">{t("common.description")}</TableHead>
@@ -272,6 +273,13 @@ export default function Services() {
                     <TableRow key={s.id} className={`lavage-table-row border-border ${!s.isActive ? "opacity-50" : ""}`}>
                       <TableCell className="font-mono text-xs text-primary">{s.reference || "—"}</TableCell>
                       <TableCell className="font-medium text-foreground">{getServiceName(s, lang)}</TableCell>
+                      {isOwner && (
+                        <TableCell>
+                          <Badge variant="outline" className="text-[10px] font-normal">
+                            {s.shopId ? (shopNameById[s.shopId] || s.shopId.slice(0, 8)) : "—"}
+                          </Badge>
+                        </TableCell>
+                      )}
                       <TableCell>
                         {s.startingFrom && <span className="text-[10px] text-muted-foreground block">{t("services.startingFrom")}</span>}
                         <span className="font-bold text-primary">{s.price}</span>
