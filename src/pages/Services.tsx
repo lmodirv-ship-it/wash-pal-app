@@ -214,6 +214,25 @@ export default function Services() {
         <Input className="pe-9" placeholder={t("services.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
+      {isOwner && tenantShops.length > 0 && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">المتجر:</span>
+          <Select value={ownerShopFilter} onValueChange={setOwnerShopFilter}>
+            <SelectTrigger className="w-64 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل المتاجر ({services.length})</SelectItem>
+              {tenantShops.map((sh: any) => (
+                <SelectItem key={sh.id} value={sh.id}>
+                  {sh.name} ({services.filter(s => s.shopId === sh.id).length})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="grid grid-cols-6 w-full h-auto">
           {CATEGORIES.map(c => {
