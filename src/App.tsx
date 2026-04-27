@@ -49,6 +49,12 @@ const RoleAuditLogs = lazy(() => import("./pages/RoleAuditLogs"));
 const OwnerShell = lazy(() =>
   import("./components/OwnerShell").then((m) => ({ default: m.OwnerShell }))
 );
+const OwnerShops = lazy(() => import("./pages/OwnerShops"));
+const OwnerSecurity = lazy(() => import("./pages/OwnerSecurity"));
+const OwnerActivity = lazy(() => import("./pages/OwnerActivity"));
+const OwnerNotifications = lazy(() => import("./pages/OwnerNotifications"));
+const OwnerDatabase = lazy(() => import("./pages/OwnerDatabase"));
+const OwnerSettings = lazy(() => import("./pages/OwnerSettings"));
 const Entries = lazy(() => import("./pages/Entries"));
 const SupervisorProspecting = lazy(() => import("./pages/SupervisorProspecting"));
 const MessageTemplates = lazy(() => import("./pages/MessageTemplates"));
@@ -170,6 +176,12 @@ const App = () => (
               }
             >
               <Route path="/owner" element={<AdminDashboard />} />
+              <Route path="/owner/shops" element={<OwnerShops />} />
+              <Route path="/owner/security" element={<OwnerSecurity />} />
+              <Route path="/owner/activity" element={<OwnerActivity />} />
+              <Route path="/owner/notifications" element={<OwnerNotifications />} />
+              <Route path="/owner/database" element={<OwnerDatabase />} />
+              <Route path="/owner/settings" element={<OwnerSettings />} />
               <Route path="/owner/subscriptions" element={<AdminSubscriptions />} />
               <Route path="/owner/pricing-plans" element={<AdminPricingPlans />} />
               <Route path="/owner/leads" element={<AdminLeads />} />
