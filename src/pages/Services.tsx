@@ -27,8 +27,9 @@ const catBadge: Record<ServiceCategory, string> = {
 };
 
 export default function Services() {
-  const { services, addService, updateService, deleteService, currentShopId } = useApp();
-  const { isAdmin } = useAuth();
+  const { services, addService, updateService, deleteService, currentShopId, tenantShops } = useApp();
+  const { isAdmin, profile } = useAuth();
+  const isOwner = profile?.role === 'owner';
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -41,6 +42,7 @@ export default function Services() {
   });
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<string>("all");
+  const [ownerShopFilter, setOwnerShopFilter] = useState<string>("all");
 
   const CATEGORIES: { id: ServiceCategory | "all"; label: string; icon: any; cls: string }[] = [
     { id: "all", label: t("services.cats.all"), icon: Droplets, cls: "" },
