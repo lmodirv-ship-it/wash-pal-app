@@ -29,8 +29,6 @@ export function Layout({ children }: { children: ReactNode }) {
           {/* HN-DRIVER style topbar */}
           <header className="sticky top-0 z-30 bg-[hsl(220_30%_6%)]/95 backdrop-blur-xl border-b border-[hsl(220_20%_14%)] px-3 md:px-5 py-3">
             <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-              <SidebarTrigger className="hover:bg-[hsl(220_25%_12%)] rounded-xl h-10 w-10" />
-
               {/* Country select */}
               <div className="hidden md:flex items-center gap-2 h-10 px-3 rounded-xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] min-w-[140px]">
                 <Globe className="w-4 h-4 text-muted-foreground" />
