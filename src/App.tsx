@@ -157,6 +157,16 @@ function AuthedCreateShop() {
   );
 }
 
+/** Owner outlet — wraps every /owner/* page in AppProvider once,
+ *  so any owner page (including Services) can safely call useApp(). */
+function OwnerOutlet() {
+  return (
+    <AppProvider>
+      <OwnerShell />
+    </AppProvider>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -186,13 +196,13 @@ const App = () => (
             <Route
               element={
                 <ProtectedRoute allowedRoles={["owner"]}>
-                  <OwnerShell />
+                  <OwnerOutlet />
                 </ProtectedRoute>
               }
             >
               <Route path="/owner" element={<AdminDashboard />} />
               <Route path="/owner/shops" element={<OwnerShops />} />
-              <Route path="/owner/services" element={<AppProvider><Services /></AppProvider>} />
+              <Route path="/owner/services" element={<Services />} />
               <Route path="/owner/security" element={<OwnerSecurity />} />
               <Route path="/owner/activity" element={<OwnerActivity />} />
               <Route path="/owner/notifications" element={<OwnerNotifications />} />
