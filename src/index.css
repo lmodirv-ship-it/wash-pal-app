@@ -196,6 +196,52 @@
     box-shadow: var(--shadow-glass);
   }
 
+  /* ===== Glassy luminous inputs/selects (small, "box-in-box") ===== */
+  .input-glass {
+    position: relative;
+    isolation: isolate;
+    color: hsl(var(--foreground));
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    border: 1px solid hsl(var(--primary) / 0.35);
+    background:
+      linear-gradient(180deg, hsl(220 30% 100% / 0.04), hsl(var(--primary) / 0.04));
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.08) inset,
+      0 1px 0 hsl(0 0% 100% / 0.06) inset,
+      0 0 10px -2px hsl(var(--primary) / 0.25),
+      0 4px 14px -8px hsl(220 60% 2% / 0.6);
+    transition: all 0.2s var(--ease-out-expo);
+  }
+  .input-glass::after {
+    content: '';
+    position: absolute; left: 6%; right: 6%; top: 1px; height: 35%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.14), transparent);
+    pointer-events: none;
+    filter: blur(2px);
+    opacity: 0.5;
+    z-index: -1;
+  }
+  .input-glass:hover {
+    border-color: hsl(var(--primary) / 0.55);
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.14) inset,
+      0 1px 0 hsl(0 0% 100% / 0.08) inset,
+      0 0 16px -2px hsl(var(--primary) / 0.4),
+      0 6px 18px -8px hsl(220 60% 2% / 0.65);
+  }
+  .input-glass:focus,
+  .input-glass:focus-visible,
+  .input-glass[data-state="open"] {
+    border-color: hsl(var(--primary) / 0.75);
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.2) inset,
+      0 1px 0 hsl(0 0% 100% / 0.1) inset,
+      0 0 22px -2px hsl(var(--primary) / 0.55),
+      0 8px 22px -10px hsl(220 60% 2% / 0.7);
+  }
+
   /* ===== Glassy luminous buttons (small, glowing-glass pills) ===== */
   .btn-glass {
     position: relative;
