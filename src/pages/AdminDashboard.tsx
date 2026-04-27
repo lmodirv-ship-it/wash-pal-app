@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Building2, DollarSign, Users, TrendingUp, Sparkles, FileText, Car, Zap, Package, Crown, CreditCard, BarChart3 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Building2, DollarSign, Users, TrendingUp, Sparkles, FileText, Zap, Package, Crown, CreditCard, BarChart3, Download, ChevronDown, Eye, Pause, Play } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar, AreaChart, Area,
@@ -9,10 +8,13 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { VideoScanner } from "@/components/VideoScanner";
 import { PlateHistoryByDate } from "@/components/PlateHistoryByDate";
-
-const PLAN_PRICE: Record<string, number> = { starter: 0, pro: 29, business: 99 };
-
-function monthKey(d: Date) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; }
+import { DateRangeFilter, buildPresetRange, type DateRange } from "@/components/DateRangeFilter";
+import { useDashboardMetrics } from "@/hooks/useDashboardMetrics";
+import { rowsToCsv, downloadCsv, logExport } from "@/lib/exportCsv";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface BigStatProps {
   label: string;
@@ -57,103 +59,60 @@ function BigStat({ label, value, icon: Icon, tone, loading }: BigStatProps) {
 }
 
 export default function AdminDashboard() {
-  const [loading, setLoading] = useState(true);
-  const [shops, setShops] = useState<any[]>([]);
-  const [subs, setSubs] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
-  const [members, setMembers] = useState<any[]>([]);
+  const [range, setRange] = useState<DateRange>(() => buildPresetRange("30d"));
+  const { loading, shops, subs, orders, kpis, series, topShops } = useDashboardMetrics(range);
 
-  useEffect(() => {
-    (async () => {
-      const [s, sb, o, m] = await Promise.all([
-        supabase.from("shops").select("id,name,created_at"),
-        supabase.from("subscriptions").select("id,shop_id,plan,status,monthly_price,current_period_end,created_at"),
-        supabase.from("orders").select("id,shop_id,total_price,status,created_at"),
-        supabase.from("shop_members").select("user_id,shop_id,created_at"),
-      ]);
-      setShops(s.data || []);
-      setSubs(sb.data || []);
-      setOrders(o.data || []);
-      setMembers(m.data || []);
-      setLoading(false);
-    })();
-  }, []);
+  const downloadShops = async () => {
+    const rows = shops.map((s) => ({
+      id: s.id, name: s.name, created_at: s.created_at, suspended: s.suspended,
+    }));
+    const csv = rowsToCsv(rows);
+    const stamp = new Date().toISOString().slice(0,10);
+    downloadCsv(`shops-${stamp}.csv`, csv || "no_data\n");
+    await logExport("shops", null, rows.length);
+    toast.success(`تم تصدير ${rows.length} متجر`);
+  };
 
-  const kpis = useMemo(() => {
-    const now = new Date();
-    const activeSubs = subs.filter((s) => s.status === "active" || s.status === "trialing");
-    const mrr = activeSubs.reduce((acc, s) => acc + Number(s.monthly_price ?? PLAN_PRICE[s.plan] ?? 0), 0);
-    const totalUsers = new Set(members.map((m) => m.user_id)).size;
-    const thisMonth = monthKey(now);
-    const lastMonth = monthKey(new Date(now.getFullYear(), now.getMonth()-1, 1));
-    const newThis = shops.filter((s) => monthKey(new Date(s.created_at)) === thisMonth).length;
-    const newLast = shops.filter((s) => monthKey(new Date(s.created_at)) === lastMonth).length;
-    const growth = newLast === 0 ? (newThis > 0 ? 100 : 0) : ((newThis - newLast) / newLast) * 100;
-    const activeOrders = orders.filter((o) => o.status === "in_progress" || o.status === "waiting").length;
-    const completedOrders = orders.filter((o) => o.status === "completed").length;
-    return { totalShops: shops.length, mrr, totalUsers, growth, activeOrders, completedOrders, activeSubs: activeSubs.length };
-  }, [shops, subs, members, orders]);
+  const downloadOrders = async () => {
+    const rows = orders.map((o) => ({
+      id: o.id, shop_id: o.shop_id, status: o.status,
+      total_price: o.total_price, created_at: o.created_at, completed_at: o.completed_at,
+    }));
+    const csv = rowsToCsv(rows);
+    const stamp = new Date().toISOString().slice(0,10);
+    downloadCsv(`orders-${stamp}.csv`, csv || "no_data\n");
+    // 'orders' is not in the allowed export_type enum of log_export_action;
+    // record under 'work_entries' (operational data) so the audit row still lands.
+    await logExport("work_entries", null, rows.length);
+    toast.success(`تم تصدير ${rows.length} طلب`);
+  };
 
-  const revenueByMonth = useMemo(() => {
-    const map = new Map<string, number>();
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-      map.set(monthKey(d), 0);
-    }
-    subs.forEach((s) => {
-      const k = monthKey(new Date(s.created_at));
-      if (map.has(k)) map.set(k, (map.get(k) || 0) + Number(s.monthly_price ?? PLAN_PRICE[s.plan] ?? 0));
-    });
-    return Array.from(map.entries()).map(([month, revenue]) => ({ month, revenue }));
-  }, [subs]);
+  const downloadSubs = async () => {
+    const rows = subs.map((s) => ({
+      id: s.id, shop_id: s.shop_id, plan: s.plan, status: s.status,
+      monthly_price: s.monthly_price, current_period_end: s.current_period_end, created_at: s.created_at,
+    }));
+    const csv = rowsToCsv(rows);
+    const stamp = new Date().toISOString().slice(0,10);
+    downloadCsv(`subscriptions-${stamp}.csv`, csv || "no_data\n");
+    await logExport("subscriptions", null, rows.length);
+    toast.success(`تم تصدير ${rows.length} اشتراك`);
+  };
 
-  const shopsByMonth = useMemo(() => {
-    const map = new Map<string, number>();
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-      map.set(monthKey(d), 0);
-    }
-    shops.forEach((s) => {
-      const k = monthKey(new Date(s.created_at));
-      if (map.has(k)) map.set(k, (map.get(k) || 0) + 1);
-    });
-    return Array.from(map.entries()).map(([month, shops]) => ({ month, shops }));
-  }, [shops]);
-
-  const usersByMonth = useMemo(() => {
-    const map = new Map<string, Set<string>>();
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-      map.set(monthKey(d), new Set());
-    }
-    members.forEach((m) => {
-      const k = monthKey(new Date(m.created_at));
-      if (map.has(k)) map.get(k)!.add(m.user_id);
-    });
-    return Array.from(map.entries()).map(([month, set]) => ({ month, users: set.size }));
-  }, [members]);
-
-  const topShops = useMemo(() => {
-    const stats = new Map<string, { revenue: number; count: number }>();
-    orders.forEach((o) => {
-      if (o.status !== "completed") return;
-      const cur = stats.get(o.shop_id) || { revenue: 0, count: 0 };
-      cur.revenue += Number(o.total_price || 0);
-      cur.count += 1;
-      stats.set(o.shop_id, cur);
-    });
-    return shops
-      .map((s) => ({ ...s, ...(stats.get(s.id) || { revenue: 0, count: 0 }) }))
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
-  }, [orders, shops]);
+  const downloadTopShops = async () => {
+    const rows = topShops.map((t, i) => ({
+      rank: i+1, id: t.id, name: t.name, orders_count: t.count, revenue: t.revenue,
+    }));
+    const csv = rowsToCsv(rows);
+    const stamp = new Date().toISOString().slice(0,10);
+    downloadCsv(`top-shops-${stamp}.csv`, csv || "no_data\n");
+    await logExport("shops", null, rows.length);
+    toast.success(`تم تصدير ${rows.length} متجر`);
+  };
 
   const insights = useMemo(() => {
     const out: string[] = [];
-    if (topShops[0]?.revenue > 0) out.push(`🏆 الأفضل: ${topShops[0].name} — ${topShops[0].revenue.toLocaleString()} د.م`);
+    if (topShops[0]?.revenue > 0) out.push(`🏆 الأفضل في الفترة: ${topShops[0].name} — ${topShops[0].revenue.toLocaleString()} د.م`);
     const expiring = subs.filter((s) => {
       const days = (new Date(s.current_period_end).getTime() - Date.now()) / (1000*60*60*24);
       return days > 0 && days <= 7;
@@ -161,6 +120,7 @@ export default function AdminDashboard() {
     if (expiring > 0) out.push(`⚠️ ${expiring} اشتراك ينتهي خلال أسبوع`);
     if (kpis.growth > 20) out.push(`🚀 نمو قوي: +${kpis.growth.toFixed(0)}% متاجر هذا الشهر`);
     else if (kpis.growth < -10) out.push(`📉 انخفاض في تسجيل المتاجر هذا الشهر`);
+    if (kpis.suspendedShops > 0) out.push(`⏸️ ${kpis.suspendedShops} متجر مجمّد حالياً`);
     if (out.length === 0) out.push("📊 النظام يعمل بشكل طبيعي. لا توجد تنبيهات.");
     return out;
   }, [topShops, subs, kpis]);
@@ -180,35 +140,53 @@ export default function AdminDashboard() {
           </h1>
           <p className="text-sm text-muted-foreground mt-2 ms-14">{today}</p>
         </div>
-        <Link to="/owner/subscriptions">
-          <Button className="h-11 rounded-xl bg-gradient-to-r from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] hover:opacity-90 text-white font-bold px-5 shadow-[0_8px_24px_-8px_hsl(28_90%_55%/0.6)]">
-            إدارة الاشتراكات
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2 flex-wrap">
+          <DateRangeFilter value={range} onChange={setRange} />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-9 gap-2">
+                <Download className="w-4 h-4" />
+                تصدير
+                <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={downloadShops}>المتاجر (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={downloadOrders}>الطلبات في الفترة (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={downloadSubs}>الاشتراكات (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={downloadTopShops}>أفضل المتاجر (CSV)</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Link to="/owner/subscriptions">
+            <Button className="h-9 rounded-xl bg-gradient-to-r from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] hover:opacity-90 text-white font-bold px-4 shadow-[0_8px_24px_-8px_hsl(28_90%_55%/0.6)]">
+              الاشتراكات
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Big KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-        <BigStat label="Total des demandes" value={kpis.completedOrders + kpis.activeOrders} icon={FileText} tone="blue" loading={loading} />
-        <BigStat label="Chauffeurs actifs" value={kpis.activeSubs} icon={Car} tone="orange" loading={loading} />
-        <BigStat label="Trajets en cours" value={kpis.activeOrders} icon={Zap} tone="green" loading={loading} />
-        <BigStat label="Livraison en attente" value={0} icon={Package} tone="purple" loading={loading} />
-        <BigStat label="Livraison active" value={0} icon={Package} tone="cyan" loading={loading} />
-        <BigStat label="اشتراكات السائقين" value={kpis.activeSubs} icon={Crown} tone="yellow" loading={loading} />
-        <BigStat label="اشتراكات العملاء" value={kpis.totalUsers} icon={CreditCard} tone="pink" loading={loading} />
+        <BigStat label="إجمالي الطلبات (الفترة)" value={kpis.totalOrders} icon={FileText} tone="blue" loading={loading} />
+        <BigStat label="موظفون نشطون" value={kpis.activeEmployees} icon={Users} tone="orange" loading={loading} />
+        <BigStat label="طلبات قيد التنفيذ" value={kpis.activeOrders} icon={Zap} tone="green" loading={loading} />
+        <BigStat label="طلبات قيد الانتظار" value={kpis.waitingOrders} icon={Package} tone="purple" loading={loading} />
+        <BigStat label="طلبات مكتملة" value={kpis.completedOrders} icon={Package} tone="cyan" loading={loading} />
+        <BigStat label="اشتراكات نشطة" value={kpis.activeSubs} icon={Crown} tone="yellow" loading={loading} />
+        <BigStat label="مستخدمون مرتبطون" value={kpis.totalUsers} icon={CreditCard} tone="pink" loading={loading} />
         <BigStat label="إيرادات (MRR)" value={`${kpis.mrr.toLocaleString()} د.م`} icon={DollarSign} tone="green" loading={loading} />
+        <BigStat label="إيرادات الفترة" value={`${kpis.revenueRange.toLocaleString()} د.م`} icon={DollarSign} tone="cyan" loading={loading} />
         <BigStat label="إجمالي المتاجر" value={kpis.totalShops} icon={Building2} tone="blue" loading={loading} />
-        <BigStat label="النمو الشهري" value={`${kpis.growth.toFixed(1)}%`} icon={TrendingUp} tone="orange" loading={loading} />
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5">
-          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><DollarSign className="w-4 h-4 text-[hsl(152_70%_55%)]" /> الإيرادات عبر الزمن</h3>
+          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><DollarSign className="w-4 h-4 text-[hsl(152_70%_55%)]" /> إيرادات الطلبات المكتملة</h3>
           <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={revenueByMonth}>
+            <LineChart data={series.revenue}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
               <Line type="monotone" dataKey="revenue" stroke="hsl(28 95% 60%)" strokeWidth={3} dot={{ r: 4, fill: "hsl(28 95% 60%)" }} />
@@ -217,11 +195,11 @@ export default function AdminDashboard() {
         </div>
 
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5">
-          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-[hsl(210_95%_65%)]" /> متاجر جديدة شهرياً</h3>
+          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-[hsl(210_95%_65%)]" /> متاجر جديدة</h3>
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={shopsByMonth}>
+            <BarChart data={series.shopsB}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
               <Bar dataKey="shops" fill="hsl(210 95% 60%)" radius={[8,8,0,0]} />
@@ -230,9 +208,9 @@ export default function AdminDashboard() {
         </div>
 
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5 lg:col-span-2">
-          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-[hsl(280_80%_70%)]" /> المستخدمون النشطون</h3>
+          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-[hsl(280_80%_70%)]" /> أعضاء جدد</h3>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={usersByMonth}>
+            <AreaChart data={series.usersB}>
               <defs>
                 <linearGradient id="usersGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="hsl(280 80% 70%)" stopOpacity={0.6} />
@@ -240,7 +218,7 @@ export default function AdminDashboard() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 20% 16%)" />
-              <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
               <Tooltip contentStyle={{ background: "hsl(220 25% 10%)", border: "1px solid hsl(220 20% 18%)", borderRadius: "12px" }} />
               <Area type="monotone" dataKey="users" stroke="hsl(280 80% 70%)" fill="url(#usersGrad)" strokeWidth={2.5} />
@@ -252,7 +230,7 @@ export default function AdminDashboard() {
       {/* Top shops + insights */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="rounded-2xl bg-[hsl(220_25%_9%)] border border-[hsl(220_20%_16%)] p-5 lg:col-span-2">
-          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Crown className="w-4 h-4 text-[hsl(48_95%_60%)]" /> أفضل المتاجر أداءً</h3>
+          <h3 className="font-bold mb-4 text-foreground flex items-center gap-2"><Crown className="w-4 h-4 text-[hsl(48_95%_60%)]" /> أفضل المتاجر أداءً (في الفترة)</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-muted-foreground text-xs uppercase">
@@ -261,17 +239,41 @@ export default function AdminDashboard() {
                   <th className="text-right py-2 px-2">المتجر</th>
                   <th className="text-right py-2 px-2">الطلبات</th>
                   <th className="text-right py-2 px-2">الإيرادات</th>
+                  <th className="text-right py-2 px-2">الحالة</th>
+                  <th className="text-center py-2 px-2">إجراءات</th>
                 </tr>
               </thead>
               <tbody>
                 {topShops.length === 0 ? (
-                  <tr><td colSpan={4} className="text-center py-6 text-muted-foreground">لا توجد بيانات بعد</td></tr>
+                  <tr><td colSpan={6} className="text-center py-6 text-muted-foreground">لا توجد بيانات في هذه الفترة</td></tr>
                 ) : topShops.map((s, i) => (
                   <tr key={s.id} className="border-b border-[hsl(220_20%_14%)] hover:bg-[hsl(220_25%_11%)] transition">
                     <td className="py-3 px-2 font-bold text-[hsl(28_95%_65%)]">{i+1}</td>
                     <td className="py-3 px-2 font-medium text-foreground">{s.name}</td>
                     <td className="py-3 px-2 tabular-nums">{s.count}</td>
                     <td className="py-3 px-2 tabular-nums font-bold text-[hsl(152_70%_55%)]">{s.revenue.toLocaleString()} د.م</td>
+                    <td className="py-3 px-2">
+                      {s.suspended ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] bg-red-500/10 text-red-400 border border-red-500/30">مجمّد</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] bg-green-500/10 text-green-400 border border-green-500/30">نشط</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-2">
+                      <div className="flex items-center justify-center gap-1">
+                        <Link to={`/owner/shops?focus=${s.id}`}>
+                          <Button size="sm" variant="outline" className="h-8 gap-1">
+                            <Eye className="w-3 h-3" /> عرض
+                          </Button>
+                        </Link>
+                        <Link to={`/owner/shops?suspend=${s.id}`}>
+                          <Button size="sm" variant={s.suspended ? "default" : "outline"} className="h-8 gap-1">
+                            {s.suspended ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+                            {s.suspended ? "تفعيل" : "تجميد"}
+                          </Button>
+                        </Link>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
