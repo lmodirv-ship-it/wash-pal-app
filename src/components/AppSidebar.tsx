@@ -5,7 +5,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
-  Sidebar, SidebarContent, useSidebar,
+  Sidebar, SidebarContent, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -163,6 +163,9 @@ export function AppSidebar() {
             <NavCard key={it.url} item={it} isActive={isPathActive(it.url)} collapsed={collapsed} />
           ))}
         </nav>
+
+        {/* Sidebar toggle — placed below the navigation list */}
+        <SidebarTrigger className="w-full h-11 rounded-2xl bg-[hsl(220_25%_10%)] border border-[hsl(220_20%_16%)] hover:bg-[hsl(220_25%_14%)] text-foreground/80" />
 
         {/* Logout footer */}
         <button
