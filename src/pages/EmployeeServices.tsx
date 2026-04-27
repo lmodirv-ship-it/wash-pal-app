@@ -154,6 +154,18 @@ export default function EmployeeServices() {
 }
 
 function ReasonEmptyState({ reason, onRetry }: { reason: EmptyReason; onRetry: () => void }) {
+  const [retrying, setRetrying] = useState(false);
+  const handleRetry = async () => {
+    if (retrying) return;
+    setRetrying(true);
+    try {
+      onRetry();
+      // Small UX delay so the spinner is perceptible.
+      await new Promise((r) => setTimeout(r, 600));
+    } finally {
+      setRetrying(false);
+    }
+  };
   const map: Record<NonNullable<EmptyReason>, { Icon: any; title: string; hint: string; tone: string }> = {
     NO_SHOP_LINK: {
       Icon: Store,
@@ -187,9 +199,9 @@ function ReasonEmptyState({ reason, onRetry }: { reason: EmptyReason; onRetry: (
       <Icon className={`w-10 h-10 mx-auto mb-3 ${conf.tone}`} />
       <p className="font-bold text-sm">{conf.title}</p>
       <p className="text-xs text-muted-foreground mt-1">{conf.hint}</p>
-      <Button onClick={onRetry} variant="outline" size="sm" className="mt-4 gap-2">
-        <RefreshCw className="w-3.5 h-3.5" />
-        إعادة المحاولة
+      <Button onClick={handleRetry} disabled={retrying} variant="outline" size="sm" className="mt-4 gap-2">
+        <RefreshCw className={`w-3.5 h-3.5 ${retrying ? "animate-spin" : ""}`} />
+        {retrying ? "جاري التحميل..." : "إعادة المحاولة"}
       </Button>
     </div>
   );
