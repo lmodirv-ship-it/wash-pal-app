@@ -227,10 +227,15 @@ const App = () => (
                 </ProtectedRoute>
               }
             >
-              <Route path="/employee" element={<EmployeeApp />} />
-              <Route path="/employee/services" element={<EmployeeServices />} />
-              <Route path="/work" element={<Navigate to="/employee" replace />} />
+              <Route path="/dashboard/work" element={<EmployeeApp />} />
+              <Route path="/dashboard/services" element={<EmployeeServices />} />
             </Route>
+
+            {/* Legacy /employee/* aliases → /dashboard/* (guards run on the destinations) */}
+            <Route path="/employee" element={<Navigate to="/dashboard/work" replace />} />
+            <Route path="/employee/services" element={<Navigate to="/dashboard/services" replace />} />
+            <Route path="/employee/*" element={<Navigate to="/dashboard/work" replace />} />
+            <Route path="/work" element={<Navigate to="/dashboard/work" replace />} />
 
             {/* Customer */}
             <Route
