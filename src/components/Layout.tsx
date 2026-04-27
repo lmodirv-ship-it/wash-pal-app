@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Search, LogOut, Eye, Users, TrendingUp, RefreshCw, Globe, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { branches, currentBranch, setCurrentBranch } = useApp();
@@ -107,6 +108,7 @@ export function Layout({ children }: { children: ReactNode }) {
               </div>
 
               <LanguageSwitcher />
+              <NotificationBell />
               {isAdmin && <AdminModeSwitcher />}
             </div>
           </header>
