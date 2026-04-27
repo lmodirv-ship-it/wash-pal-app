@@ -1,59 +1,91 @@
-## URGENT FIX — إعادة قائمة الخدمات لجميع الأدوار
+## Owner Dashboard PR1 Polish — Scope Locked
 
-### تشخيص (قبل أي تعديل)
+Polish the existing `/owner` (AdminDashboard) page only. No deletions. No changes to /owner/database (stays read-only). Reuses existing RPCs and the proven `OwnerShops` flow (already wires suspend/activate via `owner_set_shop_suspension` which writes to `audit_logs`).
 
-| الدور | الوصول الحالي | الحالة |
-|---|---|---|
-| **Owner** | لا route تحت `/owner/*` للخدمات → الشريط لا يحتوي رابط | ❌ مفقود |
-| **Admin / Supervisor / Manager** | `/services` داخل AppShell، يعمل عبر `services_select_member` RLS | ✅ يعمل |
-| **Employee** | `/dashboard/services` (read-only) | ✅ يعمل |
-| **Customer** | معروض في `CustomerApp` كقائمة | ✅ يعمل |
+### Files to change
+- `src/pages/AdminDashboard.tsx` — replace mock KPIs with real DB-aggregated values, add date-range filter, CSV exports, "View shop" link, audit-logged actions.
 
-**السبب الجذري:** عند فصل لوحة الأونر تحت `/owner/*` (PR1)، لم يُضَف رابط/route للخدمات. الـ RLS و query تحميل الخدمات سليمة. لا حاجة لتعديل قاعدة البيانات.
+### New files
+- `src/components/DateRangeFilter.tsx` — reusable today/7d/30d/custom toolbar (uses existing `Calendar` shadcn component, `pointer-events-auto`).
+- `src/hooks/useDashboardMetrics.ts` — single hook that loads + aggregates shops/subs/orders/members/invoices, scoped to the selected `[from, to]`.
 
-### الملفات
+### Potential removals
+None.
 
-**To change:**
-- `src/components/OwnerSidebar.tsx` — إضافة عنصر "الخدمات" تحت مجموعة "إدارة المنصة".
-- `src/App.tsx` — إضافة `<Route path="/owner/services" element={<Services />} />` داخل OwnerShell.
-- `src/pages/Services.tsx` — للأونر فقط: dropdown لاختيار المتجر (All / shop X) + بادج اسم المتجر بجانب كل خدمة.
+---
 
-**New files:** لا شيء.
+### What gets fixed (1:1 with the request)
 
-**Removals:** لا شيء (No-Deletion Policy).
+1. **Mock KPIs → real DB aggregates** (cards currently showing fake "Chauffeurs / Trajets / Livraison" labels):
+   - `Total des demandes` → real count of `orders` in range.
+   - `Trajets en cours` → `orders.status in ('waiting','in_progress')` in range.
+   - `Livraison en attente` / `Livraison active` → **renamed** to `طلبات قيد الانتظار` and `طلبات اليوم` (real values from `orders`). The "delivery" wording was placeholder UI; replaced with meaningful car-wash metrics — no feature removed, only relabeled.
+   - `Chauffeurs actifs` → renamed to `موظفون نشطون`, real `count(employees where is_active)`.
+   - `MRR` → unchanged formula but range-aware (subs created in range OR active subs as of range end, depending on filter — defaulting to active-as-of-end).
+   - `إجمالي المتاجر`, `النمو الشهري`, `اشتراكات السائقين/العملاء` → recomputed from real rows + range.
+   - `Revenue from completed orders (range)` → new card replacing one placeholder.
 
-### Data wiring
+2. **Global date-range filter**:
+   - Toolbar at top: `اليوم | 7 أيام | 30 يوم | مخصص`. Custom opens a popover with two `Calendar` pickers (start/end).
+   - Affects KPI grid, the 3 charts (revenue/shops/users), and Top Shops table.
+   - Default: last 30 days. Persisted in component state (no URL sync needed for PR1).
 
-- `useApp().services` يستعمل `supabase.from('services').select('*')` بدون فلترة → RLS يتولى:
-  - Owner يرى الكل (`services_owner_all`).
-  - باقي الأدوار يرون متجرهم فقط (`services_select_member` عبر `is_shop_member`).
-- لا تغيير في الاستعلام. لا hardcoded data.
+3. **CSV exports for dashboard source tables**:
+   - Single "تصدير" dropdown button next to date filter with options:
+     - Shops (filtered) → `shops-YYYY-MM-DD.csv`
+     - Orders (in range) → `orders-YYYY-MM-DD.csv`
+     - Subscriptions (active) → `subscriptions-YYYY-MM-DD.csv`
+     - Top Shops snapshot (current view) → `top-shops-YYYY-MM-DD.csv`
+   - All routed through existing `rowsToCsv` + `downloadCsv` from `src/lib/exportCsv.ts`, then `logExport(...)` to write an `audit_logs` row (RPC `log_export_action` already enforces owner/manager check).
 
-### للأونر — Filter حسب المتجر
+4. **Wire shops actions (activate / freeze / view)**:
+   - In the "Top Shops" table, replace the static row with action buttons:
+     - **عرض** → `Link to="/owner/shops?focus={shop.id}"` (existing OwnerShops page; we add a `?focus` highlight in this PR — single small effect to scroll/highlight the matching row).
+     - **تجميد / تفعيل** → opens the same suspend dialog logic, but to keep this page lean we route the user to `/owner/shops?suspend={shop.id}` and OwnerShops auto-opens the dialog. Audit logging is already handled by `owner_set_shop_suspension` (writes `shop.suspend` / `shop.unsuspend` to `audit_logs`).
+   - This avoids duplicating the suspend dialog and keeps a single source of truth.
 
-- إضافة state `ownerShopFilter: "all" | shopId`.
-- يظهر `<Select>` فقط حين `isOwner === true` و `tenantShops.length > 1`.
-- يطبَّق فلتر JS بعد الجلب.
-- بادج صغير `Shop: <name>` يظهر في كل صف فقط للأونر، حتى يميّز أصول المتاجر.
+5. **DB Center stays read-only** — no changes to `/owner/database`.
 
-### Security / Scope
+---
 
-- RLS موجودة وصحيحة — لا تُعدّل.
-- لا توسعة لصلاحيات الكتابة.
-- زر "خدمة جديدة" يبقى محكوماً بـ `isAdmin` (الموجود حالياً)، والـ DB trigger `enforce_service_limit` يحمي 60/متجر.
+### Queries used (all SELECT, RLS-enforced by `is_owner()`)
 
-### Quality gates
+```sql
+-- Shops (with suspended flag for action wiring)
+select id, name, created_at, suspended from shops;
 
-- `tsc --noEmit` ✅
-- Owner: يرى Services من `/owner/services` + يفلتر بحسب shop.
-- Manager/Admin/Supervisor: `/services` كما هو.
-- Employee: `/dashboard/services` كما هو.
-- لا cross-shop write للأدوار غير الأونر (محمي بـ `services_*_manager` policies الموجودة).
+-- Subscriptions
+select id, shop_id, plan, status, monthly_price, current_period_end, created_at
+from subscriptions;
 
-### Diff Report (سيُسلَّم بعد التنفيذ)
-- Added: عنصر sidebar + route + UI filter + badge.
-- Updated: 3 ملفات (`OwnerSidebar.tsx`, `App.tsx`, `Services.tsx`).
-- Removed: (فارغ).
-- Migrations: لا شيء.
-- RLS changes: لا شيء.
-- Build/typecheck: سيُشغَّل ويُبلّغ.
+-- Orders within range
+select id, shop_id, total_price, status, created_at, completed_at
+from orders
+where created_at >= :from and created_at < :to;
+
+-- Members within range (for users-by-month chart)
+select user_id, shop_id, created_at from shop_members;
+
+-- Employees (for active-employees KPI)
+select id, shop_id, is_active from employees where is_active = true;
+```
+
+CSV exports: same selects above filtered by range, then `rowsToCsv` → `downloadCsv` → `log_export_action` RPC.
+
+---
+
+### Acceptance / verification
+
+- KPI numbers match `psql` counts for a seeded shop (cross-checked via `supabase--read_query`).
+- Changing the date range immediately re-renders KPIs + all 3 charts + Top Shops.
+- Each CSV download produces an `audit_logs` row with `action='export.csv'`, correct `target_type`, and row count in `metadata`.
+- Suspending a shop from Top Shops links to OwnerShops, opens dialog, on confirm writes `shop.suspend` to `audit_logs` (existing behavior, just newly reachable from the dashboard).
+- `npm run build` + `tsc --noEmit` pass.
+- No existing route, button, sidebar entry, or table is removed.
+
+### Deliverables
+- Changed file list.
+- The exact SQL queries above.
+- Before/after screenshots of the dashboard (desktop 1330×890 + mobile).
+- `tsc --noEmit` + build output.
+- Sample `audit_logs` row from one export and one suspend action.
