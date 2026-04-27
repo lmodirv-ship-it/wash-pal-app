@@ -33,6 +33,7 @@ export default function EmployeeApp() {
     { id: "packs", label: t("services.cats.packs"), icon: Package, cls: "text-success" },
   ];
 
+  const [carPlate, setCarPlate] = useState("");
   const [carType, setCarType] = useState("");
   const [carSize, setCarSize] = useState<"normal" | "4x4" | "motor">("normal");
   const [serviceId, setServiceId] = useState<string>("");
@@ -58,7 +59,7 @@ export default function EmployeeApp() {
   const finalPrice = picked ? picked.price + (carSize === "4x4" ? SURCHARGE_4X4 : 0) : 0;
 
   const submit = async () => {
-    if (!carType.trim()) { toast.error(t("employeeApp.carTypeRequired")); return; }
+    if (!carPlate.trim()) { toast.error(t("employeeApp.plateRequired", { defaultValue: "أدخل رقم السيارة" })); return; }
     if (!picked) { toast.error(t("employeeApp.chooseServiceErr")); return; }
     if (!currentBranch) { toast.error(t("employeeApp.noBranch")); return; }
 
@@ -68,8 +69,8 @@ export default function EmployeeApp() {
       await addOrder({
         customerId: "",
         customerName: t("employeeApp.directCustomer"),
-        carType: `${carType.trim()} (${sizeLabel})`,
-        carPlate: carType.trim().toUpperCase(),
+        carType: `${(carType.trim() || "—")} (${sizeLabel})`,
+        carPlate: carPlate.trim().toUpperCase(),
         services: [picked.id],
         totalPrice: finalPrice,
         status: "in_progress",
@@ -78,7 +79,7 @@ export default function EmployeeApp() {
         notes: carSize === "4x4" ? `+${SURCHARGE_4X4} DH ${t("employeeApp.surchargeAdded")}` : carSize === "motor" ? t("employeeApp.motorcycle") : undefined,
       });
       toast.success(`${t("employeeApp.saved")} - ${finalPrice} DH`);
-      setCarType(""); setServiceId(""); setCarSize("normal");
+      setCarPlate(""); setCarType(""); setServiceId(""); setCarSize("normal");
     } catch (e: any) {
       toast.error(t("employeeApp.saveFailed") + ": " + (e?.message || ""));
     } finally {
@@ -97,13 +98,21 @@ export default function EmployeeApp() {
             <span>{t("employeeApp.employeeName", { defaultValue: "اسم الموظف" })}:</span>
             <span className="text-primary">{myName}</span>
           </Label>
-          <Input
-            autoFocus
-            placeholder={carSize === "motor" ? t("employeeApp.placeholderMotor") : t("employeeApp.plateExample")}
-            value={carType}
-            onChange={e => setCarType(e.target.value)}
-            className="h-9 w-full text-sm font-bold text-center uppercase"
-          />
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              autoFocus
+              placeholder={t("employeeApp.plateExample", { defaultValue: "رقم السيارة" })}
+              value={carPlate}
+              onChange={e => setCarPlate(e.target.value)}
+              className="h-9 text-sm font-bold text-center uppercase"
+            />
+            <Input
+              placeholder={carSize === "motor" ? t("employeeApp.placeholderMotor") : t("employeeApp.placeholderType", { defaultValue: "نوع السيارة" })}
+              value={carType}
+              onChange={e => setCarType(e.target.value)}
+              className="h-9 text-sm font-bold text-center"
+            />
+          </div>
           {carSize === "motor" && <p className="text-[11px] text-success mt-1.5">{t("employeeApp.motorNote")}</p>}
         </div>
       </Card>
