@@ -1,108 +1,57 @@
-# Phase 2 — Multi-Tenant Isolation (Hard Enforcement)
+## Goal
+Make the **Employee** role able to view services for their own shop, read-only and shop-scoped.
 
-## الهدف
-إزالة كل قنوات الوصول العالمي عبر الدور `admin` وجعله **مالك متجر فقط**. الوصول العالمي يبقى محصوراً في `owner` (حساب `lmodirv@gmail.com` لديه دور `owner` بالفعل، فلن يفقد صلاحياته).
+## Root cause
+- Employees enter via `/employee` (`EmployeeApp`) which renders fullscreen with **no sidebar**, so there is no entry point to a Services page.
+- `EmployeeApp` already calls `useApp().services`, but for many employees `services` is empty because either (a) `tenantShops` is empty for them so `currentShopId` is never set / shop UI gates them, or (b) RLS returns nothing because they have no `shop_members` row in any shop. RLS for `services` is `is_shop_member(shop_id)`, which is correct — invited employees become members and should see rows. The visible bug is mostly UX: no dedicated Services screen and no clear empty state.
 
-## المبدأ
-```text
-owner       → وصول عالمي (is_owner())
-admin       → داخل shop_id الخاص به فقط (عبر shops.owner_id أو shop_members)
-supervisor  → داخل shop_id (shop_members)
-manager     → داخل shop_id (shop_members)
-employee    → داخل shop_id (shop_members)
-customer    → بياناته الخاصة فقط
-```
+## Plan
 
----
+### 1. Add a dedicated Employee Services page (read-only)
+- New file: `src/pages/EmployeeServices.tsx`.
+- Reuses `useApp().services` (already shop-scoped via RLS).
+- Shows only `isActive === true` services.
+- Groups by category (standard / vip / extra / packs / motor) using same look as `EmployeeApp` cards, but **no selection, no add/edit/delete** — display only (name, price, duration, "starting from" badge).
+- Search box + category tabs, RTL friendly.
+- Empty state: "لا توجد خدمات متاحة في متجرك حالياً." with hint to contact the supervisor.
+- Localized via `getServiceName` / i18n.
 
-## 1) حذف سياسات الوصول العالمي للـ admin
+### 2. Wire route + guard
+- In `src/App.tsx`, inside the existing employee fullscreen route group (`allowedRoles={["owner","employee","supervisor","manager"]}`), add:
+  - `/employee/services` → `EmployeeServices`.
+- Keep `/employee` unchanged.
 
-ستُحذف **19** سياسة `*_admin_all` من الجداول التالية. الوصول الفعلي للـ admin سيمر من خلال سياسات `*_member_*` و `*_owner_all` الموجودة (لأن admin مالك المتجر يكون عضواً فيه عبر `shops.owner_id` أو `shop_members`).
+### 3. Add a small top-bar / nav inside the Employee area
+The employee shell has no sidebar, so add a slim header/nav inside `EmployeeApp` and `EmployeeServices`:
+- Two pills: "تسجيل طلب" → `/employee`, "الخدمات" → `/employee/services`.
+- Active state highlighted. Mobile-first, sticky top.
+- Extract into `src/components/EmployeeTopNav.tsx` and use in both pages.
 
-| الجدول | السياسات المحذوفة |
-|--------|-------------------|
-| b2b_partners | `b2b_partners_admin_all` |
-| branches | `branches_admin_all` |
-| customers | `customers_admin_all` |
-| discount_coupons | `coupons_admin_all` |
-| employees | `employees_admin_all` |
-| expenses | `expenses_admin_all` |
-| invites | `invites_admin_all` |
-| invoices | `invoices_admin_all` |
-| message_templates | `templates_admin_all` |
-| notification_settings | `notification_settings_admin_all` |
-| notifications | `notifications_admin_all` |
-| orders | `orders_admin_all` |
-| pricing_plans | `pricing_plans_admin_all` |
-| services | `services_admin_all` |
-| shop_members | `shop_members_admin_all` |
-| shops | `shops_admin_all` |
-| subscriptions | `subscriptions_admin_all` |
-| video_scans | `video_scans_admin_all` |
-| video_scan_detections | `video_scan_detections_admin_all` |
+### 4. Sidebar (defense in depth)
+- In `src/components/AppSidebar.tsx`, append a Services entry (`/employee/services`, `Droplets` icon) to `employeeItems`. Sidebar isn't rendered on `/employee/*` today, but this keeps things consistent if an employee ever lands on a layout route.
 
-كذلك تُحذف السياسات التي تعطي admin صلاحيات عالمية على جداول النظام:
-- `profiles`: `Admins read all profiles`, `Admins update all profiles`, `Admins insert profiles`, `Admins delete profiles`
-- `user_roles`: `Admins manage roles`
-- `imou_devices`: `Admins manage imou_devices` + تضييق `imou_devices_select_member` ليحذف شرط `has_role admin/manager` العالمي
-- `notifications`: تعديل `notifications_insert_member` لإزالة `has_role admin`
-- `role_audit_logs`: `role_audit_logs_admin_select` (يبقى `role_audit_logs_owner_select` فقط — قراءة سجلات الأدوار صلاحية owner فقط)
-- `login_attempts`: `Admins can view login attempts` (سجل أمني عالمي → owner فقط)
+### 5. Backend / RLS verification (no changes expected)
+Current `services` policies already satisfy the requirements:
+- `services_select_member` USING `is_shop_member(shop_id)` → employee SELECT inside their shop only.
+- `services_insert_member` / `services_update_member` / `services_delete_member` all gated by `is_shop_member`. To strictly block employees from writes (only supervisor/manager/owner), we will tighten **write** policies to `is_shop_manager(shop_id)` while keeping SELECT open to all members:
+  - Drop `services_insert_member`, `services_update_member`, `services_delete_member`.
+  - Recreate them with `is_shop_manager(shop_id)` (USING + WITH CHECK).
+  - `services_select_member` and `services_owner_all` stay unchanged.
+- This guarantees: employee can read, cannot write.
 
-## 2) ضمان وجود سياسات shop-scoped لكل العمليات
+### 6. Empty-state diagnostics
+If `services` is empty AND `tenantShops` is empty, show a clearer message in `EmployeeServices`:
+- "لم يتم ربطك بأي متجر بعد. تواصل مع المشرف لقبول الدعوة."
+This avoids the silent blank-page experience employees see today.
 
-سياسات `*_member_*` (SELECT/INSERT/UPDATE/DELETE) موجودة بالفعل لمعظم الجداول مع `WITH CHECK = is_shop_member(shop_id)`. سأتحقق من اكتمالها للجداول التالية وأضيف أي ناقص:
+## Acceptance criteria mapping
+1. Employee login → `/employee/services` opens. ✅
+2. RLS `is_shop_member` ensures shop-scoped SELECT only. ✅
+3. Cross-shop services hidden by RLS. ✅
+4. Write policies tightened to `is_shop_manager` → employees blocked from create/edit/delete. ✅
+5. New page is plain TSX reusing existing types → clean build. ✅
 
-- `discount_coupons`, `message_templates`, `notification_settings` — موجودة ✓
-- `b2b_partners` — لها `member_select` + `manager_insert/update/delete` ✓
-- `imou_devices` — يحتاج إضافة سياسات INSERT/UPDATE/DELETE shop-scoped (manager-level فقط) بعد حذف policy الـ admin العالمية
-- `pricing_plans` — جدول مرجعي عام: يبقى `select_all` للجميع، الكتابة تصبح `is_owner()` فقط
-- `subscriptions` — يبقى `select_member` للقراءة، الكتابة تصبح `is_owner()` فقط (الـ admin لن يستطيع تعديل اشتراكه — هذا أمان مقصود؛ الترقية تتم عبر edge function لاحقاً)
-- `notifications` — تعديل `insert_member` ليصبح: `auth.uid() = user_id AND (shop_id IS NULL OR is_shop_member(shop_id))` (بدون admin override)
-- `shops` — السياسات الحالية (`shops_insert_self`, `shops_select_owner`, `shops_update_owner`) كافية لإدارة المتجر الذاتية
-- `shop_members` — `shop_members_owner_manage` يسمح لمالك المتجر بإدارة أعضائه ✓
-- `user_roles` — يبقى `Users read own roles` للقراءة الذاتية + `user_roles_owner_all` للـ owner. **لا يستطيع admin تعديل الأدوار عالمياً بعد الآن.** (إدارة أدوار الفريق داخل متجره ستُضاف في migration لاحق عبر `can_manage_shop_team` — ليس الآن لأنه يحتاج عمود `shop_id` في `user_roles` غير موجود).
-- `profiles` — يبقى `Users can read own profile` + `profiles_update_own_no_role` + سياسات `profiles_owner_*`. admin لن يقرأ بروفايلات بقية المنصة.
-
-## 3) تأثير على الواجهة (UI impact)
-
-الصفحات التي تعتمد على وصول admin العالمي ستحتاج تعديل:
-
-- **`AdminUsers.tsx`**: يستدعي edge function `admin-users-list` ويعرض كل المستخدمين. هذه الصفحة صلاحية owner فقط — يجب حصرها بـ `isPlatformOwner` (إخفاء من السايدبار + ProtectedRoute).
-- **`RoleAuditLogs.tsx`**: نفس الشيء — owner فقط.
-- **صفحات admin global (إن وُجدت):** أي قائمة "كل المتاجر" / "كل الفواتير" / "كل المستخدمين" تُحجب عن admin.
-- صفحات إدارة المتجر العادية (Orders, Customers, Employees, Services, Branches, Invoices, Expenses) ستستمر بالعمل للـ admin لأنه عضو في متجره.
-
-سأفحص `AppSidebar.tsx` و `App.tsx` وأحدّث القيود حيث يلزم.
-
-## 4) ما **لا** يتم في هذه المرحلة (لتجنب التوسع)
-
-- لا تعديل على `audit_logs` — يبقى للأدوار فقط.
-- لا حذف لـ `profiles.role` — يبقى cache.
-- لا تغيير على schema الجداول.
-- لا تغيير على `is_shop_member` / `is_shop_manager` / `can_manage_shop_team`.
-- لا دمج مع Stripe.
-- لا إعادة كتابة إدارة الأدوار عبر `shop_id` (يحتاج عمود جديد — مرحلة لاحقة).
-
-## 5) معايير القبول والتحقق
-
-بعد التنفيذ:
-1. `bunx tsc --noEmit` ينجح.
-2. تسجيل الدخول بـ `lmodirv@gmail.com` (owner) → يصل لكل شيء عادي.
-3. تسجيل دخول حساب admin متجر A → يرى فقط بيانات متجر A في `orders/invoices/customers/employees/services/branches/expenses/b2b_partners`.
-4. حساب admin متجر A لا يستطيع SELECT بيانات متجر B (تجربة SQL يدوية).
-5. حساب admin لا يرى صفحات `AdminUsers` و `RoleAuditLogs`.
-6. `AppSidebar` يعرض روابط الإدارة العالمية فقط للـ owner.
-
-## 6) ملفات ستتغير
-
-- **Migration واحد** يحذف ~25 سياسة admin عالمية ويستبدل/يصلح الجداول الخاصة (imou_devices, notifications, pricing_plans writes, subscriptions writes, login_attempts).
-- **`src/App.tsx`** — تقييد routes `/admin/users` و `/admin/role-audit-logs` لـ owner فقط.
-- **`src/components/AppSidebar.tsx`** — إخفاء روابط الإدارة العالمية عن non-owner.
-- **`src/pages/AdminUsers.tsx`** و **`src/pages/RoleAuditLogs.tsx`** — حراسة client-side: redirect إذا ليس owner.
-
----
-
-## ⚠️ تحذير قبل الموافقة
-
-هذا التغيير **سيكسر فوراً** أي مكان يفترض أن admin يرى بيانات عالمية. إذا كان هناك حساب admin (غير owner) يستخدم النظام الآن، سيفقد الوصول لكل ما هو خارج متجره. الحساب الرئيسي `lmodirv@gmail.com` آمن لأنه owner. تأكد من أن هذا هو المطلوب قبل الموافقة.
+## Files touched
+- **New**: `src/pages/EmployeeServices.tsx`, `src/components/EmployeeTopNav.tsx`
+- **Edit**: `src/App.tsx`, `src/pages/EmployeeApp.tsx` (mount top nav), `src/components/AppSidebar.tsx`
+- **Migration**: tighten `services` write policies to `is_shop_manager`
