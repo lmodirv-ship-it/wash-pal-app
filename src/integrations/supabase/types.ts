@@ -239,6 +239,54 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_join_requests: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          rejection_reason: string | null
+          requested_role: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          shop_id: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          rejection_reason?: string | null
+          requested_role?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shop_id: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          rejection_reason?: string | null
+          requested_role?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shop_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       employee_service_overrides: {
         Row: {
           created_at: string
@@ -1024,6 +1072,7 @@ export type Database = {
           id: string
           name: string
           owner_id: string
+          reference_code: string | null
           updated_at: string
         }
         Insert: {
@@ -1032,6 +1081,7 @@ export type Database = {
           id?: string
           name: string
           owner_id: string
+          reference_code?: string | null
           updated_at?: string
         }
         Update: {
@@ -1040,6 +1090,7 @@ export type Database = {
           id?: string
           name?: string
           owner_id?: string
+          reference_code?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1199,6 +1250,10 @@ export type Database = {
     }
     Functions: {
       accept_invite: { Args: { _token: string }; Returns: string }
+      approve_join_request: {
+        Args: { _request_id: string }
+        Returns: undefined
+      }
       can_manage_shop_team: { Args: { _shop_id: string }; Returns: boolean }
       current_employee_id: { Args: { _shop_id: string }; Returns: string }
       effective_services_for_employee: {
@@ -1249,6 +1304,14 @@ export type Database = {
       is_shop_manager: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_member: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_readonly: { Args: { _shop_id: string }; Returns: boolean }
+      reject_join_request: {
+        Args: { _reason: string; _request_id: string }
+        Returns: undefined
+      }
+      submit_join_request: {
+        Args: { _full_name: string; _phone: string; _reference_code: string }
+        Returns: string
+      }
       user_shop_ids: { Args: never; Returns: string[] }
     }
     Enums: {

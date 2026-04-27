@@ -161,6 +161,12 @@ export default function Login() {
                 إنشاء حساب جديد
               </Link>
             </div>
+            <div className="text-center text-xs text-muted-foreground">
+              موظف جديد؟{" "}
+              <Link to="/join-shop" className="text-primary hover:underline font-semibold">
+                انضم باستخدام رقم تعريف المحل
+              </Link>
+            </div>
           </form>
         </div>
       </div>

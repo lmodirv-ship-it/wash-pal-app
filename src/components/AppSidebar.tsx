@@ -73,6 +73,7 @@ export function AppSidebar() {
     { title: t("nav.employees"), url: "/employees", icon: UserCog },
     { title: t("nav.customers"), url: "/customers", icon: Users },
     { title: "فريق العمل", url: "/team", icon: UserPlus },
+    { title: "طلبات الانضمام", url: "/dashboard/join-requests", icon: UserPlus },
     { title: t("nav.invoices"), url: "/invoices", icon: FileText },
     { title: t("nav.finance"), url: "/finance", icon: Wallet },
     { title: t("nav.reports"), url: "/reports", icon: BarChart3 },
