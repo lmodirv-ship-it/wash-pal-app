@@ -1,15 +1,9 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffectiveRoles, AppRole, homeForRole, pickPrimaryRole } from "@/hooks/useEffectiveRoles";
 
-export type AppRole =
-  | "super_admin"
-  | "admin"
-  | "supervisor"
-  | "manager"
-  | "employee"
-  | "customer";
+export type { AppRole };
 
 interface Props {
   children: ReactNode;
@@ -27,65 +21,20 @@ function LoadingScreen() {
   );
 }
 
-/**
- * Resolves the user's effective roles by combining:
- *  - profile.role (super_admin / admin / customer)
- *  - shop_members.role[] (supervisor / manager / employee)
- */
-async function resolveUserRoles(
-  userId: string,
-  profileRole: string | undefined
-): Promise<AppRole[]> {
-  const roles = new Set<AppRole>();
-  if (profileRole === "admin") roles.add("admin");
-  if (profileRole === "super_admin") roles.add("super_admin");
-  if (profileRole === "customer") roles.add("customer");
-
-  const { data } = await supabase
-    .from("shop_members")
-    .select("role")
-    .eq("user_id", userId);
-
-  data?.forEach((r) => {
-    if (r.role) roles.add(r.role as AppRole);
-  });
-
-  return Array.from(roles);
-}
-
 export default function ProtectedRoute({ children, allowedRoles }: Props) {
-  const { user, profile, loading } = useAuth();
-  const [userRoles, setUserRoles] = useState<AppRole[] | null>(null);
+  const { user, loading } = useAuth();
+  const { roles, loading: rolesLoading } = useEffectiveRoles();
 
-  useEffect(() => {
-    if (!user || !profile) { setUserRoles(null); return; }
-    resolveUserRoles(user.id, profile.role).then(setUserRoles);
-  }, [user, profile]);
-
-  // 1. Still loading auth or profile
-  if (loading || (user && !profile)) return <LoadingScreen />;
-
-  // 2. Not authenticated → login
+  if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
+  if (rolesLoading || roles === null) return <LoadingScreen />;
 
-  // 3. Resolving roles
-  if (userRoles === null) return <LoadingScreen />;
+  // Admin always passes
+  if (roles.includes("admin")) return <>{children}</>;
 
-  // 4. SUPER ADMIN OVERRIDE — bypasses all restrictions
-  const isSuperAdmin =
-    userRoles.includes("super_admin") || userRoles.includes("admin");
-  if (isSuperAdmin) return <>{children}</>;
-
-  // 5. Role-based check — redirect to user's own home instead of unauthorized page
-  const hasAccess = userRoles.some((r) => allowedRoles.includes(r));
+  const hasAccess = roles.some((r) => allowedRoles.includes(r));
   if (!hasAccess) {
-    // Pick the best home route for this user's actual role
-    if (userRoles.includes("customer")) return <Navigate to="/app" replace />;
-    if (userRoles.includes("employee")) return <Navigate to="/employee" replace />;
-    if (userRoles.includes("manager") || userRoles.includes("supervisor"))
-      return <Navigate to="/dashboard" replace />;
-    return <Navigate to="/post-login" replace />;
+    return <Navigate to={homeForRole(pickPrimaryRole(roles))} replace />;
   }
-
   return <>{children}</>;
 }

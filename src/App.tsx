@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider, useApp } from "@/contexts/AppContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { useEffectiveRoles, homeForRole, pickPrimaryRole } from "@/hooks/useEffectiveRoles";
 import { Layout } from "@/components/Layout";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -58,10 +59,10 @@ function LoadingScreen() {
 
 /** Wraps protected pages with AppProvider + Layout + shop gate */
 function AppShell() {
-  const { profile } = useAuth();
-  const role = profile?.role || "employee";
-  const needsShop = role === "admin" || role === "manager" || role === "supervisor";
-
+  const { roles } = useEffectiveRoles();
+  const list = roles ?? [];
+  const needsShop =
+    list.includes("admin") || list.includes("manager") || list.includes("supervisor");
   return (
     <AppProvider>
       <ShopGate needsShop={needsShop}>
@@ -82,14 +83,12 @@ function ShopGate({ needsShop, children }: { needsShop: boolean; children: React
 
 /** Smart root redirect based on role */
 function RoleHomeRedirect() {
-  const { profile, loading, user } = useAuth();
-  if (loading || (user && !profile)) return <LoadingScreen />;
+  const { user, loading } = useAuth();
+  const { roles, loading: rolesLoading } = useEffectiveRoles();
+  if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
-  const role = profile?.role;
-  if (role === "admin") return <Navigate to="/admin" replace />;
-  if (role === "customer") return <Navigate to="/app" replace />;
-  if (role === "employee") return <Navigate to="/employee" replace />;
-  return <Navigate to="/dashboard" replace />;
+  if (rolesLoading || roles === null) return <LoadingScreen />;
+  return <Navigate to={homeForRole(pickPrimaryRole(roles))} replace />;
 }
 
 function AuthedCreateShop() {
@@ -127,7 +126,7 @@ const App = () => (
             {/* Super-admin */}
             <Route
               element={
-                <ProtectedRoute allowedRoles={["super_admin", "admin"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <AppShell />
                 </ProtectedRoute>
               }
