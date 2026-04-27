@@ -7,13 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit, Sliders } from "lucide-react";
+import { Plus, Trash2, Edit, Sliders, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { EmployeeServiceOverridesDialog } from "@/components/EmployeeServiceOverridesDialog";
+import { exportFromView } from "@/lib/exportCsv";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Employees() {
-  const { employees, branches, currentBranch, addEmployee, updateEmployee, deleteEmployee } = useApp();
+  const { employees, branches, currentBranch, currentShopId, addEmployee, updateEmployee, deleteEmployee } = useApp();
+  const { isAdmin } = useAuth();
   const { t, i18n } = useTranslation();
   const locale = i18n.language === "ar" ? "ar-MA" : "fr-FR";
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -47,6 +50,28 @@ export default function Employees() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-foreground">{t("employees.title")}</h1>
+        <div className="flex items-center gap-2">
+        {isAdmin && (
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={async () => {
+              try {
+                const { count } = await exportFromView({
+                  view: "v_employees_export",
+                  type: "employees",
+                  shopId: currentShopId,
+                  filenamePrefix: "employees",
+                });
+                toast.success(`تم تصدير ${count} موظف`);
+              } catch (e: any) {
+                toast.error(e?.message ?? "فشل التصدير");
+              }
+            }}
+          >
+            <Download className="w-4 h-4" /> تصدير CSV
+          </Button>
+        )}
         <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
           <DialogTrigger asChild><Button className="lavage-btn"><Plus className="w-4 h-4 mx-2" />{t("employees.newEmployee")}</Button></DialogTrigger>
           <DialogContent className="bg-card border-border">
