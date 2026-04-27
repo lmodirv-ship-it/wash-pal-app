@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { OwnerSidebar } from "@/components/OwnerSidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,6 @@ export function OwnerLayout({ children }: { children: ReactNode }) {
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-30 bg-[hsl(220_30%_5%)]/95 backdrop-blur-xl border-b border-[hsl(48_95%_55%/0.15)] px-3 md:px-5 py-3">
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="hover:bg-[hsl(220_25%_12%)] rounded-xl h-10 w-10" />
-
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[hsl(48_95%_55%/0.08)] border border-[hsl(48_95%_55%/0.25)]">
                 <Crown className="w-4 h-4 text-[hsl(48_95%_65%)]" />
                 <span className="text-xs font-bold text-[hsl(48_95%_70%)] tracking-wide">
