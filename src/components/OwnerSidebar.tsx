@@ -113,10 +113,10 @@ export function OwnerSidebar() {
                           className={[
                             "group relative flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium",
                             "transition-all duration-200 ease-out",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(48_95%_60%/0.7)] focus-visible:ring-offset-0",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(210_100%_60%/0.7)] focus-visible:ring-offset-0",
                             active
-                              ? "border border-[hsl(48_95%_55%/0.45)] bg-gradient-to-l from-[hsl(48_95%_55%/0.28)] via-[hsl(40_95%_55%/0.18)] to-[hsl(28_95%_55%/0.10)] text-[hsl(48_100%_92%)] shadow-[0_0_0_1px_hsl(48_95%_55%/0.22),0_10px_28px_-10px_hsl(40_95%_55%/0.55)]"
-                              : "border border-transparent text-zinc-300/85 hover:border-[hsl(48_95%_55%/0.18)] hover:bg-[hsl(48_95%_55%/0.08)] hover:text-[hsl(48_100%_88%)]",
+                              ? "border border-[hsl(210_100%_60%/0.5)] bg-gradient-to-l from-[hsl(210_100%_55%/0.32)] via-[hsl(205_100%_55%/0.20)] to-[hsl(200_100%_55%/0.10)] text-[hsl(205_100%_92%)] shadow-[0_0_0_1px_hsl(210_100%_60%/0.28),0_10px_30px_-8px_hsl(210_100%_55%/0.65)]"
+                              : "border border-transparent text-zinc-300/85 hover:border-[hsl(210_100%_60%/0.25)] hover:bg-[hsl(210_100%_55%/0.10)] hover:text-[hsl(205_100%_92%)]",
                           ].join(" ")}
                         >
                           <img
@@ -129,7 +129,7 @@ export function OwnerSidebar() {
                             className={[
                               "h-[22px] w-[22px] shrink-0 object-contain transition-all duration-200 select-none",
                               active
-                                ? "drop-shadow-[0_0_6px_hsl(48_95%_55%/0.55)] opacity-100"
+                                ? "drop-shadow-[0_0_8px_hsl(210_100%_60%/0.7)] opacity-100"
                                 : "opacity-80 group-hover:opacity-100",
                             ].join(" ")}
                             draggable={false}
@@ -140,7 +140,7 @@ export function OwnerSidebar() {
                           {active && !collapsed && (
                             <span
                               aria-hidden
-                              className="ms-auto h-1.5 w-1.5 rounded-full bg-[hsl(48_100%_65%)] shadow-[0_0_8px_hsl(48_95%_55%/0.85)]"
+                              className="ms-auto h-1.5 w-1.5 rounded-full bg-[hsl(205_100%_70%)] shadow-[0_0_10px_hsl(210_100%_60%/0.9)]"
                             />
                           )}
                         </NavLink>
@@ -154,7 +154,7 @@ export function OwnerSidebar() {
         ))}
 
         <div className="mt-auto px-3 pb-4 pt-2">
-          <SidebarTrigger className="w-full h-11 rounded-xl bg-[hsl(220_25%_8%)] border border-[hsl(48_95%_55%/0.25)] hover:bg-[hsl(48_95%_55%/0.08)] text-[hsl(48_95%_70%)]" />
+          <SidebarTrigger className="w-full h-11 rounded-xl bg-[hsl(220_25%_8%)] border border-[hsl(210_100%_60%/0.35)] hover:bg-[hsl(210_100%_55%/0.12)] text-[hsl(205_100%_75%)] shadow-[0_0_18px_-6px_hsl(210_100%_60%/0.7)]" />
         </div>
       </SidebarContent>
     </Sidebar>
