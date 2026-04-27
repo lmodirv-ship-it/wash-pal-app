@@ -1,16 +1,18 @@
 import { useMemo, useState } from "react";
-import { useApp } from "@/contexts/AppContext";
 import { ServiceCategory } from "@/types";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Crown, Sparkles, Package, Droplets, Bike, Search, Clock, Info } from "lucide-react";
+import { Crown, Sparkles, Package, Droplets, Bike, Search, Clock, Info, RefreshCw, AlertTriangle, Lock, Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getServiceName, getServiceDescription } from "@/lib/serviceI18n";
+import { useEffectiveServices, EmptyReason } from "@/hooks/useEffectiveServices";
+import { EmployeeTopNav } from "@/components/EmployeeTopNav";
 
 export default function EmployeeServices() {
-  const { services, tenantShops, loading } = useApp();
+  const { services, reason, loading, refresh } = useEffectiveServices();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const [search, setSearch] = useState("");
@@ -25,21 +27,18 @@ export default function EmployeeServices() {
     { id: "motor", label: t("services.cats.motor"), icon: Bike, cls: "text-success" },
   ];
 
-  const activeServices = useMemo(() => services.filter((s) => s.isActive), [services]);
-
   const filtered = useMemo(
     () =>
-      activeServices
+      services
         .filter((s) => (tab === "all" ? true : s.category === tab))
         .filter((s) => getServiceName(s, lang).toLowerCase().includes(search.toLowerCase())),
-    [activeServices, tab, search, lang]
+    [services, tab, search, lang]
   );
-
-  const noShop = !loading && tenantShops.length === 0;
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-3 pb-8 space-y-3">
+      <div className="max-w-2xl mx-auto px-3 py-3 space-y-3 pb-8">
+        <EmployeeTopNav />
         <div className="text-center pt-3">
           <h1 className="text-xl font-bold">{t("services.title", { defaultValue: "الخدمات" })}</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -79,24 +78,10 @@ export default function EmployeeServices() {
             </TabsList>
 
             <TabsContent value={tab as string} className="mt-0">
-              {noShop ? (
-                <EmptyState
-                  title={t("employeeServices.noShopTitle", {
-                    defaultValue: "لم يتم ربطك بأي متجر بعد",
-                  })}
-                  hint={t("employeeServices.noShopHint", {
-                    defaultValue: "تواصل مع المشرف ليقوم بدعوتك إلى المتجر.",
-                  })}
-                />
+              {loading ? (
+                <p className="text-center text-sm text-muted-foreground py-10">{t("common.loading", { defaultValue: "جاري التحميل..." })}</p>
               ) : filtered.length === 0 ? (
-                <EmptyState
-                  title={t("employeeServices.emptyTitle", {
-                    defaultValue: "لا توجد خدمات متاحة",
-                  })}
-                  hint={t("employeeServices.emptyHint", {
-                    defaultValue: "لم يتم إضافة خدمات نشطة في متجرك حالياً.",
-                  })}
-                />
+                <ReasonEmptyState reason={reason} onRetry={refresh} />
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   {filtered.map((s) => {
@@ -168,12 +153,44 @@ export default function EmployeeServices() {
   );
 }
 
-function EmptyState({ title, hint }: { title: string; hint: string }) {
+function ReasonEmptyState({ reason, onRetry }: { reason: EmptyReason; onRetry: () => void }) {
+  const map: Record<NonNullable<EmptyReason>, { Icon: any; title: string; hint: string; tone: string }> = {
+    NO_SHOP_LINK: {
+      Icon: Store,
+      title: "حسابك غير مربوط بمتجر",
+      hint: "تواصل مع المدير ليضيفك إلى المتجر.",
+      tone: "text-warning",
+    },
+    NO_ACTIVE_SERVICES: {
+      Icon: Droplets,
+      title: "لا توجد خدمات مفعلة حالياً في متجرك",
+      hint: "اطلب من المسؤول إضافة أو تفعيل الخدمات.",
+      tone: "text-muted-foreground",
+    },
+    ALL_DISABLED_BY_OVERRIDE: {
+      Icon: Lock,
+      title: "تم تقييد الخدمات لحسابك",
+      hint: "تواصل مع المسؤول ليُعيد تفعيل الخدمات لحسابك.",
+      tone: "text-warning",
+    },
+    LOAD_ERROR: {
+      Icon: AlertTriangle,
+      title: "تعذر تحميل الخدمات حالياً",
+      hint: "تحقق من الاتصال وحاول مرة أخرى.",
+      tone: "text-destructive",
+    },
+  };
+  const conf = reason ? map[reason] : map.NO_ACTIVE_SERVICES;
+  const Icon = conf.Icon;
   return (
     <div className="text-center py-10 px-4">
-      <Droplets className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-      <p className="font-bold text-sm">{title}</p>
-      <p className="text-xs text-muted-foreground mt-1">{hint}</p>
+      <Icon className={`w-10 h-10 mx-auto mb-3 ${conf.tone}`} />
+      <p className="font-bold text-sm">{conf.title}</p>
+      <p className="text-xs text-muted-foreground mt-1">{conf.hint}</p>
+      <Button onClick={onRetry} variant="outline" size="sm" className="mt-4 gap-2">
+        <RefreshCw className="w-3.5 h-3.5" />
+        إعادة المحاولة
+      </Button>
     </div>
   );
 }
