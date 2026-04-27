@@ -304,7 +304,7 @@ export default function Services() {
                             <Button variant="ghost" size="icon" onClick={() => startEdit(s)} className="lavage-glow">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success(t("services.serviceDeleted")); }} className="lavage-glow">
+                            <Button variant="ghost" size="icon" onClick={async () => { await deleteService(s.id); toast.success(t("services.serviceDisabled")); }} className="lavage-glow" title={t("services.serviceDisabled")}>
                               <Trash2 className="w-4 h-4 text-destructive" />
                             </Button>
                           </div>
