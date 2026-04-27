@@ -16,7 +16,7 @@ export function homeForRole(role: AppRole | undefined): string {
     case "admin": return "/dashboard";
     case "supervisor":
     case "manager": return "/dashboard";
-    case "employee": return "/employee";
+    case "employee": return "/dashboard/work";
     case "customer": return "/app";
     default: return "/post-login";
   }
