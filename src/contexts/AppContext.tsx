@@ -204,13 +204,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Order CRUD
   const addOrder = async (o: Omit<Order, 'id' | 'createdAt' | 'reference'>) => {
-    await supabase.from('orders').insert({
+    const { error } = await supabase.from('orders').insert({
       customer_id: o.customerId || null, customer_name: o.customerName,
       car_type: o.carType, car_plate: o.carPlate, services: o.services,
       total_price: o.totalPrice, status: o.status, employee_id: o.employeeId || null,
       employee_name: o.employeeName || null, branch_id: o.branchId, notes: o.notes || null,
       shop_id: requireShopId(),
     });
+    if (error) throw error;
     await refreshAll();
   };
   const updateOrder = async (id: string, o: Partial<Order>) => {
