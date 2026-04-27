@@ -100,11 +100,73 @@ export default function EmployeeApp() {
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
         <div>
-          <Label className="text-sm font-semibold flex items-center gap-1.5 mb-2">
-            <Car className="w-4 h-4 text-primary" />
-            <span>{t("employeeApp.employeeName", { defaultValue: "اسم الموظف" })}:</span>
-            <span className="text-primary">{myName}</span>
-          </Label>
+          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+            <Label className="text-sm font-semibold flex items-center gap-1.5 m-0">
+              <Car className="w-4 h-4 text-primary" />
+              <span>{t("employeeApp.employeeName", { defaultValue: "اسم الموظف" })}:</span>
+              <span className="text-primary">{myName}</span>
+            </Label>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button type="button"
+                    className="h-7 px-2 rounded-md text-[10px] font-bold border border-border bg-card text-muted-foreground hover:border-primary/50 transition-all flex items-center gap-1">
+                    <CalendarIcon className="w-2.5 h-2.5" />
+                    {format(orderDate, "dd/MM HH:mm")}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={orderDate}
+                    onSelect={(d) => {
+                      if (!d) return;
+                      const next = new Date(d);
+                      next.setHours(orderDate.getHours(), orderDate.getMinutes(), 0, 0);
+                      setOrderDate(next);
+                    }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                  <div className="flex items-center gap-2 p-3 pt-0 border-t border-border">
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                    <Input
+                      type="time"
+                      value={format(orderDate, "HH:mm")}
+                      onChange={(e) => {
+                        const [h, m] = e.target.value.split(":").map(Number);
+                        if (Number.isNaN(h) || Number.isNaN(m)) return;
+                        const next = new Date(orderDate);
+                        next.setHours(h, m, 0, 0);
+                        setOrderDate(next);
+                      }}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <button type="button" onClick={() => setCarSize("normal")}
+                className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
+                  carSize === "normal" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
+                <Car className="w-2.5 h-2.5" />
+                {t("employeeApp.normal")}
+              </button>
+              <button type="button" onClick={() => setCarSize("4x4")}
+                className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
+                  carSize === "4x4" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
+                <span>4×4</span>
+              </button>
+              <button type="button" onClick={() => setCarSize("motor")}
+                className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
+                  carSize === "motor" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
+                <Bike className="w-2.5 h-2.5" />
+                {t("employeeApp.motor")}
+              </button>
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             <Input
               autoFocus
@@ -132,66 +194,6 @@ export default function EmployeeApp() {
       </Card>
 
       <Card className="p-2 sm:p-3 rounded-2xl shadow-soft">
-        <div className="flex items-center gap-1.5 mb-3 px-1 overflow-x-auto no-scrollbar -mx-1 pb-1">
-          <Popover>
-            <PopoverTrigger asChild>
-              <button type="button"
-                className="h-7 px-2 rounded-md text-[10px] font-bold border border-border bg-card text-muted-foreground hover:border-primary/50 transition-all flex items-center gap-1">
-                <CalendarIcon className="w-2.5 h-2.5" />
-                {format(orderDate, "dd/MM HH:mm")}
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={orderDate}
-                onSelect={(d) => {
-                  if (!d) return;
-                  const next = new Date(d);
-                  next.setHours(orderDate.getHours(), orderDate.getMinutes(), 0, 0);
-                  setOrderDate(next);
-                }}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-              />
-              <div className="flex items-center gap-2 p-3 pt-0 border-t border-border">
-                <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                <Input
-                  type="time"
-                  value={format(orderDate, "HH:mm")}
-                  onChange={(e) => {
-                    const [h, m] = e.target.value.split(":").map(Number);
-                    if (Number.isNaN(h) || Number.isNaN(m)) return;
-                    const next = new Date(orderDate);
-                    next.setHours(h, m, 0, 0);
-                    setOrderDate(next);
-                  }}
-                  className="h-8 text-xs"
-                />
-              </div>
-            </PopoverContent>
-          </Popover>
-          <button type="button" onClick={() => setCarSize("normal")}
-            className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
-              carSize === "normal" ? "border-primary bg-primary text-primary-foreground shadow-glow"
-              : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-            <Car className="w-2.5 h-2.5" />
-            {t("employeeApp.normal")}
-          </button>
-          <button type="button" onClick={() => setCarSize("4x4")}
-            className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
-              carSize === "4x4" ? "border-primary bg-primary text-primary-foreground shadow-glow"
-              : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-            <span>4×4</span>
-          </button>
-          <button type="button" onClick={() => setCarSize("motor")}
-            className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
-              carSize === "motor" ? "border-primary bg-primary text-primary-foreground shadow-glow"
-              : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-            <Bike className="w-2.5 h-2.5" />
-            {t("employeeApp.motor")}
-          </button>
-        </div>
         {carSize === "motor" ? (
           grouped.motor.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-6">{t("employeeApp.noMotorServices")}</p>
