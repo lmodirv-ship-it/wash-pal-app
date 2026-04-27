@@ -29,6 +29,7 @@ const Shops = lazy(() => import("./pages/Shops"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
 const Finance = lazy(() => import("./pages/Finance"));
 const EmployeeApp = lazy(() => import("./pages/EmployeeApp"));
+const EmployeeServices = lazy(() => import("./pages/EmployeeServices"));
 const CustomerApp = lazy(() => import("./pages/CustomerApp"));
 const CreateShop = lazy(() => import("./pages/CreateShop"));
 const Team = lazy(() => import("./pages/Team"));
@@ -198,6 +199,7 @@ const App = () => (
               }
             >
               <Route path="/employee" element={<EmployeeApp />} />
+              <Route path="/employee/services" element={<EmployeeServices />} />
               <Route path="/work" element={<Navigate to="/employee" replace />} />
             </Route>
 
