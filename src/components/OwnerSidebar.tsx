@@ -74,29 +74,50 @@ export function OwnerSidebar() {
         </div>
 
         {groups.map((g) => (
-          <SidebarGroup key={g.label}>
+          <SidebarGroup key={g.label} className="px-2 py-2">
             {!collapsed && (
-              <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-[hsl(48_95%_55%/0.5)]">
+              <SidebarGroupLabel className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[hsl(48_95%_60%/0.7)]">
                 {g.label}
               </SidebarGroupLabel>
             )}
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="gap-1.5">
                 {g.items.map((item) => {
                   const active = isActive(item.url);
                   return (
                     <SidebarMenuItem key={item.url}>
-                      <SidebarMenuButton asChild>
+                      <SidebarMenuButton
+                        asChild
+                        className="h-11 min-h-[44px] rounded-xl p-0 hover:bg-transparent data-[active=true]:bg-transparent"
+                      >
                         <NavLink
                           to={item.url}
-                          className={`${
+                          className={[
+                            "group relative flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium",
+                            "transition-all duration-200 ease-out",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(48_95%_60%/0.7)] focus-visible:ring-offset-0",
                             active
-                              ? "bg-[hsl(48_95%_55%/0.12)] text-[hsl(48_95%_70%)] border-r-2 border-[hsl(48_95%_55%)]"
-                              : "text-muted-foreground hover:bg-[hsl(220_25%_10%)] hover:text-foreground"
-                          } transition-all`}
+                              ? "border border-[hsl(48_95%_55%/0.45)] bg-gradient-to-l from-[hsl(48_95%_55%/0.28)] via-[hsl(40_95%_55%/0.18)] to-[hsl(28_95%_55%/0.10)] text-[hsl(48_100%_92%)] shadow-[0_0_0_1px_hsl(48_95%_55%/0.22),0_10px_28px_-10px_hsl(40_95%_55%/0.55)]"
+                              : "border border-transparent text-zinc-300/85 hover:border-[hsl(48_95%_55%/0.18)] hover:bg-[hsl(48_95%_55%/0.08)] hover:text-[hsl(48_100%_88%)]",
+                          ].join(" ")}
                         >
-                          <item.icon className="mr-2 h-4 w-4" />
-                          {!collapsed && <span className="text-sm">{item.title}</span>}
+                          <item.icon
+                            className={[
+                              "h-[18px] w-[18px] shrink-0 transition-colors duration-200",
+                              active
+                                ? "text-[hsl(48_100%_70%)] drop-shadow-[0_0_6px_hsl(48_95%_55%/0.55)]"
+                                : "text-[hsl(48_30%_70%/0.75)] group-hover:text-[hsl(48_95%_70%)]",
+                            ].join(" ")}
+                          />
+                          {!collapsed && (
+                            <span className="truncate text-[13px] leading-none">{item.title}</span>
+                          )}
+                          {active && !collapsed && (
+                            <span
+                              aria-hidden
+                              className="ms-auto h-1.5 w-1.5 rounded-full bg-[hsl(48_100%_65%)] shadow-[0_0_8px_hsl(48_95%_55%/0.85)]"
+                            />
+                          )}
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
