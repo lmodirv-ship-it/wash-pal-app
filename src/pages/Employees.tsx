@@ -152,7 +152,7 @@ export default function Employees() {
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-secondary/50">
-              <TableHead className="text-muted-foreground">{t("common.reference")}</TableHead><TableHead className="text-muted-foreground">{t("common.name")}</TableHead><TableHead className="text-muted-foreground">{t("employees.role")}</TableHead><TableHead className="text-muted-foreground">الفرع</TableHead>
+              <TableHead className="text-muted-foreground">{t("common.reference")}</TableHead><TableHead className="text-muted-foreground">{t("common.name")}</TableHead><TableHead className="text-muted-foreground">{t("employees.role")}</TableHead><TableHead className="text-muted-foreground">{t("employees.branch")}</TableHead>
               <TableHead className="text-muted-foreground">{t("employees.job")}</TableHead><TableHead className="text-muted-foreground">{t("common.phone")}</TableHead><TableHead className="text-muted-foreground">{t("employees.startDate")}</TableHead>
               <TableHead className="text-muted-foreground">{t("common.status")}</TableHead><TableHead className="text-muted-foreground">{t("common.actions")}</TableHead>
             </TableRow>
@@ -176,10 +176,10 @@ export default function Employees() {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => setOverridesFor(e)} className="lavage-glow" title="خدمات الموظف">
+                    <Button variant="ghost" size="icon" onClick={() => setOverridesFor(e)} className="lavage-glow" title={t("employees.servicesTitle")}>
                       <Sliders className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => openPwdDialog(e)} className="lavage-glow" title="تغيير كلمة السر">
+                    <Button variant="ghost" size="icon" onClick={() => openPwdDialog(e)} className="lavage-glow" title={t("password.change")}>
                       <KeyRound className="w-4 h-4 text-primary" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => startEdit(e)} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
@@ -206,45 +206,45 @@ export default function Employees() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <KeyRound className="w-5 h-5 text-primary" />
-              تعيين كلمة سر للموظف
+              {t("password.set")}
             </DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-sm text-muted-foreground">
-            {pwdFor?.name} — سيتم تحديث كلمة السر، أو إنشاء حساب جديد إذا لم يكن للموظف حساب بعد.
+            {pwdFor?.name} — {t("password.employeeDesc")}
           </DialogDescription>
           <div className="space-y-3 pt-2">
             <div className="space-y-1.5">
-              <Label htmlFor="emp-email">البريد الإلكتروني (مطلوب فقط للحسابات الجديدة)</Label>
+              <Label htmlFor="emp-email">{t("password.emailLabel")}</Label>
               <Input
                 id="emp-email"
                 type="email"
                 value={pwdEmail}
                 onChange={(e) => setPwdEmail(e.target.value)}
-                placeholder="employee@example.com (اختياري)"
+                placeholder={`employee@example.com (${t("common.optional")})`}
                 autoComplete="off"
               />
               <p className="text-[11px] text-muted-foreground">
-                إذا كان الموظف لا يملك حساباً بعد ولم تُدخل بريداً، سيتم إنشاء بريد افتراضي تلقائياً.
+                {t("password.emailHint")}
               </p>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="emp-pwd">كلمة السر الجديدة</Label>
+              <Label htmlFor="emp-pwd">{t("password.new")}</Label>
               <Input
                 id="emp-pwd"
                 type="text"
                 value={pwdValue}
                 onChange={(e) => setPwdValue(e.target.value)}
-                placeholder="6 أحرف على الأقل"
+                placeholder={t("password.placeholderMin")}
                 autoComplete="new-password"
               />
             </div>
             <div className="flex gap-2 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setPwdFor(null)} disabled={pwdLoading}>
-                إلغاء
+                {t("common.cancel")}
               </Button>
               <Button className="flex-1 lavage-btn" onClick={submitPassword} disabled={pwdLoading}>
                 {pwdLoading && <Loader2 className="w-4 h-4 ms-2 animate-spin" />}
-                حفظ
+                {t("common.save")}
               </Button>
             </div>
           </div>
