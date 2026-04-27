@@ -51,7 +51,7 @@ export default function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const { roles: myRoles } = useEffectiveRoles();
-  const isPlatformOwner = myRoles.includes("owner" as AppRole);
+  const isPlatformOwner = (myRoles ?? []).includes("owner" as AppRole);
   const assignableRoles = ALL_ROLES.filter((r) => isPlatformOwner || r !== "owner");
 
   const load = async () => {
