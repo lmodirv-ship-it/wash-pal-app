@@ -58,6 +58,54 @@ function BigStat({ label, value, icon: Icon, tone, loading }: BigStatProps) {
   );
 }
 
+const RevenueChart = memo(function RevenueChart({ data }: { data: any[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }} />
+        <Line type="monotone" dataKey="revenue" stroke="hsl(var(--warning))" strokeWidth={3} dot={{ r: 4, fill: "hsl(var(--warning))" }} />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+});
+
+const ShopsChart = memo(function ShopsChart({ data }: { data: any[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }} />
+        <Bar dataKey="shops" fill="hsl(var(--primary))" radius={[8,8,0,0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+});
+
+const UsersChart = memo(function UsersChart({ data }: { data: any[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <AreaChart data={data}>
+        <defs>
+          <linearGradient id="usersGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity={0.6} />
+            <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+        <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+        <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }} />
+        <Area type="monotone" dataKey="users" stroke="hsl(var(--accent))" fill="url(#usersGrad)" strokeWidth={2.5} />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+});
+
 export default function AdminDashboard() {
   const [range, setRange] = useState<DateRange>(() => buildPresetRange("30d"));
   const { loading, isFetching, error, refetch, shops, subs, orders, kpis, series, topShops } = useDashboardMetrics(range);
