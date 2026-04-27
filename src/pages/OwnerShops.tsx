@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Search, Pause, Play, Download, Loader2, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,10 @@ export default function OwnerShops() {
   const [reason, setReason] = useState("");
   const [confirmText, setConfirmText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const focusId = searchParams.get("focus");
+  const suspendId = searchParams.get("suspend");
+  const focusRef = useRef<HTMLTableRowElement | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -59,6 +64,26 @@ export default function OwnerShops() {
   useEffect(() => {
     load();
   }, []);
+
+  // After shops load, if a deep-link query param targets a shop, open the
+  // suspend/activate dialog or scroll the row into view and highlight it.
+  useEffect(() => {
+    if (loading || shops.length === 0) return;
+    const id = suspendId || focusId;
+    if (!id) return;
+    const s = shops.find((x) => x.id === id);
+    if (!s) return;
+    if (suspendId) {
+      openSuspend(s);
+      // remove the param so refresh doesn't re-trigger
+      const next = new URLSearchParams(searchParams);
+      next.delete("suspend");
+      setSearchParams(next, { replace: true });
+    } else if (focusRef.current) {
+      focusRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, shops.length, suspendId, focusId]);
 
   const filtered = useMemo(() => {
     return shops.filter((s) => {
@@ -185,7 +210,11 @@ export default function OwnerShops() {
               </thead>
               <tbody>
                 {filtered.map((s) => (
-                  <tr key={s.id} className="border-b border-[hsl(220_20%_12%)] hover:bg-[hsl(220_25%_9%)]">
+                  <tr
+                    key={s.id}
+                    ref={s.id === focusId ? focusRef : undefined}
+                    className={`border-b border-[hsl(220_20%_12%)] hover:bg-[hsl(220_25%_9%)] ${s.id === focusId ? "bg-amber-500/10 ring-1 ring-amber-500/40" : ""}`}
+                  >
                     <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                       {s.reference_code || s.id.slice(0, 8)}
                     </td>
