@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks, Coins, Hash, Search, X, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
+import { Car, Save, Crown, Sparkles, Package, Droplets, Check, Bike, ListChecks, Coins, Hash, Search, X, ChevronLeft, ChevronRight, CalendarIcon, Clock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -114,17 +114,37 @@ export default function EmployeeApp() {
               <button type="button"
                 className="h-8 px-2.5 rounded-md text-[11px] font-bold border border-border bg-card text-foreground hover:border-primary/50 transition-all flex items-center gap-1">
                 <CalendarIcon className="w-3 h-3" />
-                {format(orderDate, "dd/MM")}
+                {format(orderDate, "dd/MM HH:mm")}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
                 selected={orderDate}
-                onSelect={(d) => d && setOrderDate(d)}
+                onSelect={(d) => {
+                  if (!d) return;
+                  const next = new Date(d);
+                  next.setHours(orderDate.getHours(), orderDate.getMinutes(), 0, 0);
+                  setOrderDate(next);
+                }}
                 initialFocus
                 className={cn("p-3 pointer-events-auto")}
               />
+              <div className="flex items-center gap-2 p-3 pt-0 border-t border-border">
+                <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                <Input
+                  type="time"
+                  value={format(orderDate, "HH:mm")}
+                  onChange={(e) => {
+                    const [h, m] = e.target.value.split(":").map(Number);
+                    if (Number.isNaN(h) || Number.isNaN(m)) return;
+                    const next = new Date(orderDate);
+                    next.setHours(h, m, 0, 0);
+                    setOrderDate(next);
+                  }}
+                  className="h-8 text-xs"
+                />
+              </div>
             </PopoverContent>
           </Popover>
           <button type="button" onClick={() => setCarSize("normal")}
