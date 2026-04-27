@@ -156,6 +156,7 @@ export type Database = {
           is_active: boolean
           name: string
           phone: string
+          reference: string | null
           shop_id: string
         }
         Insert: {
@@ -165,6 +166,7 @@ export type Database = {
           is_active?: boolean
           name: string
           phone: string
+          reference?: string | null
           shop_id: string
         }
         Update: {
@@ -174,6 +176,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           phone?: string
+          reference?: string | null
           shop_id?: string
         }
         Relationships: [
@@ -250,6 +253,7 @@ export type Database = {
           is_active: boolean
           max_uses: number | null
           notes: string | null
+          reference: string | null
           shop_id: string
           updated_at: string
           used_count: number
@@ -264,6 +268,7 @@ export type Database = {
           is_active?: boolean
           max_uses?: number | null
           notes?: string | null
+          reference?: string | null
           shop_id: string
           updated_at?: string
           used_count?: number
@@ -278,6 +283,7 @@ export type Database = {
           is_active?: boolean
           max_uses?: number | null
           notes?: string | null
+          reference?: string | null
           shop_id?: string
           updated_at?: string
           used_count?: number
@@ -468,6 +474,7 @@ export type Database = {
           expense_date: string
           id: string
           notes: string | null
+          reference: string | null
           shop_id: string
           title: string
         }
@@ -480,6 +487,7 @@ export type Database = {
           expense_date?: string
           id?: string
           notes?: string | null
+          reference?: string | null
           shop_id: string
           title: string
         }
@@ -492,6 +500,7 @@ export type Database = {
           expense_date?: string
           id?: string
           notes?: string | null
+          reference?: string | null
           shop_id?: string
           title?: string
         }
@@ -563,6 +572,7 @@ export type Database = {
           id: string
           is_active: boolean
           last_snapshot_at: string | null
+          reference: string | null
           shop_id: string | null
           updated_at: string
         }
@@ -575,6 +585,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_snapshot_at?: string | null
+          reference?: string | null
           shop_id?: string | null
           updated_at?: string
         }
@@ -587,6 +598,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_snapshot_at?: string | null
+          reference?: string | null
           shop_id?: string | null
           updated_at?: string
         }
@@ -660,6 +672,7 @@ export type Database = {
           is_paid: boolean
           order_id: string
           paid_amount: number
+          reference: string | null
           services: Json
           shop_id: string
           total_amount: number
@@ -672,6 +685,7 @@ export type Database = {
           is_paid?: boolean
           order_id: string
           paid_amount?: number
+          reference?: string | null
           services?: Json
           shop_id: string
           total_amount?: number
@@ -684,6 +698,7 @@ export type Database = {
           is_paid?: boolean
           order_id?: string
           paid_amount?: number
+          reference?: string | null
           services?: Json
           shop_id?: string
           total_amount?: number
@@ -753,6 +768,7 @@ export type Database = {
           is_active: boolean
           language: string
           name: string
+          reference: string | null
           shop_id: string
           subject: string | null
           updated_at: string
@@ -766,6 +782,7 @@ export type Database = {
           is_active?: boolean
           language?: string
           name: string
+          reference?: string | null
           shop_id: string
           subject?: string | null
           updated_at?: string
@@ -779,6 +796,7 @@ export type Database = {
           is_active?: boolean
           language?: string
           name?: string
+          reference?: string | null
           shop_id?: string
           subject?: string | null
           updated_at?: string
