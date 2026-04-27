@@ -186,7 +186,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Employee CRUD
   const addEmployee = async (e: Omit<Employee, 'id' | 'hireDate' | 'reference'>) => {
-    await supabase.from('employees').insert({ name: e.name, phone: e.phone, role: e.role, role_type: e.roleType || 'employee', branch_id: e.branchId, is_active: e.isActive, shop_id: requireShopId() });
+    const { error } = await supabase.from('employees').insert({ name: e.name, phone: e.phone, role: e.role, role_type: e.roleType || 'employee', branch_id: e.branchId, is_active: e.isActive, shop_id: requireShopId() });
+    if (error) throw error;
     await refreshAll();
   };
   const updateEmployee = async (id: string, e: Partial<Employee>) => {
@@ -197,10 +198,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (e.roleType !== undefined) u.role_type = e.roleType;
     if (e.branchId !== undefined) u.branch_id = e.branchId;
     if (e.isActive !== undefined) u.is_active = e.isActive;
-    await supabase.from('employees').update(u).eq('id', id);
+    const { error } = await supabase.from('employees').update(u).eq('id', id);
+    if (error) throw error;
     await refreshAll();
   };
-  const deleteEmployee = async (id: string) => { await supabase.from('employees').delete().eq('id', id); await refreshAll(); };
+  const deleteEmployee = async (id: string) => {
+    const { error } = await supabase.from('employees').delete().eq('id', id);
+    if (error) throw error;
+    await refreshAll();
+  };
 
   // Order CRUD
   const addOrder = async (o: Omit<Order, 'id' | 'createdAt' | 'reference'>) => {
