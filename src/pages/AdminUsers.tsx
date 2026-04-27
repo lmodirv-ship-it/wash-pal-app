@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Search, Users, RefreshCw, Shield } from "lucide-react";
+import { Search, Users, RefreshCw, Shield, KeyRound, AlertTriangle } from "lucide-react";
 import { TableSkeleton } from "@/components/PageSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ALL_ROLES, AppRole, useEffectiveRoles } from "@/hooks/useEffectiveRoles";
@@ -73,6 +73,9 @@ export default function AdminUsers() {
   const users = data?.users ?? [];
   const total = data?.total ?? users.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const missingRefCount = users.filter(
+    (u) => (u.profile_role === "employee" || u.roles.includes("employee")) && !u.reference
+  ).length;
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
@@ -143,6 +146,28 @@ export default function AdminUsers() {
         </Select>
       </div>
 
+      {/* تنبيه: كلمة سر الموظف = المرجع */}
+      <div className="rounded-xl border border-warning/30 bg-warning/10 p-4 flex items-start gap-3">
+        <div className="w-10 h-10 rounded-lg bg-warning/20 border border-warning/30 flex items-center justify-center shrink-0">
+          <KeyRound className="w-5 h-5 text-warning" />
+        </div>
+        <div className="flex-1 text-sm space-y-1">
+          <p className="font-semibold text-warning">
+            كلمة سر الموظف هي رقم المرجع الخاص به
+          </p>
+          <p className="text-muted-foreground">
+            يستخدم الموظف اسمه ورقم المرجع (مثل <span className="font-mono text-foreground">EM123456</span>) لتسجيل الدخول.
+            الحسابات بدون مرجع <span className="font-bold text-destructive">لا يمكنها تسجيل الدخول</span> حتى يتم إنشاء مرجع لها.
+          </p>
+          {missingRefCount > 0 && (
+            <p className="flex items-center gap-2 text-destructive font-semibold pt-1">
+              <AlertTriangle className="w-4 h-4" />
+              يوجد {missingRefCount.toLocaleString("ar-MA")} موظف بدون مرجع في هذه الصفحة
+            </p>
+          )}
+        </div>
+      </div>
+
       {error ? (
         <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-6 text-sm text-destructive">
           فشل تحميل المستخدمين. <Button variant="outline" size="sm" onClick={() => refetch()} className="ms-2">إعادة المحاولة</Button>
@@ -167,11 +192,23 @@ export default function AdminUsers() {
               </thead>
               <tbody>
                 {filtered.map((u) => (
-                  <tr key={u.id} className="border-t border-border/70 hover:bg-muted/30 transition-colors">
+                  <tr
+                    key={u.id}
+                    className={`border-t border-border/70 transition-colors ${
+                      !u.reference && (u.profile_role === "employee" || u.roles.includes("employee"))
+                        ? "bg-destructive/5 hover:bg-destructive/10"
+                        : "hover:bg-muted/30"
+                    }`}
+                  >
                     <td className="p-3">
                       {u.reference ? (
                         <span className="font-mono text-xs px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20 tracking-wider">
                           {u.reference}
+                        </span>
+                      ) : (u.profile_role === "employee" || u.roles.includes("employee")) ? (
+                        <span className="inline-flex items-center gap-1 font-semibold text-xs px-2 py-1 rounded-md bg-destructive/15 text-destructive border border-destructive/30">
+                          <AlertTriangle className="w-3 h-3" />
+                          بدون مرجع
                         </span>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
