@@ -7,9 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, Trash2, Edit, Sliders } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { EmployeeServiceOverridesDialog } from "@/components/EmployeeServiceOverridesDialog";
 
 export default function Employees() {
   const { employees, branches, currentBranch, addEmployee, updateEmployee, deleteEmployee } = useApp();
@@ -18,6 +19,7 @@ export default function Employees() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", role: "", roleType: "employee", branchId: "" });
+  const [overridesFor, setOverridesFor] = useState<Employee | null>(null);
 
   const branchId = currentBranch?.id || "";
   const branchEmployees = employees.filter((e) => e.branchId === branchId);
@@ -102,6 +104,9 @@ export default function Employees() {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => setOverridesFor(e)} className="lavage-glow" title="خدمات الموظف">
+                      <Sliders className="w-4 h-4" />
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => startEdit(e)} className="lavage-glow"><Edit className="w-4 h-4" /></Button>
                     <Button variant="ghost" size="icon" onClick={async () => { await deleteEmployee(e.id); toast.success(t("employees.employeeDeleted")); }} className="lavage-glow">
                       <Trash2 className="w-4 h-4 text-destructive" />
@@ -113,6 +118,12 @@ export default function Employees() {
           </TableBody>
         </Table>
       </div>
+
+      <EmployeeServiceOverridesDialog
+        open={!!overridesFor}
+        onOpenChange={(v) => { if (!v) setOverridesFor(null); }}
+        employee={overridesFor}
+      />
     </div>
   );
 }
