@@ -12,11 +12,11 @@ export function OwnerLayout({ children }: { children: ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[hsl(220_30%_4%)] relative z-10" dir="rtl">
+      <div className="min-h-screen flex w-full bg-black relative z-10" dir="rtl">
         <OwnerSidebar />
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-30 bg-[hsl(220_30%_5%)]/95 backdrop-blur-xl border-b border-[hsl(48_95%_55%/0.15)] px-3 md:px-5 py-3">
+          <header className="sticky top-0 z-30 bg-black/95 backdrop-blur-xl border-b border-[hsl(48_95%_55%/0.15)] px-3 md:px-5 py-3">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[hsl(48_95%_55%/0.08)] border border-[hsl(48_95%_55%/0.25)]">
                 <Crown className="w-4 h-4 text-[hsl(48_95%_65%)]" />
