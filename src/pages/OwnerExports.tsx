@@ -58,7 +58,7 @@ export default function OwnerExports() {
     try {
       const { data, error } = await supabase.from(t.table as any).select("*").limit(10000);
       if (error) throw error;
-      const rows = (data as Record<string, unknown>[]) ?? [];
+      const rows = (data as unknown as Record<string, unknown>[]) ?? [];
       const csv = rowsToCsv(rows);
       const stamp = new Date().toISOString().slice(0, 10);
       downloadCsv(`${t.prefix}-${stamp}.csv`, csv || "no_data\n");
