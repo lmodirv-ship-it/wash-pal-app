@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const VALID_ROLES = ["admin", "manager", "supervisor", "employee", "customer"];
+const VALID_ROLES = ["owner", "admin", "manager", "supervisor", "employee", "customer"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -57,9 +57,9 @@ Deno.serve(async (req) => {
       .from("user_roles")
       .select("role")
       .eq("user_id", callerId)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!roleCheck) {
+      .in("role", ["owner", "admin"]);
+    const callerIsOwner = (roleCheck ?? []).some((r) => r.role === "owner");
+    if (!roleCheck?.length || (newRole === "owner" && !callerIsOwner)) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
