@@ -55,6 +55,7 @@ const OwnerActivity = lazy(() => import("./pages/OwnerActivity"));
 const OwnerNotifications = lazy(() => import("./pages/OwnerNotifications"));
 const OwnerDatabase = lazy(() => import("./pages/OwnerDatabase"));
 const OwnerSettings = lazy(() => import("./pages/OwnerSettings"));
+const OwnerExports = lazy(() => import("./pages/OwnerExports"));
 const Entries = lazy(() => import("./pages/Entries"));
 const SupervisorProspecting = lazy(() => import("./pages/SupervisorProspecting"));
 const MessageTemplates = lazy(() => import("./pages/MessageTemplates"));
@@ -182,6 +183,7 @@ const App = () => (
               <Route path="/owner/notifications" element={<OwnerNotifications />} />
               <Route path="/owner/database" element={<OwnerDatabase />} />
               <Route path="/owner/settings" element={<OwnerSettings />} />
+              <Route path="/owner/exports" element={<OwnerExports />} />
               <Route path="/owner/subscriptions" element={<AdminSubscriptions />} />
               <Route path="/owner/pricing-plans" element={<AdminPricingPlans />} />
               <Route path="/owner/leads" element={<AdminLeads />} />

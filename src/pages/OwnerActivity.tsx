@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileText, RefreshCw, Loader2, Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { logExport } from "@/lib/exportCsv";
 
 interface AuditRow {
   id: string;
@@ -69,6 +70,8 @@ export default function OwnerActivity() {
     a.download = `audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    // Audit the export itself (owner-only page; non-fatal if it fails)
+    void logExport("audit_logs", null, filtered.length);
   };
 
   return (

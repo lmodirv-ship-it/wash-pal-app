@@ -369,11 +369,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "employee_service_overrides_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "v_employees_export"
+            referencedColumns: ["employee_id"]
+          },
+          {
             foreignKeyName: "employee_service_overrides_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_service_overrides_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_services_export"
+            referencedColumns: ["service_id"]
           },
           {
             foreignKeyName: "employee_service_overrides_shop_id_fkey"
@@ -642,6 +656,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_work_entries_export"
+            referencedColumns: ["order_id"]
+          },
+          {
             foreignKeyName: "invoices_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
@@ -883,6 +904,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "v_employees_export"
+            referencedColumns: ["employee_id"]
           },
           {
             foreignKeyName: "orders_shop_id_fkey"
@@ -1306,7 +1334,186 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_employees_export: {
+        Row: {
+          branch_id: string | null
+          branch_name: string | null
+          created_at: string | null
+          employee_id: string | null
+          hire_date: string | null
+          is_active: boolean | null
+          name: string | null
+          phone: string | null
+          reference: string | null
+          role: string | null
+          role_type: string | null
+          shop_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_services_export: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          is_active: boolean | null
+          name: string | null
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string | null
+          price: number | null
+          reference: string | null
+          service_id: string | null
+          shop_id: string | null
+          starting_from: boolean | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          is_active?: boolean | null
+          name?: string | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string | null
+          price?: number | null
+          reference?: string | null
+          service_id?: string | null
+          shop_id?: string | null
+          starting_from?: boolean | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          is_active?: boolean | null
+          name?: string | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string | null
+          price?: number | null
+          reference?: string | null
+          service_id?: string | null
+          shop_id?: string | null
+          starting_from?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_work_entries_export: {
+        Row: {
+          branch_id: string | null
+          car_plate: string | null
+          car_type: string | null
+          completed_at: string | null
+          created_at: string | null
+          customer_name: string | null
+          employee_id: string | null
+          employee_name: string | null
+          expected_end_at: string | null
+          notes: string | null
+          order_id: string | null
+          reference: string | null
+          services: string[] | null
+          shop_id: string | null
+          start_at: string | null
+          status: string | null
+          total_price: number | null
+        }
+        Insert: {
+          branch_id?: string | null
+          car_plate?: string | null
+          car_type?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          customer_name?: string | null
+          employee_id?: string | null
+          employee_name?: string | null
+          expected_end_at?: string | null
+          notes?: string | null
+          order_id?: string | null
+          reference?: string | null
+          services?: string[] | null
+          shop_id?: string | null
+          start_at?: string | null
+          status?: string | null
+          total_price?: number | null
+        }
+        Update: {
+          branch_id?: string | null
+          car_plate?: string | null
+          car_type?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          customer_name?: string | null
+          employee_id?: string | null
+          employee_name?: string | null
+          expected_end_at?: string | null
+          notes?: string | null
+          order_id?: string | null
+          reference?: string | null
+          services?: string[] | null
+          shop_id?: string | null
+          start_at?: string | null
+          status?: string | null
+          total_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "v_employees_export"
+            referencedColumns: ["employee_id"]
+          },
+          {
+            foreignKeyName: "orders_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_invite: { Args: { _token: string }; Returns: string }
@@ -1364,6 +1571,10 @@ export type Database = {
       is_shop_manager: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_member: { Args: { _shop_id: string }; Returns: boolean }
       is_shop_readonly: { Args: { _shop_id: string }; Returns: boolean }
+      log_export_action: {
+        Args: { _export_type: string; _row_count: number; _shop_id: string }
+        Returns: string
+      }
       log_owner_action: {
         Args: {
           _action: string

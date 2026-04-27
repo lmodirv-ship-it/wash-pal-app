@@ -11,10 +11,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2, Edit, Search, Crown, Sparkles, Package, Droplets, Bike } from "lucide-react";
+import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { getServiceName, getServiceDescription } from "@/lib/serviceI18n";
+import { exportFromView } from "@/lib/exportCsv";
 
 const catBadge: Record<ServiceCategory, string> = {
   standard: "bg-primary/10 text-primary border-primary/20",
@@ -25,7 +27,7 @@ const catBadge: Record<ServiceCategory, string> = {
 };
 
 export default function Services() {
-  const { services, addService, updateService, deleteService } = useApp();
+  const { services, addService, updateService, deleteService, currentShopId } = useApp();
   const { isAdmin } = useAuth();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
@@ -110,6 +112,26 @@ export default function Services() {
           <p className="text-sm text-muted-foreground">{t("services.subtitle")}</p>
         </div>
         {isAdmin && (
+          <>
+          <Button
+            variant="outline"
+            className="rounded-xl gap-2"
+            onClick={async () => {
+              try {
+                const { count } = await exportFromView({
+                  view: "v_services_export",
+                  type: "services",
+                  shopId: currentShopId,
+                  filenamePrefix: "services",
+                });
+                toast.success(`تم تصدير ${count} خدمة`);
+              } catch (e: any) {
+                toast.error(e?.message ?? "فشل التصدير");
+              }
+            }}
+          >
+            <Download className="w-4 h-4" /> تصدير CSV
+          </Button>
           <Dialog open={dialogOpen} onOpenChange={(v) => { if (!v) resetForm(); else setDialogOpen(true); }}>
             <DialogTrigger asChild>
               <Button className="rounded-xl lavage-btn"><Plus className="w-4 h-4 mx-1" />{t("services.newService")}</Button>
@@ -147,6 +169,7 @@ export default function Services() {
               </div>
             </DialogContent>
           </Dialog>
+          </>
         )}
       </div>
 

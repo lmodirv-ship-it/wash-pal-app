@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Building2, Users, Shield, CreditCard,
-  Database, Megaphone, Settings, Crown, ScrollText, Sparkles, KeyRound, FileText
+  Database, Megaphone, Settings, Crown, ScrollText, Sparkles, KeyRound, FileText, Download
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -28,6 +28,7 @@ const groups: { label: string; items: { title: string; url: string; icon: any }[
     items: [
       { title: "الأمان", url: "/owner/security", icon: Shield },
       { title: "سجل التدقيق", url: "/owner/activity", icon: FileText },
+      { title: "تصدير البيانات", url: "/owner/exports", icon: Download },
     ],
   },
   {
