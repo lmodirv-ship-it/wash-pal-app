@@ -180,7 +180,7 @@ export default function AdminDashboard() {
           </h1>
           <p className="text-sm text-muted-foreground mt-2 ms-14">{today}</p>
         </div>
-        <Link to="/admin/subscriptions">
+        <Link to="/owner/subscriptions">
           <Button className="h-11 rounded-xl bg-gradient-to-r from-[hsl(28_90%_55%)] to-[hsl(15_90%_50%)] hover:opacity-90 text-white font-bold px-5 shadow-[0_8px_24px_-8px_hsl(28_90%_55%/0.6)]">
             إدارة الاشتراكات
           </Button>
