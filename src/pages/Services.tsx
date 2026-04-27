@@ -119,7 +119,11 @@ export default function Services() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold">{t("services.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("services.subtitle")}</p>
+          <p className="text-sm text-muted-foreground">
+            {t("services.subtitle")} <span className="ms-2 inline-flex items-center rounded-full border border-border px-2 py-0.5 text-[10px] font-mono">
+              {activeCount} / {SERVICE_CAP}
+            </span>
+          </p>
         </div>
         {isAdmin && (
           <>
