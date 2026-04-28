@@ -69,6 +69,7 @@ const JoinShop = lazy(() => import("./pages/JoinShop"));
 const PendingApproval = lazy(() => import("./pages/PendingApproval"));
 const JoinRequests = lazy(() => import("./pages/JoinRequests"));
 const DataStatus = lazy(() => import("./pages/DataStatus"));
+const Appointments = lazy(() => import("./pages/Appointments"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
