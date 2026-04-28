@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { getServiceName } from "@/lib/serviceI18n";
+import { useEffectiveRoles } from "@/hooks/useEffectiveRoles";
 
 type Appt = {
   id: string;
@@ -41,6 +42,8 @@ const TIME_SLOTS = Array.from({ length: 24 }, (_, h) =>
 export default function Appointments() {
   const { t, i18n } = useTranslation();
   const { services, currentBranch, currentShopId } = useApp();
+  const { roles } = useEffectiveRoles();
+  const canEdit = !!roles?.some((r) => ["owner", "admin", "supervisor", "manager"].includes(r));
   const dateLocale = i18n.language === "ar" ? ar : i18n.language === "fr" ? fr : undefined;
   const [list, setList] = useState<Appt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,11 +130,13 @@ export default function Appointments() {
   };
 
   const updateStatus = async (id: string, status: string) => {
+    if (!canEdit) { toast.error("ليست لديك صلاحية تعديل حالة الموعد"); return; }
     const { error } = await supabase.from("appointments").update({ status }).eq("id", id);
     if (error) toast.error(error.message); else toast.success("تم التحديث");
   };
 
   const remove = async (id: string) => {
+    if (!canEdit) { toast.error("ليست لديك صلاحية حذف الموعد"); return; }
     if (!confirm("هل تريد حذف الموعد؟")) return;
     const { error } = await supabase.from("appointments").delete().eq("id", id);
     if (error) toast.error(error.message); else toast.success("تم الحذف");
@@ -226,30 +231,53 @@ export default function Appointments() {
                   <div className="text-lg font-bold text-primary">{a.total_price} {t("common.currency", { defaultValue: "MAD" })}</div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <Select value={a.status} onValueChange={(v) => updateStatus(a.id, v)}>
-                    <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="scheduled">مجدول</SelectItem>
-                      <SelectItem value="confirmed">مؤكد</SelectItem>
-                      <SelectItem value="completed">منجز</SelectItem>
-                      <SelectItem value="cancelled">ملغى</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="flex gap-1">
-                    {a.status !== "completed" && (
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateStatus(a.id, "completed")}>
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  {canEdit ? (
+                    <>
+                      <div className="grid grid-cols-2 gap-1">
+                        <Button
+                          size="sm"
+                          variant={a.status === "scheduled" ? "default" : "outline"}
+                          className="h-7 text-[11px] px-2"
+                          onClick={() => updateStatus(a.id, "scheduled")}
+                          disabled={a.status === "scheduled"}
+                        >
+                          <Clock className="w-3 h-3" /> مجدول
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={a.status === "confirmed" ? "default" : "outline"}
+                          className="h-7 text-[11px] px-2"
+                          onClick={() => updateStatus(a.id, "confirmed")}
+                          disabled={a.status === "confirmed"}
+                        >
+                          ✓ مؤكد
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={a.status === "completed" ? "default" : "outline"}
+                          className="h-7 text-[11px] px-2"
+                          onClick={() => updateStatus(a.id, "completed")}
+                          disabled={a.status === "completed"}
+                        >
+                          <CheckCircle2 className="w-3 h-3" /> منجز
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={a.status === "cancelled" ? "destructive" : "outline"}
+                          className="h-7 text-[11px] px-2"
+                          onClick={() => updateStatus(a.id, "cancelled")}
+                          disabled={a.status === "cancelled"}
+                        >
+                          <XCircle className="w-3 h-3" /> ملغى
+                        </Button>
+                      </div>
+                      <Button size="icon" variant="ghost" className="h-7 w-7 self-end" onClick={() => remove(a.id)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
-                    )}
-                    {a.status !== "cancelled" && (
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => updateStatus(a.id, "cancelled")}>
-                        <XCircle className="w-4 h-4 text-red-500" />
-                      </Button>
-                    )}
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(a.id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
+                    </>
+                  ) : (
+                    <span className="text-xs text-muted-foreground italic">عرض فقط</span>
+                  )}
                 </div>
               </Card>
             );
