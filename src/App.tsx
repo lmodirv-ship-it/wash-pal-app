@@ -69,6 +69,7 @@ const JoinShop = lazy(() => import("./pages/JoinShop"));
 const PendingApproval = lazy(() => import("./pages/PendingApproval"));
 const JoinRequests = lazy(() => import("./pages/JoinRequests"));
 const DataStatus = lazy(() => import("./pages/DataStatus"));
+const Appointments = lazy(() => import("./pages/Appointments"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -247,6 +248,7 @@ const App = () => (
             >
               <Route path="/dashboard" element={<Index />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/appointments" element={<Appointments />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/employees" element={<Employees />} />
               <Route path="/services" element={<Services />} />

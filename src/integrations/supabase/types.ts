@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          branch_id: string
+          car_plate: string | null
+          car_type: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          customer_name: string
+          customer_phone: string | null
+          duration_minutes: number
+          id: string
+          notes: string | null
+          reference: string | null
+          scheduled_at: string
+          services: string[]
+          shop_id: string
+          status: string
+          total_price: number
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          car_plate?: string | null
+          car_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          duration_minutes?: number
+          id?: string
+          notes?: string | null
+          reference?: string | null
+          scheduled_at: string
+          services?: string[]
+          shop_id: string
+          status?: string
+          total_price?: number
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          car_plate?: string | null
+          car_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          duration_minutes?: number
+          id?: string
+          notes?: string | null
+          reference?: string | null
+          scheduled_at?: string
+          services?: string[]
+          shop_id?: string
+          status?: string
+          total_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string

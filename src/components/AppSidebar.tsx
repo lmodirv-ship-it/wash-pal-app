@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Receipt, Users, UserCog, Droplets,
-  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket, ShieldAlert, Key, ScrollText, Database,
+  FileText, BarChart3, Building2, Settings, Store, LogOut, Wallet, UserPlus, ShieldCheck, CreditCard, Package, ClipboardList, Globe2, Mail, Ticket, ShieldAlert, Key, ScrollText, Database, CalendarClock,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -70,6 +70,7 @@ export function AppSidebar() {
   const supervisorItems: NavEntry[] = [
     { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
     { title: t("nav.operations"), url: "/orders", icon: Receipt },
+    { title: "📅 المواعيد", url: "/appointments", icon: CalendarClock },
     { title: t("nav.services"), url: "/services", icon: Droplets },
     { title: "المداخل", url: "/entries", icon: ClipboardList },
     { title: t("nav.employees"), url: "/employees", icon: UserCog },
@@ -90,6 +91,7 @@ export function AppSidebar() {
   const managerItems: NavEntry[] = [
     { title: t("nav.dashboard"), url: "/dashboard", icon: LayoutDashboard },
     { title: t("nav.operations"), url: "/orders", icon: Receipt },
+    { title: "📅 المواعيد", url: "/appointments", icon: CalendarClock },
     { title: t("nav.services"), url: "/services", icon: Droplets },
     { title: t("nav.employees"), url: "/employees", icon: UserCog },
     { title: t("nav.customers"), url: "/customers", icon: Users },
