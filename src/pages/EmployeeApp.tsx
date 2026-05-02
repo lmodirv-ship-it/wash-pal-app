@@ -95,7 +95,7 @@ export default function EmployeeApp() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden [&_*]:!text-white">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden [&_.bg-card]:bg-zinc-900 [&_.bg-card]:border [&_.bg-card]:border-yellow-500/40 [&_input]:!text-white [&_input]:!bg-zinc-900 [&_input]:!border-yellow-500/40 [&_label]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white [&_td]:!text-white [&_th]:!text-yellow-400">
       <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
