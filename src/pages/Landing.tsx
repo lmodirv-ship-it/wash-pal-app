@@ -7,6 +7,7 @@ import featureDetail from "@/assets/feature-detail.jpg";
 import featureFacility from "@/assets/feature-facility.jpg";
 import featureWash from "@/assets/feature-wash.jpg";
 import carwashVideo from "@/assets/carwash-hero.mp4.asset.json";
+import promoVideo from "@/assets/hlavage-promo.mp4";
 
 /* ---------- Auth-aware Start Free wrapper ---------- */
 function StartFreeLink({ children, className }: { children: React.ReactNode; className?: string }) {
