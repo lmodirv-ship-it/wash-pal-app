@@ -372,7 +372,7 @@ function WorkEntriesTable({
   myName: string; branchId?: string; locale: string;
 }) {
   const { t, i18n } = useTranslation();
-  const { orders, updateOrder } = useApp();
+  const { orders } = useApp();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "in_progress" | "completed" | "cancelled" | "waiting">("all");
   const [dateFilter, setDateFilter] = useState<"today" | "week" | "all">("today");
@@ -435,15 +435,6 @@ function WorkEntriesTable({
     if (s === "in_progress") return t("employeeApp.statusInProgress", { defaultValue: "جارٍ" });
     if (s === "cancelled") return t("employeeApp.statusCancelled", { defaultValue: "ملغى" });
     return t("employeeApp.statusWaiting", { defaultValue: "قيد الانتظار" });
-  };
-
-  const handleComplete = async (id: string) => {
-    try { await updateOrder(id, { status: "completed", completedAt: new Date().toISOString() }); toast.success(t("employeeApp.markedCompleted", { defaultValue: "تم إكمال العملية" })); }
-    catch (e: any) { toast.error(e?.message || "Error"); }
-  };
-  const handleCancel = async (id: string) => {
-    try { await updateOrder(id, { status: "cancelled" }); toast.success(t("employeeApp.markedCancelled", { defaultValue: "تم إلغاء العملية" })); }
-    catch (e: any) { toast.error(e?.message || "Error"); }
   };
 
   return (
@@ -525,18 +516,8 @@ function WorkEntriesTable({
                       </span>
                     )}
                   </p>
-                  <div className="flex items-center justify-between gap-2 pt-1">
+                  <div className="flex items-center justify-end gap-2 pt-1">
                     <Badge variant="outline" className={`text-[10px] ${statusColor(o.status)}`}>{statusLabel(o.status)}</Badge>
-                    {o.status !== "completed" && o.status !== "cancelled" && (
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="default" className="h-8 px-3 text-[11px]" onClick={() => handleComplete(o.id)}>
-                          <Check className="w-3.5 h-3.5 me-1" />{t("employeeApp.complete", { defaultValue: "إكمال" })}
-                        </Button>
-                        <Button size="sm" variant="outline" className="h-8 px-3 text-[11px]" onClick={() => handleCancel(o.id)}>
-                          <X className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
               );
@@ -559,13 +540,12 @@ function WorkEntriesTable({
                   <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("common.price", { defaultValue: "السعر" })}</TableHead>
                   <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.status", { defaultValue: "الحالة" })}</TableHead>
                   <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("employeeApp.notes", { defaultValue: "ملاحظات" })}</TableHead>
-                  <TableHead className="text-start text-[10px] h-9 px-2 whitespace-nowrap">{t("common.actions", { defaultValue: "إجراء" })}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pageRows.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={12} className="text-center text-xs text-muted-foreground py-6">
+                      <TableCell colSpan={11} className="text-center text-xs text-muted-foreground py-6">
                       {t("employeeApp.noEntries", { defaultValue: "لا توجد عمليات." })}
                     </TableCell>
                   </TableRow>
@@ -591,20 +571,6 @@ function WorkEntriesTable({
                         <Badge variant="outline" className={`text-[10px] ${statusColor(o.status)}`}>{statusLabel(o.status)}</Badge>
                       </TableCell>
                       <TableCell className="text-[11px] px-2 py-1.5 max-w-[140px] truncate text-muted-foreground">{o.notes || "—"}</TableCell>
-                      <TableCell className="text-[11px] px-2 py-1.5 whitespace-nowrap">
-                        {o.status !== "completed" && o.status !== "cancelled" ? (
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="default" className="h-7 px-2 text-[10px]" onClick={() => handleComplete(o.id)}>
-                              <Check className="w-3 h-3 me-1" />{t("employeeApp.complete", { defaultValue: "إكمال" })}
-                            </Button>
-                            <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={() => handleCancel(o.id)}>
-                              <X className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
                     </TableRow>
                   );
                 })}
