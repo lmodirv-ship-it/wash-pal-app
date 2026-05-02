@@ -11,6 +11,7 @@ import { Layout } from "@/components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { GlobalLogoutButton } from "@/components/GlobalLogoutButton";
+import { GlobalTextLocalizer } from "@/components/GlobalTextLocalizer";
 import { supabase } from "@/integrations/supabase/client";
 
 // Lazy-loaded pages — drastically reduces initial bundle
@@ -183,6 +184,7 @@ const App = () => (
         <BrowserRouter>
           <ErrorBoundary>
           <Suspense fallback={<LoadingScreen />}>
+          <GlobalTextLocalizer />
           <GlobalLogoutButton />
           <Routes>
             {/* Public */}
