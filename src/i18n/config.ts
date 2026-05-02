@@ -14,7 +14,8 @@ i18n
       fr: { translation: fr },
       en: { translation: en },
     },
-    fallbackLng: "ar",
+    lng: typeof window !== "undefined" && !localStorage.getItem("lang") ? "fr" : undefined,
+    fallbackLng: "fr",
     supportedLngs: ["ar", "fr", "en"],
     interpolation: { escapeValue: false },
     detection: {
@@ -30,7 +31,7 @@ const applyDir = (lng: string) => {
   document.documentElement.lang = lng;
 };
 
-applyDir(i18n.language || "ar");
+applyDir(i18n.language || "fr");
 i18n.on("languageChanged", applyDir);
 
 export default i18n;
