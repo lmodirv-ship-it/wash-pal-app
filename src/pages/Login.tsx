@@ -290,7 +290,7 @@ export default function Login() {
               </span>
             </Button>
             <p className="text-center text-xs text-muted-foreground pt-2 leading-relaxed">
-              {t("auth.nameCodeHint", { ref: "" })} <span className="font-mono text-primary">E-123456</span>
+              {t("auth.nameCodeHint", { ref: "E-123456" })}
             </p>
           </form>
           )}
@@ -334,7 +334,7 @@ export default function Login() {
             </Button>
 
             <p className="text-center text-xs text-muted-foreground pt-2 leading-relaxed">
-              أدخل رقم التعريف الخاص بك وكلمة السر التي حددها المدير.
+              {t("auth.referenceHint")}
             </p>
           </form>
           )}
