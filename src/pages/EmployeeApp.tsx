@@ -86,7 +86,6 @@ export default function EmployeeApp() {
         notes: carSize === "4x4" ? `+${SURCHARGE_4X4} DH ${t("employeeApp.surchargeAdded")}` : carSize === "motor" ? t("employeeApp.motorcycle") : undefined,
       });
       toast.success(`${t("employeeApp.saved")} - ${finalPrice} DH`);
-      setCarPlate(""); setCarType(""); setServiceId(""); setCarSize("normal");
     } catch (e: any) {
       toast.error(t("employeeApp.saveFailed") + ": " + (e?.message || ""));
     } finally {
