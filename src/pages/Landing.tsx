@@ -546,12 +546,12 @@ export default function Landing() {
           {/* Feature cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: BarChart3, title: "لوحة تحكم فورية", desc: "تابع أداء مغسلتك لحظة بلحظة مع بيانات حية ودقيقة." },
-              { icon: Users, title: "تتبع الموظفين", desc: "قِس أداء كل موظف وحفّز فريقك لتحقيق أفضل النتائج." },
-              { icon: TrendingUp, title: "تحليلات الإيرادات", desc: "تقارير مفصّلة وذكية لفهم نمو أعمالك واتجاهاتك." },
-              { icon: Brain, title: "رؤى ذكية بالـ AI", desc: "توصيات مدعومة بالذكاء الاصطناعي لتحسين عملياتك." },
-              { icon: Building2, title: "جاهز لعدة فروع", desc: "أدر فروعك المتعددة من لوحة واحدة وبكل سهولة." },
-              { icon: Smartphone, title: "متوافق مع الجوال", desc: "تجربة سلسة على الهاتف والحاسوب — أينما كنت." },
+              { icon: BarChart3, ...T.features.cards[0] },
+              { icon: Users, ...T.features.cards[1] },
+              { icon: TrendingUp, ...T.features.cards[2] },
+              { icon: Brain, ...T.features.cards[3] },
+              { icon: Building2, ...T.features.cards[4] },
+              { icon: Smartphone, ...T.features.cards[5] },
             ].map((f, i) => (
               <motion.div
                 key={i}
@@ -579,10 +579,10 @@ export default function Landing() {
         <div className="absolute inset-x-6 inset-y-6 rounded-3xl bg-gradient-to-br from-blue-600/20 via-cyan-500/15 to-blue-600/20 border border-white/10 backdrop-blur-md -z-10" />
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { to: visitors ?? 500, suffix: "+", label: "زائر إلى الآن" },
-            { to: 1200000, label: "سيارة معالجة" },
-            { to: 99, suffix: "%", label: "وقت التشغيل" },
-            { to: 24, suffix: "/7", label: "دعم فني" },
+            { to: visitors ?? 500, suffix: "+", label: T.stats[0].label },
+            { to: 1200000, label: T.stats[1].label },
+            { to: 99, suffix: "%", label: T.stats[2].label },
+            { to: 24, suffix: "/7", label: T.stats[3].label },
           ].map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
               <div className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
@@ -598,15 +598,15 @@ export default function Landing() {
       <section id="how" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">ابدأ في 3 خطوات بسيطة</h2>
-            <p className="text-white/60">من التسجيل إلى النمو — نحن معك في كل خطوة</p>
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">{T.how.title}</h2>
+            <p className="text-white/60">{T.how.subtitle}</p>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6 relative">
             <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
             {[
-              { icon: PlusCircle, n: "01", title: "أضف خدماتك", desc: "أنشئ قائمة الخدمات والأسعار في دقائق." },
-              { icon: Receipt, n: "02", title: "تابع المعاملات", desc: "سجّل الطلبات وتابع حالتها لحظة بلحظة." },
-              { icon: Rocket, n: "03", title: "نمِّ أعمالك", desc: "حلّل الأداء واتخذ قرارات أذكى." },
+              { icon: PlusCircle, n: "01", ...T.how.steps[0] },
+              { icon: Receipt, n: "02", ...T.how.steps[1] },
+              { icon: Rocket, n: "03", ...T.how.steps[2] },
             ].map((s, i) => (
               <motion.div
                 key={i}
@@ -632,15 +632,11 @@ export default function Landing() {
       <section id="testimonials" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">يثقون بنا كل يوم</h2>
-            <p className="text-white/60">قصص نجاح حقيقية من أصحاب المغاسل</p>
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">{T.testimonials.title}</h2>
+            <p className="text-white/60">{T.testimonials.subtitle}</p>
           </motion.div>
           <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: "أحمد بنعلي", role: "صاحب مغسلة، الدار البيضاء", text: "غيّر CarwashPro طريقة إدارتي تماماً. أصبحت أرى كل شيء في مكان واحد ومنظم." },
-              { name: "سعاد المرابط", role: "مديرة سلسلة مغاسل، الرباط", text: "التقارير الذكية ساعدتنا على زيادة الإيرادات بنسبة 35% خلال 3 أشهر فقط." },
-              { name: "كريم الفاسي", role: "صاحب مغسلتين، طنجة", text: "الدعم الفني ممتاز والتطبيق سلس جداً. أنصح به بقوة لكل صاحب مغسلة." },
-            ].map((t, i) => (
+            {T.testimonials.items.map((t, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
@@ -683,18 +679,18 @@ export default function Landing() {
           <img src={heroCarwash} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover -z-10 opacity-40" />
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-black/70 to-cyan-900/80 -z-10" />
           <div className="relative">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">جاهز لتغيير طريقة إدارتك؟</h2>
-            <p className="text-white/80 mb-8 max-w-xl mx-auto">انضم لمئات أصحاب المغاسل الذين يثقون في CarwashPro. ابدأ مجاناً اليوم.</p>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">{T.cta.title}</h2>
+            <p className="text-white/80 mb-8 max-w-xl mx-auto">{T.cta.subtitle}</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <StartFreeLink>
                 <Button size="lg" className="h-13 px-8 text-base font-bold rounded-2xl bg-white text-blue-600 hover:bg-white/90 shadow-xl border border-white/30 hover:-translate-y-0.5 transition-all">
-                  ابدأ مجاناً الآن
+                  {T.cta.cta1}
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
                 </Button>
               </StartFreeLink>
               <Link to="/pricing">
                 <Button size="lg" variant="outline" className="h-13 px-8 text-base font-bold rounded-2xl border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur">
-                  شاهد الباقات
+                  {T.cta.cta2}
                 </Button>
               </Link>
             </div>
@@ -712,18 +708,18 @@ export default function Landing() {
               </div>
               <span className="font-bold text-white">CarwashPro</span>
             </div>
-            <p className="text-sm text-white/60 leading-relaxed">نظام إدارة المغاسل الأشمل في المغرب.</p>
+            <p className="text-sm text-white/60 leading-relaxed">{T.footer.tagline}</p>
             {visitors !== null && (
               <p className="text-xs text-white/50 mt-3 flex items-center gap-1.5">
                 <Eye className="w-3.5 h-3.5" />
-                <span className="tabular-nums">{visitors.toLocaleString()}</span> زائر إجمالي
+                <span className="tabular-nums">{visitors.toLocaleString()}</span> {T.footer.visitorsTotal}
               </p>
             )}
           </div>
           {[
-            { title: "المنتج", links: ["الميزات", "الأسعار", "التحديثات", "العرض التوضيحي"] },
-            { title: "الشركة", links: ["من نحن", "تواصل معنا", "المدونة", "وظائف"] },
-            { title: "قانوني", links: ["الشروط", "الخصوصية", "الكوكيز", "الأمان"] },
+            T.footer.product,
+            T.footer.company,
+            T.footer.legal,
           ].map((c, i) => (
             <div key={i}>
               <h4 className="font-bold text-sm text-white mb-4">{c.title}</h4>
@@ -738,8 +734,8 @@ export default function Landing() {
           ))}
         </div>
         <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-white/50">© 2026 CarwashPro — H&Lavage. جميع الحقوق محفوظة.</p>
-          <p className="text-xs text-white/50">صُنع بحب 💙 في المغرب</p>
+          <p className="text-xs text-white/50">{T.footer.rights}</p>
+          <p className="text-xs text-white/50">{T.footer.madeIn}</p>
         </div>
       </footer>
     </div>
