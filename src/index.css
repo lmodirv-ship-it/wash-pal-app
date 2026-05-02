@@ -699,3 +699,14 @@ button:disabled {
 .employee-work-theme [class*="text-"]:not(.text-primary):not(.text-success):not(.text-warning):not(.text-muted-foreground):not(.text-warning):not(.text-yellow-400):not(.text-yellow-300) {
   color: #ffffff !important;
 }
+.employee-work-theme .text-card-foreground,
+.employee-work-theme .text-card-foreground * { color: #ffffff !important; }
+.employee-work-theme table,
+.employee-work-theme tbody,
+.employee-work-theme tr,
+.employee-work-theme td,
+.employee-work-theme td span,
+.employee-work-theme td p,
+.employee-work-theme td div { color: #ffffff !important; }
+.employee-work-theme thead th,
+.employee-work-theme thead { color: #facc15 !important; background: #27272a !important; }
