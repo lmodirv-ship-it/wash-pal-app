@@ -694,3 +694,8 @@ button:disabled {
 .employee-work-theme tr.cursor-pointer:hover {
   background: rgba(250,204,21,0.08) !important;
 }
+.employee-work-theme .text-foreground,
+.employee-work-theme .text-foreground * { color: #ffffff !important; }
+.employee-work-theme [class*="text-"]:not(.text-primary):not(.text-success):not(.text-warning):not(.text-muted-foreground):not(.text-warning):not(.text-yellow-400):not(.text-yellow-300) {
+  color: #ffffff !important;
+}
