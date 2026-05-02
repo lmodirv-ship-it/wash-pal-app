@@ -252,6 +252,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-[#05060a] text-white overflow-x-hidden" dir={isRtl ? "rtl" : "ltr"} style={{ scrollBehavior: "smooth" }}>
+      <SEO title={seoTitle} description={seoDesc} canonical={typeof window !== "undefined" ? window.location.origin + "/" : undefined} />
       {/* Glossy black ambient background */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(59,130,246,0.25),transparent_60%)]" />
