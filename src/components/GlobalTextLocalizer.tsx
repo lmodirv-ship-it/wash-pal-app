@@ -30,6 +30,22 @@ const flattenPairs = (source: LocaleObject, target: LocaleObject, out: Record<st
 };
 
 const manual = {
+  ar: {
+    "Owner Dashboard": "لوحة المالك",
+    "Gestion utilisateurs": "إدارة المستخدمين",
+    "Journal d'audit": "سجل التدقيق",
+    "Abonnements": "الاشتراكات",
+    "Plans tarifaires": "خطط الأسعار",
+    "Leads": "العملاء المحتملون",
+    "Propriétaire plateforme": "مالك المنصة",
+    "Admin / Propriétaire magasin": "مدير / صاحب محل",
+    "Gérant / Manager": "مسير / مدير",
+    "Panneau d'administration": "لوحة الإدارة",
+    "Control Panel": "لوحة التحكم",
+    "Administrateur": "مدير",
+    "Owner Console": "لوحة المالك",
+    "Platform Admin": "إدارة المنصة",
+  },
   fr: {
     "بالبريد": "Par email",
     "اسم + كود": "Nom + code",
@@ -138,16 +154,33 @@ const manual = {
     "الإعدادات العامة": "General settings",
     "خروج": "Logout",
   },
-} satisfies Record<Exclude<Lang, "ar">, Record<string, string>>;
+} satisfies Record<Lang, Record<string, string>>;
 
 const dictionaries = {
-  fr: { ...flattenPairs(ar as LocaleObject, fr as LocaleObject), ...manual.fr },
-  en: { ...flattenPairs(ar as LocaleObject, en as LocaleObject), ...manual.en },
+  ar: {
+    ...flattenPairs(fr as LocaleObject, ar as LocaleObject),
+    ...flattenPairs(en as LocaleObject, ar as LocaleObject),
+    ...manual.ar,
+  },
+  fr: {
+    ...flattenPairs(ar as LocaleObject, fr as LocaleObject),
+    ...flattenPairs(en as LocaleObject, fr as LocaleObject),
+    ...manual.fr,
+  },
+  en: {
+    ...flattenPairs(ar as LocaleObject, en as LocaleObject),
+    ...flattenPairs(fr as LocaleObject, en as LocaleObject),
+    ...manual.en,
+  },
 };
 
 const textOriginals = new WeakMap<Text, string>();
 const containsArabic = /[\u0600-\u06FF]/;
 const translatableAttrs = ["title", "aria-label", "placeholder"] as const;
+const hasKnownTranslation = (value: string) => {
+  const core = value.trim();
+  return containsArabic.test(core) || Object.values(dictionaries).some((dict) => Boolean(dict[core]));
+};
 
 const currentLang = (): Lang => {
   const raw = (i18n.resolvedLanguage || i18n.language || "fr").split("-")[0];
@@ -155,12 +188,11 @@ const currentLang = (): Lang => {
 };
 
 const translate = (value: string, lang: Lang) => {
-  if (lang === "ar") return value;
   const dict = dictionaries[lang];
   const leading = value.match(/^\s*/)?.[0] ?? "";
   const trailing = value.match(/\s*$/)?.[0] ?? "";
   const core = value.trim();
-  if (!containsArabic.test(core)) return value;
+  if (!hasKnownTranslation(core)) return value;
   if (dict[core]) return `${leading}${dict[core]}${trailing}`;
   let translated = core;
   Object.entries(dict)
