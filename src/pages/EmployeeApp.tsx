@@ -95,12 +95,12 @@ export default function EmployeeApp() {
   };
 
   return (
-    <div className="employee-work-theme min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="employee-work-theme min-h-screen bg-black text-white overflow-x-hidden text-center font-normal border-2">
       <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
         <div>
-          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap shadow-xl text-base font-[serif] font-medium">
             <Label className="text-sm font-semibold flex items-center gap-1.5 m-0">
               <Car className="w-4 h-4 text-primary" />
               <span>{t("employeeApp.employeeName", { defaultValue: "اسم الموظف" })}:</span>
