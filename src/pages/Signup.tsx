@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import { getStoredReferralCode, clearStoredReferralCode } from "@/hooks/useReferralTracking";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Signup() {
   const { signUp, user, loading: authLoading } = useAuth();
@@ -31,6 +34,20 @@ export default function Signup() {
       setLoading(false);
       return;
     }
+    // Referral attribution + analytics
+    const refCode = getStoredReferralCode();
+    if (refCode) {
+      try {
+        await supabase.from("referral_events").insert({ code: refCode, event_type: "signup" });
+        // best-effort increment via update
+        const { data: ses } = await supabase.auth.getUser();
+        if (ses?.user) {
+          await supabase.rpc("track_referral_click", { _code: refCode }); // no-op duplicate guard
+        }
+      } catch {}
+      clearStoredReferralCode();
+    }
+    trackEvent("sign_up", { method: "email", referral: !!refCode });
     toast.success("تم إنشاء الحساب بنجاح 🎉");
     // auto-confirm enabled → user is signed in immediately, the Navigate above will trigger
     setLoading(false);
