@@ -294,24 +294,26 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ===== Promo video banner (under top logo) ===== */}
+      {/* ===== Promo video banner (side-aligned by language) ===== */}
       <section className="relative pt-20 px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-6xl mx-auto rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_80px_-20px_rgba(59,130,246,0.4)] bg-black"
-        >
-          <video
-            src={promoVideo}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            className="w-full h-auto block aspect-video object-cover"
-          />
-        </motion.div>
+        <div className="max-w-7xl mx-auto flex">
+          <motion.div
+            initial={{ opacity: 0, x: isRtl ? 30 : -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className={`w-full sm:w-1/2 lg:w-2/5 rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_80px_-20px_rgba(59,130,246,0.4)] bg-black ${isRtl ? "sm:ml-auto" : "sm:mr-auto"}`}
+          >
+            <video
+              src={promoVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              className="w-full h-auto block aspect-video object-cover"
+            />
+          </motion.div>
+        </div>
       </section>
 
       {/* ===== Hero with REAL video ===== */}
