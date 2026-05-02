@@ -372,7 +372,7 @@ function WorkEntriesTable({
   myName: string; branchId?: string; locale: string;
 }) {
   const { t, i18n } = useTranslation();
-  const { orders, updateOrder } = useApp();
+  const { orders } = useApp();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "in_progress" | "completed" | "cancelled" | "waiting">("all");
   const [dateFilter, setDateFilter] = useState<"today" | "week" | "all">("today");
@@ -435,15 +435,6 @@ function WorkEntriesTable({
     if (s === "in_progress") return t("employeeApp.statusInProgress", { defaultValue: "جارٍ" });
     if (s === "cancelled") return t("employeeApp.statusCancelled", { defaultValue: "ملغى" });
     return t("employeeApp.statusWaiting", { defaultValue: "قيد الانتظار" });
-  };
-
-  const handleComplete = async (id: string) => {
-    try { await updateOrder(id, { status: "completed", completedAt: new Date().toISOString() }); toast.success(t("employeeApp.markedCompleted", { defaultValue: "تم إكمال العملية" })); }
-    catch (e: any) { toast.error(e?.message || "Error"); }
-  };
-  const handleCancel = async (id: string) => {
-    try { await updateOrder(id, { status: "cancelled" }); toast.success(t("employeeApp.markedCancelled", { defaultValue: "تم إلغاء العملية" })); }
-    catch (e: any) { toast.error(e?.message || "Error"); }
   };
 
   return (
