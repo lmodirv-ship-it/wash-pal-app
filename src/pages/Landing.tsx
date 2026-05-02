@@ -7,6 +7,7 @@ import featureDetail from "@/assets/feature-detail.jpg";
 import featureFacility from "@/assets/feature-facility.jpg";
 import featureWash from "@/assets/feature-wash.jpg";
 import carwashVideo from "@/assets/carwash-hero.mp4.asset.json";
+import promoVideo from "@/assets/hlavage-promo.mp4";
 
 /* ---------- Auth-aware Start Free wrapper ---------- */
 function StartFreeLink({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -292,6 +293,26 @@ export default function Landing() {
           </div>
         </div>
       </nav>
+
+      {/* ===== Promo video banner (under top logo) ===== */}
+      <section className="relative pt-20 px-4 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-6xl mx-auto rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_80px_-20px_rgba(59,130,246,0.4)] bg-black"
+        >
+          <video
+            src={promoVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className="w-full h-auto block aspect-video object-cover"
+          />
+        </motion.div>
+      </section>
 
       {/* ===== Hero with REAL video ===== */}
       <section className="relative pt-24 pb-16 px-6 overflow-hidden">
