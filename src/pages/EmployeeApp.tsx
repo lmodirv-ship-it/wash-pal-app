@@ -98,75 +98,79 @@ export default function EmployeeApp() {
     <div className="employee-work-theme min-h-screen bg-black text-white overflow-x-hidden text-center font-normal border-2">
       <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
-      <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
-        <div>
-          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap shadow-xl text-base font-[serif] font-medium">
-            <Label className="text-sm font-semibold flex items-center gap-1.5 m-0">
-              <Car className="w-4 h-4 text-primary" />
-              <span>{t("employeeApp.employeeName", { defaultValue: "اسم الموظف" })}:</span>
-              <span className="text-primary">{myName}</span>
-            </Label>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button type="button"
-                    className="h-7 px-2 rounded-md text-[10px] font-bold border border-border bg-card text-muted-foreground hover:border-primary/50 transition-all flex items-center gap-1">
-                    <CalendarIcon className="w-2.5 h-2.5" />
-                    {format(orderDate, "dd/MM HH:mm")}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={orderDate}
-                    onSelect={(d) => {
-                      if (!d) return;
-                      const next = new Date(d);
-                      next.setHours(orderDate.getHours(), orderDate.getMinutes(), 0, 0);
+      {/* شريط علوي: اسم الموظف + التاريخ + نوع السيارة */}
+      <div className="sticky top-0 z-30 -mx-2 sm:-mx-3 px-2 sm:px-3 py-2 bg-black/90 backdrop-blur border-b-2 border-primary/50 shadow-xl">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <Label className="text-sm font-semibold flex items-center gap-1.5 m-0">
+            <Car className="w-4 h-4 text-primary" />
+            <span>{t("employeeApp.employeeName", { defaultValue: "اسم الموظف" })}:</span>
+            <span className="text-primary">{myName}</span>
+          </Label>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button"
+                  className="h-8 px-2 rounded-md text-xs font-bold border border-primary/40 bg-card text-foreground hover:border-primary transition-all flex items-center gap-1">
+                  <CalendarIcon className="w-3 h-3" />
+                  {format(orderDate, "dd/MM HH:mm")}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={orderDate}
+                  onSelect={(d) => {
+                    if (!d) return;
+                    const next = new Date(d);
+                    next.setHours(orderDate.getHours(), orderDate.getMinutes(), 0, 0);
+                    setOrderDate(next);
+                  }}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+                <div className="flex items-center gap-2 p-3 pt-0 border-t border-border">
+                  <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                  <Input
+                    type="time"
+                    value={format(orderDate, "HH:mm")}
+                    onChange={(e) => {
+                      const [h, m] = e.target.value.split(":").map(Number);
+                      if (Number.isNaN(h) || Number.isNaN(m)) return;
+                      const next = new Date(orderDate);
+                      next.setHours(h, m, 0, 0);
                       setOrderDate(next);
                     }}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
+                    className="h-8 text-xs"
                   />
-                  <div className="flex items-center gap-2 p-3 pt-0 border-t border-border">
-                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                    <Input
-                      type="time"
-                      value={format(orderDate, "HH:mm")}
-                      onChange={(e) => {
-                        const [h, m] = e.target.value.split(":").map(Number);
-                        if (Number.isNaN(h) || Number.isNaN(m)) return;
-                        const next = new Date(orderDate);
-                        next.setHours(h, m, 0, 0);
-                        setOrderDate(next);
-                      }}
-                      className="h-8 text-xs"
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
-              <button type="button" onClick={() => setCarSize("normal")}
-                className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
-                  carSize === "normal" ? "border-primary bg-primary text-primary-foreground shadow-glow"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-                <Car className="w-2.5 h-2.5" />
-                {t("employeeApp.normal")}
-              </button>
-              <button type="button" onClick={() => setCarSize("4x4")}
-                className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
-                  carSize === "4x4" ? "border-primary bg-primary text-primary-foreground shadow-glow"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-                <span>4×4</span>
-              </button>
-              <button type="button" onClick={() => setCarSize("motor")}
-                className={`h-7 px-2 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 ${
-                  carSize === "motor" ? "border-primary bg-primary text-primary-foreground shadow-glow"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
-                <Bike className="w-2.5 h-2.5" />
-                {t("employeeApp.motor")}
-              </button>
-            </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <button type="button" onClick={() => setCarSize("normal")}
+              className={`h-8 px-2.5 rounded-md text-xs font-bold border transition-all flex items-center gap-1 ${
+                carSize === "normal" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
+              <Car className="w-3 h-3" />
+              {t("employeeApp.normal")}
+            </button>
+            <button type="button" onClick={() => setCarSize("4x4")}
+              className={`h-8 px-2.5 rounded-md text-xs font-bold border transition-all flex items-center gap-1 ${
+                carSize === "4x4" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
+              <span>4×4</span>
+            </button>
+            <button type="button" onClick={() => setCarSize("motor")}
+              className={`h-8 px-2.5 rounded-md text-xs font-bold border transition-all flex items-center gap-1 ${
+                carSize === "motor" ? "border-primary bg-primary text-primary-foreground shadow-glow"
+                : "border-border bg-card text-muted-foreground hover:border-primary/50"}`}>
+              <Bike className="w-3 h-3" />
+              {t("employeeApp.motor")}
+            </button>
           </div>
+        </div>
+      </div>
+
+      <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
+        <div>
           <div className="grid grid-cols-2 gap-2">
             <Input
               autoFocus
