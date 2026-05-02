@@ -64,6 +64,18 @@ export default function Landing() {
   const [scrolled, setScrolled] = useState(false);
   const [visitors, setVisitors] = useState<number | null>(null);
 
+  // SEO per language
+  const seoTitle = isRtl
+    ? "CarwashPro — نظام إدارة المغاسل الأشمل في المغرب"
+    : i18n.language === "fr"
+      ? "CarwashPro — Le système de gestion de car wash le plus complet"
+      : "CarwashPro — The most complete car wash management system";
+  const seoDesc = isRtl
+    ? "أدر مغسلتك باحترافية: طلبات، فواتير، موظفين، تقارير و B2B. ابدأ مجاناً 15 يوماً بدون بطاقة."
+    : i18n.language === "fr"
+      ? "Gérez votre car wash facilement: commandes, factures, équipe, rapports, B2B. Essai gratuit 15 jours sans carte."
+      : "Manage your car wash easily: orders, invoices, team, reports, B2B. Free 15-day trial, no card.";
+
   // ---- Inline i18n dictionary (FR default) ----
   const dict = {
     fr: {
