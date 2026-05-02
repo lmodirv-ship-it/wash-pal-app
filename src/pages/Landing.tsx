@@ -259,10 +259,10 @@ export default function Landing() {
             <span className="font-bold text-white tracking-tight">CarwashPro</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
-            <a href="#pricing" className="hover:text-white transition-colors">الأسعار</a>
-            <a href="#features" className="hover:text-white transition-colors">الميزات</a>
-            <a href="#how" className="hover:text-white transition-colors">كيف يعمل</a>
-            <a href="#testimonials" className="hover:text-white transition-colors">الآراء</a>
+            <a href="#pricing" className="hover:text-white transition-colors">{T.nav.pricing}</a>
+            <a href="#features" className="hover:text-white transition-colors">{T.nav.features}</a>
+            <a href="#how" className="hover:text-white transition-colors">{T.nav.how}</a>
+            <a href="#testimonials" className="hover:text-white transition-colors">{T.nav.testimonials}</a>
           </div>
           <div className="flex items-center gap-2">
             {visitors !== null && (
@@ -279,15 +279,15 @@ export default function Landing() {
               <LanguageSwitcher />
             </div>
             <Link to="/login" className="hidden sm:block">
-              <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10 rounded-xl">تسجيل الدخول</Button>
+              <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10 rounded-xl">{T.nav.login}</Button>
             </Link>
             <Link to="/login">
               <Button size="sm" variant="outline" className="rounded-xl border-amber-400/40 bg-amber-400/10 text-amber-300 hover:bg-amber-400/20 hover:text-amber-200 backdrop-blur-md">
-                دخول الموظف
+                {T.nav.employee}
               </Button>
             </Link>
             <StartFreeLink>
-              <Button size="sm" className="bg-gradient-to-r from-blue-500 to-cyan-400 text-white hover:opacity-95 shadow-[0_0_25px_rgba(59,130,246,0.5)] rounded-xl border border-white/20">ابدأ مجاناً</Button>
+              <Button size="sm" className="bg-gradient-to-r from-blue-500 to-cyan-400 text-white hover:opacity-95 shadow-[0_0_25px_rgba(59,130,246,0.5)] rounded-xl border border-white/20">{T.nav.startFree}</Button>
             </StartFreeLink>
           </div>
         </div>
@@ -300,37 +300,37 @@ export default function Landing() {
           <motion.div initial="hidden" animate="show" variants={fadeUp}>
             <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6">
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-xs font-medium text-white/80">جديد · نظام إدارة المغاسل 2026</span>
+              <span className="text-xs font-medium text-white/80">{T.hero.badge}</span>
             </motion.div>
             <motion.h1 variants={fadeUp} custom={1} className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight text-white mb-6">
-              أدر مغسلتك
+              {T.hero.title1}
               <br />
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">باحترافية كاملة 🚗</span>
+              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">{T.hero.title2}</span>
             </motion.h1>
             <motion.p variants={fadeUp} custom={2} className="text-lg text-white/70 leading-relaxed mb-8 max-w-xl">
-              تابع الإيرادات، أدر فريقك، ونمِّ أعمالك بسلاسة مع CarwashPro — منصة واحدة لكل ما تحتاجه.
+              {T.hero.subtitle}
             </motion.p>
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-3">
               <StartFreeLink>
                 <Button size="lg" className="h-13 px-7 text-base font-semibold rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-400 text-white hover:opacity-95 shadow-[0_10px_40px_-5px_rgba(59,130,246,0.6)] border border-white/20 group transition-all hover:-translate-y-0.5">
-                  ابدأ مجاناً
+                  {T.hero.cta1}
                   <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"} transition-transform`} />
                 </Button>
               </StartFreeLink>
               <a href="#pricing">
                 <Button size="lg" variant="outline" className="h-13 px-7 text-base font-semibold rounded-2xl border-white/20 bg-white/5 text-white hover:bg-white/10 backdrop-blur-md">
                   <Play className="w-4 h-4" />
-                  شاهد الباقات
+                  {T.hero.cta2}
                 </Button>
               </a>
             </motion.div>
             <motion.div variants={fadeUp} custom={4} className="flex flex-wrap items-center gap-6 mt-8 text-xs text-white/60">
-              <div className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-400" /> 15 يوم تجربة مجانية</div>
-              <div className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-400" /> بدون بطاقة ائتمان</div>
+              <div className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-400" /> {T.hero.trial}</div>
+              <div className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-400" /> {T.hero.noCard}</div>
               {visitors !== null && (
                 <div className="flex items-center gap-1.5">
                   <Eye className="w-4 h-4 text-cyan-400" />
-                  <span className="text-white/80 font-semibold tabular-nums">{visitors.toLocaleString()}</span> زائر
+                  <span className="text-white/80 font-semibold tabular-nums">{visitors.toLocaleString()}</span> {T.hero.visitors}
                 </div>
               )}
             </motion.div>
@@ -360,7 +360,7 @@ export default function Landing() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
                   </span>
-                  <span className="text-[11px] font-bold text-white">LIVE · غسيل احترافي</span>
+                  <span className="text-[11px] font-bold text-white">{T.hero.live}</span>
                 </div>
               </div>
             </div>
@@ -376,7 +376,7 @@ export default function Landing() {
                 <TrendingUp className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
-                <div className="text-[10px] text-white/60">نمو شهري</div>
+                <div className="text-[10px] text-white/60">{T.hero.growth}</div>
                 <div className="text-sm font-black text-white">+34.2%</div>
               </div>
             </motion.div>
@@ -390,7 +390,7 @@ export default function Landing() {
                 <Star className="w-5 h-5 text-blue-300 fill-blue-300" />
               </div>
               <div>
-                <div className="text-[10px] text-white/60">رضا العملاء</div>
+                <div className="text-[10px] text-white/60">{T.hero.rating}</div>
                 <div className="text-sm font-black text-white">4.9 / 5</div>
               </div>
             </motion.div>
