@@ -59,6 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true;
 
     const init = async () => {
+      // Honor "Remember me": if user opted out, drop persisted session on a brand-new browser session.
+      try {
+        const sessionOnly = sessionStorage.getItem('hl_session_only') === 'true';
+        const remember = localStorage.getItem('hl_remember_me');
+        if (remember === 'false' && !sessionOnly) {
+          await supabase.auth.signOut();
+        }
+      } catch { /* ignore */ }
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         if (mounted) setUser(session.user);
@@ -97,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    try { sessionStorage.removeItem('hl_session_only'); } catch {}
     setUser(null);
     setProfile(null);
   };
