@@ -404,17 +404,17 @@ export default function Landing() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 mb-4">
               <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-bold text-primary">💳 باقاتنا</span>
+              <span className="text-xs font-bold text-primary">{T.pricing.badge}</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">اختر الباقة المناسبة لك</h2>
-            <p className="text-white/60 max-w-2xl mx-auto">15 يوم تجربة مجانية لكل محل جديد · بدون بطاقة ائتمان · ألغِ متى شئت</p>
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">{T.pricing.title}</h2>
+            <p className="text-white/60 max-w-2xl mx-auto">{T.pricing.subtitle}</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6 items-stretch">
             {[
-              { name: "Starter", arName: "بداية", price: "99", credits: "300 عملية / شهر", icon: Zap, features: ["فرع واحد", "حتى 3 موظفين", "300 عملية شهرياً", "تقارير أساسية"], highlight: false },
-              { name: "Pro", arName: "احترافي", price: "199", credits: "1000 عملية / شهر", icon: Sparkles, features: ["حتى 3 فروع", "حتى 10 موظفين", "1000 عملية شهرياً", "تقارير متقدمة", "Email + WhatsApp"], highlight: true },
-              { name: "Business", arName: "متقدم", price: "399", credits: "5000 عملية / شهر", icon: Shield, features: ["فروع غير محدودة", "موظفون غير محدودون", "5000 عملية شهرياً", "تحليلات متقدمة جداً"], highlight: false },
+              { ...T.plans[0], price: "99", icon: Zap, highlight: false },
+              { ...T.plans[1], price: "199", icon: Sparkles, highlight: true },
+              { ...T.plans[2], price: "399", icon: Shield, highlight: false },
             ].map((p, i) => (
               <motion.div
                 key={i}
@@ -431,7 +431,7 @@ export default function Landing() {
               >
                 {p.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-cyan-300 to-blue-400 text-black text-[11px] font-black shadow-lg whitespace-nowrap">
-                    ⭐ الأكثر اختياراً
+                    {T.pricing.popular}
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-5">
@@ -439,14 +439,14 @@ export default function Landing() {
                     <p.icon className={`w-7 h-7 ${p.highlight ? "text-white" : "text-cyan-300"}`} />
                     <div>
                       <div className="text-base font-black text-white">{p.name}</div>
-                      <div className="text-[11px] text-white/60">{p.arName}</div>
+                      <div className="text-[11px] text-white/60">{p.local}</div>
                     </div>
                   </div>
                 </div>
                 <div className="mb-5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-5xl font-black tracking-tight text-white">{p.price}</span>
-                    <span className="text-sm text-white/70">DH / شهر</span>
+                    <span className="text-sm text-white/70">{T.pricing.perMonth}</span>
                   </div>
                 </div>
                 <div className={`flex items-center gap-2 rounded-lg px-3 py-2 mb-5 text-xs font-medium ${p.highlight ? "bg-white/15 text-white" : "bg-cyan-300/10 text-cyan-300"}`}>
@@ -467,7 +467,7 @@ export default function Landing() {
                       ? "bg-white text-blue-600 hover:bg-white/90 shadow-xl"
                       : "bg-white/10 border border-white/20 text-white hover:bg-white/15 backdrop-blur-md"
                   }`}>
-                    اختر {p.name}
+                    {T.pricing.choose} {p.name}
                   </Button>
                 </Link>
               </motion.div>
@@ -477,7 +477,7 @@ export default function Landing() {
           <div className="text-center mt-10">
             <Link to="/pricing">
               <Button variant="outline" size="lg" className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 backdrop-blur-md h-12 px-6">
-                عرض كل الباقات بالتفصيل (بما فيها Enterprise)
+                {T.pricing.viewAll}
                 <ArrowRight className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
               </Button>
             </Link>
@@ -488,7 +488,7 @@ export default function Landing() {
       {/* ===== Trust bar ===== */}
       <section className="py-10 px-6 border-y border-white/10 bg-white/[0.02] backdrop-blur-sm">
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-6">يستخدمها أكثر من 500 مغسلة في المغرب</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-6">{T.trust}</p>
           <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 opacity-70">
             {["AquaShine", "ProWash", "ClearCar", "EcoWash", "ShinyDrive", "FastClean"].map((n) => (
               <div key={n} className="text-lg font-black text-white/40 tracking-tight">{n}</div>
@@ -502,18 +502,18 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-4">
-              <span className="text-xs font-semibold text-cyan-300">الميزات</span>
+              <span className="text-xs font-semibold text-cyan-300">{T.features.eyebrow}</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">كل ما تحتاجه في مكان واحد</h2>
-            <p className="text-white/60 max-w-2xl mx-auto">أدوات قوية ومتكاملة مصممة بدقة لمساعدتك على إدارة مغسلتك بكفاءة تامة</p>
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">{T.features.title}</h2>
+            <p className="text-white/60 max-w-2xl mx-auto">{T.features.subtitle}</p>
           </motion.div>
 
           {/* Showcase grid with images */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {[
-              { img: featureWash, title: "غسيل بالضغط العالي", desc: "تتبع كل عملية غسيل من بدايتها لنهايتها." },
-              { img: featureDetail, title: "تلميع وعناية احترافية", desc: "سجّل خدمات الـ detailing وضاعف هوامشك." },
-              { img: featureFacility, title: "إدارة عدة فروع", desc: "أدر كل فروعك ومحلاتك من لوحة واحدة." },
+              { img: featureWash, ...T.features.showcase[0] },
+              { img: featureDetail, ...T.features.showcase[1] },
+              { img: featureFacility, ...T.features.showcase[2] },
             ].map((s, i) => (
               <motion.div
                 key={i}
