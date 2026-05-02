@@ -194,6 +194,7 @@ const translate = (value: string, lang: Lang) => {
   const core = value.trim();
   if (!hasKnownTranslation(core)) return value;
   if (dict[core]) return `${leading}${dict[core]}${trailing}`;
+  if (!containsArabic.test(core)) return value;
   let translated = core;
   Object.entries(dict)
     .sort((a, b) => b[0].length - a[0].length)
