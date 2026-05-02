@@ -107,7 +107,9 @@ export default function EmployeeApp() {
       [&_.text-primary]:!text-yellow-400
       [&_.text-success]:!text-emerald-400 [&_.text-warning]:!text-amber-400 [&_.text-muted-foreground]:!text-zinc-400
       [&_.bg-muted\/40]:!bg-zinc-800 [&_.bg-muted\/30]:!bg-zinc-800/60 [&_.bg-muted\/50]:!bg-zinc-700/70
-      [&_.border-border]:!border-yellow-500/20">
+      [&_.border-border]:!border-yellow-500/20
+      [&_.text-foreground]:!text-white [&_.bg-background]:!bg-zinc-900
+      [&_table_td]:!text-white [&_table_th]:!text-yellow-400 [&_table_tr:hover_td]:!text-white">
       <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
