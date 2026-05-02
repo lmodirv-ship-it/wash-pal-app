@@ -182,7 +182,7 @@ export default function Login() {
                   : "bg-white/[0.02] text-muted-foreground border border-white/5 hover:text-foreground"
               }`}
             >
-              <Mail className="w-4 h-4" /> بالبريد
+              <Mail className="w-4 h-4" /> {t("auth.byEmail")}
             </button>
             <button
               type="button"
@@ -193,7 +193,7 @@ export default function Login() {
                   : "bg-white/[0.02] text-muted-foreground border border-white/5 hover:text-foreground"
               }`}
             >
-              <User className="w-4 h-4" /> اسم + كود
+              <User className="w-4 h-4" /> {t("auth.nameCode")}
             </button>
             <button
               type="button"
@@ -204,7 +204,7 @@ export default function Login() {
                   : "bg-white/[0.02] text-muted-foreground border border-white/5 hover:text-foreground"
               }`}
             >
-              <IdCard className="w-4 h-4" /> مرجع
+              <IdCard className="w-4 h-4" /> {t("auth.referenceMode")}
             </button>
           </div>
 
@@ -225,7 +225,7 @@ export default function Login() {
                 to="/forgot-password"
                 className="text-sm font-bold text-primary hover:text-primary/80 hover:underline underline-offset-4 transition-colors"
               >
-                🔑 {t("auth.forgotPassword") || "نسيت كلمة السر؟"}
+                🔑 {t("auth.forgotPassword")}
               </Link>
             </div>
 
@@ -241,15 +241,15 @@ export default function Login() {
             </Button>
 
             <div className="text-center text-xs text-muted-foreground pt-2">
-              ليس لديك حساب؟{" "}
+              {t("auth.noAccount")}{" "}
               <Link to={`/signup${redirectParam ? `?redirect=${redirectParam}` : ""}`} className="text-primary hover:underline font-semibold">
-                إنشاء حساب جديد
+                {t("auth.createAccount")}
               </Link>
             </div>
             <div className="text-center text-xs text-muted-foreground">
-              موظف جديد؟{" "}
+              {t("auth.newEmployee")}{" "}
               <Link to="/join-shop" className="text-primary hover:underline font-semibold">
-                انضم باستخدام رقم تعريف المحل
+                {t("auth.joinWithShopId")}
               </Link>
             </div>
           </form>
@@ -257,10 +257,10 @@ export default function Login() {
           {mode === "name" && (
           <form onSubmit={handleNameSubmit} className="p-6 space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs text-muted-foreground">اسم الموظف</label>
+              <label className="text-xs text-muted-foreground">{t("auth.employeeName")}</label>
               <Input
                 type="text"
-                placeholder="مثال: ahmed"
+                placeholder={t("auth.employeeExample")}
                 value={nameForm.name}
                 onChange={(e) => setNameForm(f => ({ ...f, name: e.target.value }))}
                 className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all"
@@ -269,7 +269,7 @@ export default function Login() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs text-muted-foreground">الكود (المرجع)</label>
+              <label className="text-xs text-muted-foreground">{t("auth.codeReference")}</label>
               <Input
                 type="password"
                 placeholder="E-123456"
@@ -290,14 +290,14 @@ export default function Login() {
               </span>
             </Button>
             <p className="text-center text-xs text-muted-foreground pt-2 leading-relaxed">
-              أدخل اسمك وكود المرجع الذي يظهر في بطاقتك (مثل <span className="font-mono text-primary">E-123456</span>).
+              {t("auth.nameCodeHint", { ref: "" })} <span className="font-mono text-primary">E-123456</span>
             </p>
           </form>
           )}
           {mode === "reference" && (
           <form onSubmit={handleReferenceSubmit} className="p-6 space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs text-muted-foreground">رقم التعريف (Reference)</label>
+              <label className="text-xs text-muted-foreground">{t("auth.identifierReference")}</label>
               <Input
                 type="text"
                 placeholder="E-123456"
