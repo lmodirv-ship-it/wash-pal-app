@@ -209,7 +209,7 @@ function scanNode(root: ParentNode, lang: Lang) {
       const parent = node.parentElement;
       if (!parent || ["SCRIPT", "STYLE", "TEXTAREA"].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
       const original = textOriginals.get(node as Text) ?? node.textContent ?? "";
-      return containsArabic.test(original) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      return hasKnownTranslation(original) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
     },
   });
 
@@ -228,8 +228,8 @@ function scanNode(root: ParentNode, lang: Lang) {
       if (!value) return;
       const dataAttr = `data-l10n-original-${attr}`;
       const original = el.getAttribute(dataAttr) || value;
-      if (!el.hasAttribute(dataAttr) && containsArabic.test(original)) el.setAttribute(dataAttr, original);
-      if (!containsArabic.test(original)) return;
+      if (!el.hasAttribute(dataAttr) && hasKnownTranslation(original)) el.setAttribute(dataAttr, original);
+      if (!hasKnownTranslation(original)) return;
       const next = translate(original, lang);
       if (el.getAttribute(attr) !== next) el.setAttribute(attr, next);
     });
