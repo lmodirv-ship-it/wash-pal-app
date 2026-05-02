@@ -84,8 +84,23 @@ Deno.serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Sign in server-side and return only tokens (no raw credentials).
+    const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const anon = createClient(SUPABASE_URL, ANON_KEY);
+    const { data: signed, error: signErr } = await anon.auth.signInWithPassword({
+      email, password: authPassword,
+    });
+    if (signErr || !signed?.session) {
+      return new Response(JSON.stringify({ error: signErr?.message || "تعذر تسجيل الدخول" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     return new Response(
-      JSON.stringify({ email, password: authPassword, name: emp.name }),
+      JSON.stringify({
+        access_token: signed.session.access_token,
+        refresh_token: signed.session.refresh_token,
+        name: emp.name,
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e: any) {
     return new Response(JSON.stringify({ error: String(e?.message || e) }),
