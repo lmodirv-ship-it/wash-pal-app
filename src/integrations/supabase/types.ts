@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          brand_logo_url: string | null
+          brand_primary_color: string | null
+          id: number
+          maintenance_message: string | null
+          maintenance_mode: boolean
+          signup_enabled: boolean
+          updated_at: string
+          updated_by: string | null
+          welcome_message: string | null
+        }
+        Insert: {
+          brand_logo_url?: string | null
+          brand_primary_color?: string | null
+          id?: number
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
+          signup_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          welcome_message?: string | null
+        }
+        Update: {
+          brand_logo_url?: string | null
+          brand_primary_color?: string | null
+          id?: number
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
+          signup_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          welcome_message?: string | null
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           branch_id: string
@@ -625,6 +661,42 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_flags: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          key: string
+          label: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key: string
+          label: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key?: string
+          label?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       imou_devices: {
         Row: {
           branch_id: string | null
@@ -681,6 +753,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      impersonation_sessions: {
+        Row: {
+          ended_at: string | null
+          id: string
+          ip_address: string | null
+          owner_user_id: string
+          reason: string | null
+          started_at: string
+          target_shop_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          owner_user_id: string
+          reason?: string | null
+          started_at?: string
+          target_shop_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          owner_user_id?: string
+          reason?: string | null
+          started_at?: string
+          target_shop_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
       }
       invites: {
         Row: {
@@ -1843,6 +1948,10 @@ export type Database = {
         Returns: number
       }
       owner_db_health: { Args: never; Returns: Json }
+      owner_end_impersonation: {
+        Args: { _session_id: string }
+        Returns: undefined
+      }
       owner_recent_security_events: { Args: { _limit?: number }; Returns: Json }
       owner_set_shop_suspension: {
         Args: { _reason?: string; _shop_id: string; _suspend: boolean }
@@ -1854,6 +1963,10 @@ export type Database = {
           _target_user_id: string
         }
         Returns: undefined
+      }
+      owner_start_impersonation: {
+        Args: { _reason: string; _shop_id: string }
+        Returns: string
       }
       owner_tenant_integrity: { Args: never; Returns: Json }
       purge_surveillance_data: { Args: never; Returns: Json }

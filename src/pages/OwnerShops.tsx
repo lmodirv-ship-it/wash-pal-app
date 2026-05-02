@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Search, Pause, Play, Download, Loader2, AlertTriangle, Eye, RefreshCw } from "lucide-react";
+import { Building2, Search, Pause, Play, Download, Loader2, AlertTriangle, Eye, RefreshCw, ScanEye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { TableSkeleton } from "@/components/PageSkeleton";
 import { rowsToCsv, downloadCsv, logExport } from "@/lib/exportCsv";
 import { toast } from "sonner";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
 
 interface Shop {
   id: string;
@@ -31,6 +32,10 @@ function isUuid(value: string) {
 }
 
 export default function OwnerShops() {
+  const { start: startImpersonation } = useImpersonation();
+  const [impTarget, setImpTarget] = useState<Shop | null>(null);
+  const [impReason, setImpReason] = useState("");
+  const [impSubmitting, setImpSubmitting] = useState(false);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "suspended">("all");
   const [page, setPage] = useState(0);
@@ -249,6 +254,14 @@ export default function OwnerShops() {
                           <Button size="sm" variant="outline" onClick={() => setViewTarget(s)} className="gap-1">
                             <Eye className="w-3 h-3" /> عرض
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => { setImpTarget(s); setImpReason(""); }}
+                            className="gap-1 border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
+                          >
+                            <ScanEye className="w-3 h-3" /> مشاهدة
+                          </Button>
                           <Button size="sm" variant={s.suspended ? "default" : "outline"} onClick={() => openSuspend(s)} className="gap-1">
                             {s.suspended ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
                             {s.suspended ? "تفعيل" : "تجميد"}
@@ -320,6 +333,48 @@ export default function OwnerShops() {
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               {target?.suspended ? "تفعيل" : "تأكيد التجميد"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!impTarget} onOpenChange={(o) => !o && setImpTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ScanEye className="w-5 h-5 text-purple-400" />
+              بدء مشاهدة المتجر (للقراءة فقط)
+            </DialogTitle>
+            <DialogDescription>
+              ستدخل وضع المشاهدة لـ <strong>{impTarget?.name}</strong>. لن تستطيع تعديل أي بيانات،
+              وسيتم تسجيل هذه الجلسة في سجل التدقيق.
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            <label className="text-sm font-medium mb-1 block">سبب المشاهدة (إجباري)</label>
+            <Textarea
+              value={impReason}
+              onChange={(e) => setImpReason(e.target.value)}
+              placeholder="مثال: تشخيص مشكلة بلّغ عنها صاحب المتجر..."
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImpTarget(null)} disabled={impSubmitting}>إلغاء</Button>
+            <Button
+              disabled={impSubmitting || !impReason.trim() || !impTarget}
+              onClick={async () => {
+                if (!impTarget) return;
+                setImpSubmitting(true);
+                try {
+                  await startImpersonation(impTarget.id, impTarget.name, impReason.trim());
+                  setImpTarget(null);
+                  setImpReason("");
+                } catch {} finally { setImpSubmitting(false); }
+              }}
+            >
+              {impSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              بدء المشاهدة
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -12,6 +12,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { GlobalLogoutButton } from "@/components/GlobalLogoutButton";
 import { GlobalTextLocalizer } from "@/components/GlobalTextLocalizer";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { supabase } from "@/integrations/supabase/client";
 
 // Lazy-loaded pages — drastically reduces initial bundle
@@ -182,10 +185,13 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
+          <ImpersonationProvider>
           <ErrorBoundary>
           <Suspense fallback={<LoadingScreen />}>
           <GlobalTextLocalizer />
           <GlobalLogoutButton />
+          <ImpersonationBanner />
+          <MaintenanceGate>
           <Routes>
             {/* Public */}
             <Route path="/" element={<Landing />} />
@@ -305,8 +311,10 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </MaintenanceGate>
           </Suspense>
           </ErrorBoundary>
+          </ImpersonationProvider>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
