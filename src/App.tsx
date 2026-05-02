@@ -16,6 +16,9 @@ import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { supabase } from "@/integrations/supabase/client";
+import { useReferralTracking } from "@/hooks/useReferralTracking";
+import { initAnalytics, trackPageview } from "@/lib/analytics";
+import { useLocation } from "react-router-dom";
 
 // Lazy-loaded pages — drastically reduces initial bundle
 const Landing = lazy(() => import("./pages/Landing"));
@@ -100,6 +103,15 @@ function LoadingScreen() {
       </div>
     </div>
   );
+}
+
+/** Mounts global growth helpers: GA4 init, pageview tracking, referral capture. */
+function GrowthHelpers() {
+  const location = useLocation();
+  useReferralTracking();
+  useEffect(() => { initAnalytics(); }, []);
+  useEffect(() => { trackPageview(location.pathname + location.search); }, [location.pathname, location.search]);
+  return null;
 }
 
 /** Wraps protected pages with AppProvider + Layout + shop gate */
@@ -188,6 +200,7 @@ const App = () => (
           <ImpersonationProvider>
           <ErrorBoundary>
           <Suspense fallback={<LoadingScreen />}>
+          <GrowthHelpers />
           <GlobalTextLocalizer />
           <GlobalLogoutButton />
           <ImpersonationBanner />
