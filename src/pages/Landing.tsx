@@ -742,7 +742,7 @@ export default function Landing() {
 
       {/* ===== Footer ===== */}
       <footer className="border-t border-white/10 px-6 py-12 bg-black/40 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-10">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.5)]">
@@ -774,6 +774,7 @@ export default function Landing() {
               </ul>
             </div>
           ))}
+          <NewsletterSignup />
         </div>
         <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-white/50">{T.footer.rights}</p>
