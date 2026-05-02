@@ -1,0 +1,1 @@
+ALTER TABLE public.message_templates ALTER COLUMN language SET DEFAULT 'fr';
