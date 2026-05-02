@@ -516,18 +516,8 @@ function WorkEntriesTable({
                       </span>
                     )}
                   </p>
-                  <div className="flex items-center justify-between gap-2 pt-1">
+                  <div className="flex items-center justify-end gap-2 pt-1">
                     <Badge variant="outline" className={`text-[10px] ${statusColor(o.status)}`}>{statusLabel(o.status)}</Badge>
-                    {o.status !== "completed" && o.status !== "cancelled" && (
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="default" className="h-8 px-3 text-[11px]" onClick={() => handleComplete(o.id)}>
-                          <Check className="w-3.5 h-3.5 me-1" />{t("employeeApp.complete", { defaultValue: "إكمال" })}
-                        </Button>
-                        <Button size="sm" variant="outline" className="h-8 px-3 text-[11px]" onClick={() => handleCancel(o.id)}>
-                          <X className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
               );
