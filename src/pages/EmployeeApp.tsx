@@ -104,7 +104,10 @@ export default function EmployeeApp() {
       [&_button:not([data-state=active]):hover]:!bg-yellow-400/10 [&_button:not([data-state=active]):hover]:!text-yellow-300 [&_button:not([data-state=active]):hover]:!border-yellow-400/60
       [&_[role=tab]]:!border [&_[role=tab]]:!border-yellow-500/30
       [&_.bg-primary]:!bg-yellow-400 [&_.bg-primary]:!text-black [&_.bg-primary]:hover:!bg-yellow-300 [&_.bg-primary]:!shadow-[0_0_18px_rgba(250,204,21,0.5)]
-      [&_.text-primary]:!text-yellow-400">
+      [&_.text-primary]:!text-yellow-400
+      [&_.text-success]:!text-emerald-400 [&_.text-warning]:!text-amber-400 [&_.text-muted-foreground]:!text-zinc-400
+      [&_.bg-muted\/40]:!bg-zinc-800 [&_.bg-muted\/30]:!bg-zinc-800/60 [&_.bg-muted\/50]:!bg-zinc-700/70
+      [&_.border-border]:!border-yellow-500/20">
       <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
