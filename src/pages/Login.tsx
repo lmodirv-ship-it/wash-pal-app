@@ -73,7 +73,7 @@ export default function Login() {
     setLoading(true);
     const { error } = await signIn(form.email, form.password);
     if (error) { toast.error(error); setLoading(false); return; }
-    toast.success("مرحباً بعودتك 👋"); setLoading(false);
+    toast.success(t("auth.welcomeBack")); setLoading(false);
   };
 
   const handleReferenceSubmit = async (e: React.FormEvent) => {
@@ -86,16 +86,16 @@ export default function Login() {
       if (error) throw error;
       if (data?.error) { toast.error(data.error); setLoading(false); return; }
       if (!data?.access_token || !data?.refresh_token) {
-        toast.error("بيانات الدخول غير صحيحة"); setLoading(false); return;
+        toast.error(t("auth.invalidCredentials")); setLoading(false); return;
       }
       const { error: sessErr } = await supabase.auth.setSession({
         access_token: data.access_token,
         refresh_token: data.refresh_token,
       });
       if (sessErr) { toast.error(sessErr.message); setLoading(false); return; }
-      toast.success(`مرحباً ${data.name || ""} 👋`);
+      toast.success(`${t("common.welcome")} ${data.name || ""} 👋`);
     } catch (err: any) {
-      toast.error(err?.message || "خطأ في تسجيل الدخول");
+      toast.error(err?.message || t("auth.loginFailed"));
     } finally {
       setLoading(false);
     }
@@ -110,12 +110,12 @@ export default function Login() {
       });
       if (error) throw error;
       if (data?.error) { toast.error(data.error); setLoading(false); return; }
-      if (!data?.email || !data?.password) { toast.error("تعذر تسجيل الدخول"); setLoading(false); return; }
+      if (!data?.email || !data?.password) { toast.error(t("auth.unableLogin")); setLoading(false); return; }
       const { error: signErr } = await signIn(data.email, data.password);
       if (signErr) { toast.error(signErr); setLoading(false); return; }
-      toast.success(`مرحباً ${data.name || ""} 👋`);
+      toast.success(`${t("common.welcome")} ${data.name || ""} 👋`);
     } catch (err: any) {
-      toast.error(err?.message || "خطأ في تسجيل الدخول");
+      toast.error(err?.message || t("auth.loginFailed"));
     } finally {
       setLoading(false);
     }
