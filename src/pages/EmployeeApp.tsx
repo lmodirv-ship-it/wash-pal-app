@@ -95,21 +95,7 @@ export default function EmployeeApp() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden
-      [&_.bg-card]:bg-zinc-900 [&_.bg-card]:border [&_.bg-card]:border-yellow-500/40 [&_.bg-card]:shadow-[0_0_20px_-8px_rgba(250,204,21,0.4)]
-      [&_input]:!text-white [&_input]:!bg-zinc-900 [&_input]:!border-yellow-500/40 [&_input:focus]:!border-yellow-400 [&_input:focus]:!ring-2 [&_input:focus]:!ring-yellow-400/40
-      [&_label]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white [&_td]:!text-white [&_th]:!text-yellow-400
-      [&_button]:transition-all
-      [&_button[data-state=active]]:!bg-yellow-400 [&_button[data-state=active]]:!text-black [&_button[data-state=active]]:!shadow-[0_0_15px_rgba(250,204,21,0.6)]
-      [&_button:not([data-state=active]):hover]:!bg-yellow-400/10 [&_button:not([data-state=active]):hover]:!text-yellow-300 [&_button:not([data-state=active]):hover]:!border-yellow-400/60
-      [&_[role=tab]]:!border [&_[role=tab]]:!border-yellow-500/30
-      [&_.bg-primary]:!bg-yellow-400 [&_.bg-primary]:!text-black [&_.bg-primary]:hover:!bg-yellow-300 [&_.bg-primary]:!shadow-[0_0_18px_rgba(250,204,21,0.5)]
-      [&_.text-primary]:!text-yellow-400
-      [&_.text-success]:!text-emerald-400 [&_.text-warning]:!text-amber-400 [&_.text-muted-foreground]:!text-zinc-400
-      [&_.bg-muted\/40]:!bg-zinc-800 [&_.bg-muted\/30]:!bg-zinc-800/60 [&_.bg-muted\/50]:!bg-zinc-700/70
-      [&_.border-border]:!border-yellow-500/20
-      [&_.text-foreground]:!text-white [&_.bg-background]:!bg-zinc-900
-      [&_table_td]:!text-white [&_table_th]:!text-yellow-400 [&_table_tr:hover_td]:!text-white">
+    <div className="employee-work-theme min-h-screen bg-black text-white overflow-x-hidden">
       <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
