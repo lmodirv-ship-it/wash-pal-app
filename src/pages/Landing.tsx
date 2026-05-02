@@ -26,6 +26,9 @@ function StartFreeLink({ children, className }: { children: React.ReactNode; cla
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { BrandLogo } from "@/components/BrandLogo";
 import { useTranslation } from "react-i18next";
+import { SEO } from "@/components/SEO";
+import { SocialShare } from "@/components/SocialShare";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import {
