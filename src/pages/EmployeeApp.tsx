@@ -97,7 +97,7 @@ export default function EmployeeApp() {
   return (
     <div className="employee-work-theme min-h-screen bg-black text-white overflow-x-hidden">
       <style>{`
-        .employee-work-theme, .employee-work-theme * { color: #fff; }
+        .employee-work-theme, .employee-work-theme * { color: #ffffff !important; }
         .employee-work-theme .text-muted-foreground,
         .employee-work-theme .text-muted-foreground * { color: #a1a1aa !important; }
         .employee-work-theme th,
