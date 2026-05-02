@@ -22,6 +22,11 @@ export default function Login() {
   const [nameForm, setNameForm] = useState({ name: "", code: "" });
   const [mode, setMode] = useState<"email" | "reference" | "name">("email");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = localStorage.getItem("hl_remember_me");
+    return stored === null ? true : stored === "true";
+  });
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -71,6 +76,12 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    localStorage.setItem("hl_remember_me", String(rememberMe));
+    if (!rememberMe) {
+      sessionStorage.setItem("hl_session_only", "true");
+    } else {
+      sessionStorage.removeItem("hl_session_only");
+    }
     const { error } = await signIn(form.email, form.password);
     if (error) { toast.error(error); setLoading(false); return; }
     toast.success(t("auth.welcomeBack")); setLoading(false);
@@ -225,7 +236,18 @@ export default function Login() {
               <Input type="password" placeholder="••••••••" value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))} className="bg-[#0a0a1e] border-white/8 text-foreground h-11 focus:border-primary/40 focus:shadow-[0_0_15px_rgba(250,204,21,0.08)] transition-all" required minLength={6} />
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between gap-2">
+              <label className="flex items-center gap-2 cursor-pointer select-none group">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-white/20 bg-[#0a0a1e] text-primary focus:ring-2 focus:ring-primary/40 focus:ring-offset-0 cursor-pointer accent-primary"
+                />
+                <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                  {t("auth.rememberMe", "تذكرني")}
+                </span>
+              </label>
               <Link
                 to="/forgot-password"
                 className="text-sm font-bold text-primary hover:text-primary/80 hover:underline underline-offset-4 transition-colors"
