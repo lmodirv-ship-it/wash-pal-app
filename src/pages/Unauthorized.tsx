@@ -3,11 +3,14 @@ import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowLeft, Home } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveRoles, homeForRole, pickPrimaryRole } from "@/hooks/useEffectiveRoles";
+import { useTranslation } from "react-i18next";
 
 export default function Unauthorized() {
   const navigate = useNavigate();
   const { signOut, user, profile } = useAuth();
   const { roles, loading } = useEffectiveRoles();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === "ar";
 
   // Authenticated users should never see this page — auto-redirect to their home.
   if (user) {
@@ -24,7 +27,7 @@ export default function Unauthorized() {
   const homePath = "/login";
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6" dir="rtl">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6" dir={isRtl ? "rtl" : "ltr"}>
       <div className="max-w-md w-full text-center">
         <div className="relative mx-auto w-24 h-24 mb-8">
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-100 to-orange-100 blur-2xl" />
@@ -34,14 +37,14 @@ export default function Unauthorized() {
         </div>
 
         <h1 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">
-          غير مصرّح بالدخول
+          {t("unauthorized.title")}
         </h1>
         <p className="text-slate-600 leading-relaxed mb-2">
-          ليس لديك الصلاحية للوصول إلى هذه الصفحة.
+          {t("unauthorized.message")}
         </p>
         {profile?.role && (
           <p className="text-sm text-slate-500 mb-8">
-            دورك الحالي: <span className="font-bold text-slate-700">{profile.role}</span>
+            {t("unauthorized.currentRole")} <span className="font-bold text-slate-700">{profile.role}</span>
           </p>
         )}
 
@@ -51,13 +54,13 @@ export default function Unauthorized() {
             variant="outline"
             className="h-12 rounded-xl border-slate-200 px-6"
           >
-            <ArrowLeft className="w-4 h-4 rotate-180" />
-            رجوع
+            <ArrowLeft className={`w-4 h-4 ${isRtl ? "rotate-180" : ""}`} />
+            {t("common.back")}
           </Button>
           <Link to={homePath}>
             <Button className="h-12 rounded-xl px-6 bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:opacity-95 shadow-lg shadow-blue-500/25 w-full sm:w-auto">
               <Home className="w-4 h-4" />
-              صفحتي الرئيسية
+              {t("unauthorized.home")}
             </Button>
           </Link>
         </div>
@@ -67,7 +70,7 @@ export default function Unauthorized() {
             onClick={() => signOut()}
             className="mt-8 text-sm text-slate-500 hover:text-red-600 transition-colors"
           >
-            تسجيل الخروج وتجربة حساب آخر
+            {t("unauthorized.signOutTryAnother")}
           </button>
         )}
       </div>
