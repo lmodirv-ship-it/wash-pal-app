@@ -60,6 +60,147 @@ export default function Landing() {
   const [scrolled, setScrolled] = useState(false);
   const [visitors, setVisitors] = useState<number | null>(null);
 
+  // ---- Inline i18n dictionary (FR default) ----
+  const dict = {
+    fr: {
+      nav: { pricing: "Tarifs", features: "Fonctionnalités", how: "Comment ça marche", testimonials: "Avis", login: "Connexion", employee: "Espace employé", startFree: "Commencer gratuitement" },
+      hero: { badge: "Nouveau · Système de gestion 2026", title1: "Gérez votre car wash", title2: "en toute simplicité 🚗", subtitle: "Suivez vos revenus, gérez votre équipe et développez votre activité avec CarwashPro — la plateforme tout-en-un.", cta1: "Commencer gratuitement", cta2: "Voir les tarifs", trial: "15 jours d'essai gratuit", noCard: "Sans carte de crédit", visitors: "visiteurs", live: "LIVE · Lavage Pro", growth: "Croissance mensuelle", rating: "Satisfaction client" },
+      pricing: { badge: "💳 Nos forfaits", title: "Choisissez le forfait qui vous convient", subtitle: "15 jours d'essai gratuit pour chaque nouveau garage · Sans carte · Annulez quand vous voulez", popular: "⭐ Le plus choisi", perMonth: "DH / mois", choose: "Choisir", viewAll: "Voir tous les forfaits (Enterprise inclus)" },
+      plans: [
+        { name: "Starter", local: "Démarrage", credits: "300 opérations / mois", features: ["1 succursale", "Jusqu'à 3 employés", "300 opérations / mois", "Rapports de base"] },
+        { name: "Pro", local: "Professionnel", credits: "1000 opérations / mois", features: ["Jusqu'à 3 succursales", "Jusqu'à 10 employés", "1000 opérations / mois", "Rapports avancés", "Email + WhatsApp"] },
+        { name: "Business", local: "Entreprise", credits: "5000 opérations / mois", features: ["Succursales illimitées", "Employés illimités", "5000 opérations / mois", "Analyses très avancées"] },
+      ],
+      trust: "Utilisé par plus de 500 car wash au Maroc",
+      features: { eyebrow: "Fonctionnalités", title: "Tout ce dont vous avez besoin en un seul endroit", subtitle: "Des outils puissants et intégrés conçus avec précision pour gérer votre car wash efficacement",
+        showcase: [
+          { title: "Lavage haute pression", desc: "Suivez chaque lavage de A à Z." },
+          { title: "Polish et detailing pro", desc: "Enregistrez vos services premium et augmentez vos marges." },
+          { title: "Multi-succursales", desc: "Gérez toutes vos succursales depuis un seul tableau de bord." },
+        ],
+        cards: [
+          { title: "Tableau de bord en direct", desc: "Suivez la performance de votre garage minute par minute." },
+          { title: "Suivi des employés", desc: "Mesurez la performance de chacun et motivez votre équipe." },
+          { title: "Analyses de revenus", desc: "Rapports détaillés et intelligents pour comprendre votre croissance." },
+          { title: "Insights par IA", desc: "Recommandations alimentées par l'intelligence artificielle." },
+          { title: "Prêt multi-succursales", desc: "Gérez plusieurs succursales facilement depuis un seul écran." },
+          { title: "Compatible mobile", desc: "Expérience fluide sur mobile et desktop — partout." },
+        ],
+      },
+      stats: [{ label: "Visiteurs à ce jour" }, { label: "Voitures traitées" }, { label: "Disponibilité" }, { label: "Support" }],
+      how: { title: "Démarrez en 3 étapes simples", subtitle: "De l'inscription à la croissance — nous sommes avec vous à chaque étape",
+        steps: [
+          { title: "Ajoutez vos services", desc: "Créez votre liste de services et tarifs en quelques minutes." },
+          { title: "Suivez les opérations", desc: "Enregistrez les commandes et suivez leur statut en temps réel." },
+          { title: "Développez votre activité", desc: "Analysez les performances et prenez des décisions éclairées." },
+        ] },
+      testimonials: { title: "Ils nous font confiance chaque jour", subtitle: "De vraies histoires de succès de propriétaires de car wash",
+        items: [
+          { name: "Ahmed Benali", role: "Propriétaire, Casablanca", text: "CarwashPro a transformé ma gestion. Je vois tout au même endroit, parfaitement organisé." },
+          { name: "Souad El Mrabet", role: "Directrice de chaîne, Rabat", text: "Les rapports intelligents nous ont permis d'augmenter nos revenus de 35% en seulement 3 mois." },
+          { name: "Karim El Fassi", role: "Propriétaire de 2 garages, Tanger", text: "Le support est excellent et l'application très fluide. Je le recommande vivement." },
+        ] },
+      cta: { title: "Prêt à transformer votre gestion ?", subtitle: "Rejoignez des centaines de propriétaires qui font confiance à CarwashPro. Commencez gratuitement aujourd'hui.", cta1: "Commencer maintenant", cta2: "Voir les tarifs" },
+      footer: { tagline: "Le système de gestion de car wash le plus complet au Maroc.", visitorsTotal: "visiteurs au total",
+        product: { title: "Produit", links: ["Fonctionnalités", "Tarifs", "Mises à jour", "Démo"] },
+        company: { title: "Entreprise", links: ["À propos", "Contact", "Blog", "Carrières"] },
+        legal: { title: "Légal", links: ["Conditions", "Confidentialité", "Cookies", "Sécurité"] },
+        rights: "© 2026 CarwashPro — H&Lavage. Tous droits réservés.", madeIn: "Fait avec 💙 au Maroc" },
+    },
+    ar: {
+      nav: { pricing: "الأسعار", features: "الميزات", how: "كيف يعمل", testimonials: "الآراء", login: "تسجيل الدخول", employee: "دخول الموظف", startFree: "ابدأ مجاناً" },
+      hero: { badge: "جديد · نظام إدارة المغاسل 2026", title1: "أدر مغسلتك", title2: "باحترافية كاملة 🚗", subtitle: "تابع الإيرادات، أدر فريقك، ونمِّ أعمالك بسلاسة مع CarwashPro — منصة واحدة لكل ما تحتاجه.", cta1: "ابدأ مجاناً", cta2: "شاهد الباقات", trial: "15 يوم تجربة مجانية", noCard: "بدون بطاقة ائتمان", visitors: "زائر", live: "LIVE · غسيل احترافي", growth: "نمو شهري", rating: "رضا العملاء" },
+      pricing: { badge: "💳 باقاتنا", title: "اختر الباقة المناسبة لك", subtitle: "15 يوم تجربة مجانية لكل محل جديد · بدون بطاقة ائتمان · ألغِ متى شئت", popular: "⭐ الأكثر اختياراً", perMonth: "DH / شهر", choose: "اختر", viewAll: "عرض كل الباقات بالتفصيل (بما فيها Enterprise)" },
+      plans: [
+        { name: "Starter", local: "بداية", credits: "300 عملية / شهر", features: ["فرع واحد", "حتى 3 موظفين", "300 عملية شهرياً", "تقارير أساسية"] },
+        { name: "Pro", local: "احترافي", credits: "1000 عملية / شهر", features: ["حتى 3 فروع", "حتى 10 موظفين", "1000 عملية شهرياً", "تقارير متقدمة", "Email + WhatsApp"] },
+        { name: "Business", local: "متقدم", credits: "5000 عملية / شهر", features: ["فروع غير محدودة", "موظفون غير محدودون", "5000 عملية شهرياً", "تحليلات متقدمة جداً"] },
+      ],
+      trust: "يستخدمها أكثر من 500 مغسلة في المغرب",
+      features: { eyebrow: "الميزات", title: "كل ما تحتاجه في مكان واحد", subtitle: "أدوات قوية ومتكاملة مصممة بدقة لمساعدتك على إدارة مغسلتك بكفاءة تامة",
+        showcase: [
+          { title: "غسيل بالضغط العالي", desc: "تتبع كل عملية غسيل من بدايتها لنهايتها." },
+          { title: "تلميع وعناية احترافية", desc: "سجّل خدمات الـ detailing وضاعف هوامشك." },
+          { title: "إدارة عدة فروع", desc: "أدر كل فروعك ومحلاتك من لوحة واحدة." },
+        ],
+        cards: [
+          { title: "لوحة تحكم فورية", desc: "تابع أداء مغسلتك لحظة بلحظة مع بيانات حية ودقيقة." },
+          { title: "تتبع الموظفين", desc: "قِس أداء كل موظف وحفّز فريقك لتحقيق أفضل النتائج." },
+          { title: "تحليلات الإيرادات", desc: "تقارير مفصّلة وذكية لفهم نمو أعمالك واتجاهاتك." },
+          { title: "رؤى ذكية بالـ AI", desc: "توصيات مدعومة بالذكاء الاصطناعي لتحسين عملياتك." },
+          { title: "جاهز لعدة فروع", desc: "أدر فروعك المتعددة من لوحة واحدة وبكل سهولة." },
+          { title: "متوافق مع الجوال", desc: "تجربة سلسة على الهاتف والحاسوب — أينما كنت." },
+        ],
+      },
+      stats: [{ label: "زائر إلى الآن" }, { label: "سيارة معالجة" }, { label: "وقت التشغيل" }, { label: "دعم فني" }],
+      how: { title: "ابدأ في 3 خطوات بسيطة", subtitle: "من التسجيل إلى النمو — نحن معك في كل خطوة",
+        steps: [
+          { title: "أضف خدماتك", desc: "أنشئ قائمة الخدمات والأسعار في دقائق." },
+          { title: "تابع المعاملات", desc: "سجّل الطلبات وتابع حالتها لحظة بلحظة." },
+          { title: "نمِّ أعمالك", desc: "حلّل الأداء واتخذ قرارات أذكى." },
+        ] },
+      testimonials: { title: "يثقون بنا كل يوم", subtitle: "قصص نجاح حقيقية من أصحاب المغاسل",
+        items: [
+          { name: "أحمد بنعلي", role: "صاحب مغسلة، الدار البيضاء", text: "غيّر CarwashPro طريقة إدارتي تماماً. أصبحت أرى كل شيء في مكان واحد ومنظم." },
+          { name: "سعاد المرابط", role: "مديرة سلسلة مغاسل، الرباط", text: "التقارير الذكية ساعدتنا على زيادة الإيرادات بنسبة 35% خلال 3 أشهر فقط." },
+          { name: "كريم الفاسي", role: "صاحب مغسلتين، طنجة", text: "الدعم الفني ممتاز والتطبيق سلس جداً. أنصح به بقوة لكل صاحب مغسلة." },
+        ] },
+      cta: { title: "جاهز لتغيير طريقة إدارتك؟", subtitle: "انضم لمئات أصحاب المغاسل الذين يثقون في CarwashPro. ابدأ مجاناً اليوم.", cta1: "ابدأ مجاناً الآن", cta2: "شاهد الباقات" },
+      footer: { tagline: "نظام إدارة المغاسل الأشمل في المغرب.", visitorsTotal: "زائر إجمالي",
+        product: { title: "المنتج", links: ["الميزات", "الأسعار", "التحديثات", "العرض التوضيحي"] },
+        company: { title: "الشركة", links: ["من نحن", "تواصل معنا", "المدونة", "وظائف"] },
+        legal: { title: "قانوني", links: ["الشروط", "الخصوصية", "الكوكيز", "الأمان"] },
+        rights: "© 2026 CarwashPro — H&Lavage. جميع الحقوق محفوظة.", madeIn: "صُنع بحب 💙 في المغرب" },
+    },
+    en: {
+      nav: { pricing: "Pricing", features: "Features", how: "How it works", testimonials: "Reviews", login: "Sign in", employee: "Employee login", startFree: "Start free" },
+      hero: { badge: "New · Car wash management 2026", title1: "Manage your car wash", title2: "with full pro power 🚗", subtitle: "Track revenue, manage your team, and grow your business smoothly with CarwashPro — one platform for everything.", cta1: "Start free", cta2: "See plans", trial: "15-day free trial", noCard: "No credit card", visitors: "visitors", live: "LIVE · Pro wash", growth: "Monthly growth", rating: "Customer rating" },
+      pricing: { badge: "💳 Our plans", title: "Choose the plan that fits you", subtitle: "15-day free trial for every new shop · No credit card · Cancel anytime", popular: "⭐ Most popular", perMonth: "DH / month", choose: "Choose", viewAll: "View all plans in detail (Enterprise included)" },
+      plans: [
+        { name: "Starter", local: "Starter", credits: "300 operations / month", features: ["1 branch", "Up to 3 employees", "300 ops / month", "Basic reports"] },
+        { name: "Pro", local: "Pro", credits: "1000 operations / month", features: ["Up to 3 branches", "Up to 10 employees", "1000 ops / month", "Advanced reports", "Email + WhatsApp"] },
+        { name: "Business", local: "Business", credits: "5000 operations / month", features: ["Unlimited branches", "Unlimited employees", "5000 ops / month", "Very advanced analytics"] },
+      ],
+      trust: "Used by 500+ car washes in Morocco",
+      features: { eyebrow: "Features", title: "Everything you need in one place", subtitle: "Powerful, integrated tools designed precisely to help you run your car wash efficiently",
+        showcase: [
+          { title: "High-pressure wash", desc: "Track every wash from start to finish." },
+          { title: "Pro polish & detailing", desc: "Log detailing services and double your margins." },
+          { title: "Multi-branch management", desc: "Run all your branches from one dashboard." },
+        ],
+        cards: [
+          { title: "Live dashboard", desc: "Track your shop performance moment by moment with live data." },
+          { title: "Employee tracking", desc: "Measure each employee's performance and motivate your team." },
+          { title: "Revenue analytics", desc: "Detailed, smart reports to understand your growth and trends." },
+          { title: "AI-powered insights", desc: "AI-driven recommendations to improve your operations." },
+          { title: "Multi-branch ready", desc: "Run multiple branches from one dashboard easily." },
+          { title: "Mobile-friendly", desc: "Smooth experience on mobile and desktop — anywhere." },
+        ],
+      },
+      stats: [{ label: "Visitors so far" }, { label: "Cars processed" }, { label: "Uptime" }, { label: "Support" }],
+      how: { title: "Start in 3 simple steps", subtitle: "From signup to growth — we're with you every step",
+        steps: [
+          { title: "Add your services", desc: "Create your service and pricing list in minutes." },
+          { title: "Track operations", desc: "Log orders and track their status moment by moment." },
+          { title: "Grow your business", desc: "Analyze performance and make smarter decisions." },
+        ] },
+      testimonials: { title: "Trusted every day", subtitle: "Real success stories from car wash owners",
+        items: [
+          { name: "Ahmed Benali", role: "Owner, Casablanca", text: "CarwashPro completely changed how I run my shop. I see everything in one organized place." },
+          { name: "Souad El Mrabet", role: "Chain manager, Rabat", text: "Smart reports helped us increase revenue by 35% in just 3 months." },
+          { name: "Karim El Fassi", role: "Owner of 2 shops, Tangier", text: "Support is excellent and the app is very smooth. I highly recommend it." },
+        ] },
+      cta: { title: "Ready to change how you run things?", subtitle: "Join hundreds of car wash owners who trust CarwashPro. Start free today.", cta1: "Start free now", cta2: "See plans" },
+      footer: { tagline: "The most complete car wash management system in Morocco.", visitorsTotal: "total visitors",
+        product: { title: "Product", links: ["Features", "Pricing", "Updates", "Demo"] },
+        company: { title: "Company", links: ["About", "Contact", "Blog", "Careers"] },
+        legal: { title: "Legal", links: ["Terms", "Privacy", "Cookies", "Security"] },
+        rights: "© 2026 CarwashPro — H&Lavage. All rights reserved.", madeIn: "Made with 💙 in Morocco" },
+    },
+  } as const;
+  const lang = (i18n.language === "ar" ? "ar" : i18n.language === "en" ? "en" : "fr") as "fr" | "ar" | "en";
+  const T = dict[lang];
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", onScroll);
