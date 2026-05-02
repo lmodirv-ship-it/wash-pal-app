@@ -13,6 +13,7 @@ import { Plus, Trash2, Edit, Settings as SettingsIcon, Droplets, Building2, User
 import { toast } from "sonner";
 import { Service, Branch } from "@/types";
 import { useTranslation } from "react-i18next";
+import { ReferralCard } from "@/components/ReferralCard";
 
 export default function SettingsPage() {
   const {
@@ -156,6 +157,9 @@ export default function SettingsPage() {
         </TabsList>
 
         <TabsContent value="account" className="mt-4">
+          <div className="mb-4">
+            <ReferralCard />
+          </div>
           <div className="lavage-card overflow-hidden">
             <div className="p-4 border-b border-border flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
