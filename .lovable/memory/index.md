@@ -27,3 +27,4 @@ Owner console is fully isolated under `/owner/*` (legacy `/admin/*` redirects th
 - [Glossy Dark Theme](mem://style/glossy-dark-theme) — Visual identity tokens
 - [Login Page Design](mem://ui/login-design) — Glassmorphism login, no role-specific buttons
 - [Table Layout Conventions](mem://ui/table-layout-preference) — Standard column ordering (Ref, Name, Role, Date)
+- [Owner Platform Controls](mem://features/owner-platform-controls) — App settings, feature flags, maintenance gate, read-only impersonation, audit triggers
