@@ -193,7 +193,7 @@ export default function EmployeeApp() {
         </div>
       </Card>
 
-      <Card className="p-2 sm:p-3 rounded-2xl shadow-soft">
+      <Card className="p-2 sm:p-3 rounded-2xl shadow-soft font-extrabold shadow-md opacity-75">
         {carSize === "motor" ? (
           grouped.motor.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-6">{t("employeeApp.noMotorServices")}</p>
