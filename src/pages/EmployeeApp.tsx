@@ -96,31 +96,6 @@ export default function EmployeeApp() {
 
   return (
     <div className="employee-work-theme min-h-screen bg-black text-white overflow-x-hidden">
-      <style>{`
-        .employee-work-theme, .employee-work-theme * { color: #ffffff !important; }
-        .employee-work-theme .text-muted-foreground,
-        .employee-work-theme .text-muted-foreground * { color: #a1a1aa !important; }
-        .employee-work-theme th,
-        .employee-work-theme thead { color: #facc15 !important; }
-        .employee-work-theme .text-primary,
-        .employee-work-theme .text-primary * { color: #facc15 !important; }
-        .employee-work-theme .text-success { color: #34d399 !important; }
-        .employee-work-theme .text-warning { color: #fbbf24 !important; }
-        .employee-work-theme .bg-card { background: #18181b !important; border: 1px solid rgba(250,204,21,0.4) !important; box-shadow: 0 0 20px -8px rgba(250,204,21,0.4) !important; }
-        .employee-work-theme .bg-background { background: #09090b !important; }
-        .employee-work-theme .bg-muted\\/40 { background: #27272a !important; }
-        .employee-work-theme .bg-muted\\/30 { background: rgba(39,39,42,0.6) !important; }
-        .employee-work-theme .bg-muted\\/50 { background: rgba(63,63,70,0.7) !important; }
-        .employee-work-theme .border-border { border-color: rgba(250,204,21,0.25) !important; }
-        .employee-work-theme input { background: #18181b !important; color: #fff !important; border-color: rgba(250,204,21,0.4) !important; }
-        .employee-work-theme input:focus { border-color: #facc15 !important; box-shadow: 0 0 0 2px rgba(250,204,21,0.4) !important; }
-        .employee-work-theme .bg-primary { background: #facc15 !important; color: #000 !important; box-shadow: 0 0 18px rgba(250,204,21,0.5) !important; }
-        .employee-work-theme .bg-primary * { color: #000 !important; }
-        .employee-work-theme [data-state=active] { background: #facc15 !important; color: #000 !important; box-shadow: 0 0 15px rgba(250,204,21,0.6) !important; }
-        .employee-work-theme [data-state=active] * { color: #000 !important; }
-        .employee-work-theme [role=tab] { border: 1px solid rgba(250,204,21,0.3) !important; }
-        .employee-work-theme tr.cursor-pointer:hover { background: rgba(250,204,21,0.08) !important; }
-      `}</style>
       <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
