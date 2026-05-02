@@ -360,6 +360,9 @@ export default function Landing() {
                 </div>
               )}
             </motion.div>
+            <motion.div variants={fadeUp} custom={5} className="mt-6">
+              <SocialShare />
+            </motion.div>
           </motion.div>
 
           {/* Right: REAL VIDEO */}
