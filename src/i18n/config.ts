@@ -17,6 +17,8 @@ i18n
     lng: typeof window !== "undefined" && !localStorage.getItem("lang") ? "fr" : undefined,
     fallbackLng: "fr",
     supportedLngs: ["ar", "fr", "en"],
+    load: "languageOnly",
+    nonExplicitSupportedLngs: true,
     interpolation: { escapeValue: false },
     detection: {
       order: ["localStorage", "navigator"],
@@ -26,9 +28,10 @@ i18n
   });
 
 const applyDir = (lng: string) => {
-  const dir = lng === "ar" ? "rtl" : "ltr";
+  const normalized = lng.split("-")[0];
+  const dir = normalized === "ar" ? "rtl" : "ltr";
   document.documentElement.dir = dir;
-  document.documentElement.lang = lng;
+  document.documentElement.lang = normalized;
 };
 
 applyDir(i18n.language || "fr");
