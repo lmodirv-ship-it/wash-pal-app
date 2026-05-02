@@ -971,6 +971,36 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          language: string
+          source: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          source?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          source?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       notification_settings: {
         Row: {
           created_at: string
@@ -1239,6 +1269,63 @@ export type Database = {
           name?: string
           role?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          signups_count: number
+          user_id: string
+          uses_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          signups_count?: number
+          user_id: string
+          uses_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          signups_count?: number
+          user_id?: string
+          uses_count?: number
+        }
+        Relationships: []
+      }
+      referral_events: {
+        Row: {
+          code: string
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          referred_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          referred_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          referred_user_id?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -1895,6 +1982,8 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      generate_referral_code: { Args: never; Returns: string }
+      get_or_create_my_referral_code: { Args: never; Returns: string }
       get_shop_limits: {
         Args: { _shop_id: string }
         Returns: {
@@ -1978,6 +2067,7 @@ export type Database = {
         Args: { _full_name: string; _phone: string; _reference_code: string }
         Returns: string
       }
+      track_referral_click: { Args: { _code: string }; Returns: undefined }
       user_shop_ids: { Args: never; Returns: string[] }
     }
     Enums: {

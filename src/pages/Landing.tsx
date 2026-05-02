@@ -26,6 +26,9 @@ function StartFreeLink({ children, className }: { children: React.ReactNode; cla
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { BrandLogo } from "@/components/BrandLogo";
 import { useTranslation } from "react-i18next";
+import { SEO } from "@/components/SEO";
+import { SocialShare } from "@/components/SocialShare";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -60,6 +63,18 @@ export default function Landing() {
   const isRtl = i18n.language === "ar";
   const [scrolled, setScrolled] = useState(false);
   const [visitors, setVisitors] = useState<number | null>(null);
+
+  // SEO per language
+  const seoTitle = isRtl
+    ? "CarwashPro — نظام إدارة المغاسل الأشمل في المغرب"
+    : i18n.language === "fr"
+      ? "CarwashPro — Le système de gestion de car wash le plus complet"
+      : "CarwashPro — The most complete car wash management system";
+  const seoDesc = isRtl
+    ? "أدر مغسلتك باحترافية: طلبات، فواتير، موظفين، تقارير و B2B. ابدأ مجاناً 15 يوماً بدون بطاقة."
+    : i18n.language === "fr"
+      ? "Gérez votre car wash facilement: commandes, factures, équipe, rapports, B2B. Essai gratuit 15 jours sans carte."
+      : "Manage your car wash easily: orders, invoices, team, reports, B2B. Free 15-day trial, no card.";
 
   // ---- Inline i18n dictionary (FR default) ----
   const dict = {
@@ -237,6 +252,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-[#05060a] text-white overflow-x-hidden" dir={isRtl ? "rtl" : "ltr"} style={{ scrollBehavior: "smooth" }}>
+      <SEO title={seoTitle} description={seoDesc} canonical={typeof window !== "undefined" ? window.location.origin + "/" : undefined} />
       {/* Glossy black ambient background */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(59,130,246,0.25),transparent_60%)]" />
@@ -356,6 +372,9 @@ export default function Landing() {
                   <span className="text-white/80 font-semibold tabular-nums">{visitors.toLocaleString()}</span> {T.hero.visitors}
                 </div>
               )}
+            </motion.div>
+            <motion.div variants={fadeUp} custom={5} className="mt-6">
+              <SocialShare />
             </motion.div>
           </motion.div>
 
@@ -723,7 +742,7 @@ export default function Landing() {
 
       {/* ===== Footer ===== */}
       <footer className="border-t border-white/10 px-6 py-12 bg-black/40 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-10">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.5)]">
@@ -755,6 +774,7 @@ export default function Landing() {
               </ul>
             </div>
           ))}
+          <NewsletterSignup />
         </div>
         <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-white/50">{T.footer.rights}</p>
