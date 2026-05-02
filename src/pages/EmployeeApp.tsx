@@ -95,21 +95,32 @@ export default function EmployeeApp() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden
-      [&_.bg-card]:bg-zinc-900 [&_.bg-card]:border [&_.bg-card]:border-yellow-500/40 [&_.bg-card]:shadow-[0_0_20px_-8px_rgba(250,204,21,0.4)]
-      [&_input]:!text-white [&_input]:!bg-zinc-900 [&_input]:!border-yellow-500/40 [&_input:focus]:!border-yellow-400 [&_input:focus]:!ring-2 [&_input:focus]:!ring-yellow-400/40
-      [&_label]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_p]:!text-white [&_span]:!text-white [&_td]:!text-white [&_th]:!text-yellow-400
-      [&_button]:transition-all
-      [&_button[data-state=active]]:!bg-yellow-400 [&_button[data-state=active]]:!text-black [&_button[data-state=active]]:!shadow-[0_0_15px_rgba(250,204,21,0.6)]
-      [&_button:not([data-state=active]):hover]:!bg-yellow-400/10 [&_button:not([data-state=active]):hover]:!text-yellow-300 [&_button:not([data-state=active]):hover]:!border-yellow-400/60
-      [&_[role=tab]]:!border [&_[role=tab]]:!border-yellow-500/30
-      [&_.bg-primary]:!bg-yellow-400 [&_.bg-primary]:!text-black [&_.bg-primary]:hover:!bg-yellow-300 [&_.bg-primary]:!shadow-[0_0_18px_rgba(250,204,21,0.5)]
-      [&_.text-primary]:!text-yellow-400
-      [&_.text-success]:!text-emerald-400 [&_.text-warning]:!text-amber-400 [&_.text-muted-foreground]:!text-zinc-400
-      [&_.bg-muted\/40]:!bg-zinc-800 [&_.bg-muted\/30]:!bg-zinc-800/60 [&_.bg-muted\/50]:!bg-zinc-700/70
-      [&_.border-border]:!border-yellow-500/20
-      [&_.text-foreground]:!text-white [&_.bg-background]:!bg-zinc-900
-      [&_table_td]:!text-white [&_table_th]:!text-yellow-400 [&_table_tr:hover_td]:!text-white">
+    <div className="employee-work-theme min-h-screen bg-black text-white overflow-x-hidden">
+      <style>{`
+        .employee-work-theme, .employee-work-theme * { color: #fff; }
+        .employee-work-theme .text-muted-foreground,
+        .employee-work-theme .text-muted-foreground * { color: #a1a1aa !important; }
+        .employee-work-theme th,
+        .employee-work-theme thead { color: #facc15 !important; }
+        .employee-work-theme .text-primary,
+        .employee-work-theme .text-primary * { color: #facc15 !important; }
+        .employee-work-theme .text-success { color: #34d399 !important; }
+        .employee-work-theme .text-warning { color: #fbbf24 !important; }
+        .employee-work-theme .bg-card { background: #18181b !important; border: 1px solid rgba(250,204,21,0.4) !important; box-shadow: 0 0 20px -8px rgba(250,204,21,0.4) !important; }
+        .employee-work-theme .bg-background { background: #09090b !important; }
+        .employee-work-theme .bg-muted\\/40 { background: #27272a !important; }
+        .employee-work-theme .bg-muted\\/30 { background: rgba(39,39,42,0.6) !important; }
+        .employee-work-theme .bg-muted\\/50 { background: rgba(63,63,70,0.7) !important; }
+        .employee-work-theme .border-border { border-color: rgba(250,204,21,0.25) !important; }
+        .employee-work-theme input { background: #18181b !important; color: #fff !important; border-color: rgba(250,204,21,0.4) !important; }
+        .employee-work-theme input:focus { border-color: #facc15 !important; box-shadow: 0 0 0 2px rgba(250,204,21,0.4) !important; }
+        .employee-work-theme .bg-primary { background: #facc15 !important; color: #000 !important; box-shadow: 0 0 18px rgba(250,204,21,0.5) !important; }
+        .employee-work-theme .bg-primary * { color: #000 !important; }
+        .employee-work-theme [data-state=active] { background: #facc15 !important; color: #000 !important; box-shadow: 0 0 15px rgba(250,204,21,0.6) !important; }
+        .employee-work-theme [data-state=active] * { color: #000 !important; }
+        .employee-work-theme [role=tab] { border: 1px solid rgba(250,204,21,0.3) !important; }
+        .employee-work-theme tr.cursor-pointer:hover { background: rgba(250,204,21,0.08) !important; }
+      `}</style>
       <div className="max-w-2xl mx-auto px-2 sm:px-3 py-2 space-y-2 sm:space-y-3 pb-28">
 
       <Card className="p-4 rounded-2xl space-y-3 shadow-soft">
