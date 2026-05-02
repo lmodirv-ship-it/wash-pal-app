@@ -16,7 +16,12 @@ const LANGS = [
 
 export function LanguageSwitcher({ className = "" }: { className?: string }) {
   const { i18n, t } = useTranslation();
-  const current = LANGS.find((l) => l.code === i18n.language) ?? LANGS[0];
+  const activeLanguage = (i18n.resolvedLanguage || i18n.language || "fr").split("-")[0];
+  const current = LANGS.find((l) => l.code === activeLanguage) ?? LANGS[1];
+  const setLanguage = async (code: (typeof LANGS)[number]["code"]) => {
+    localStorage.setItem("lang", code);
+    await i18n.changeLanguage(code);
+  };
 
   return (
     <DropdownMenu>
@@ -35,11 +40,11 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
         {LANGS.map((lng) => (
           <DropdownMenuItem
             key={lng.code}
-            onClick={() => i18n.changeLanguage(lng.code)}
+            onClick={() => setLanguage(lng.code)}
             className="gap-2 cursor-pointer"
           >
             <Check
-              className={`w-4 h-4 ${i18n.language === lng.code ? "opacity-100" : "opacity-0"}`}
+              className={`w-4 h-4 ${activeLanguage === lng.code ? "opacity-100" : "opacity-0"}`}
             />
             <span className="font-medium">{lng.label}</span>
           </DropdownMenuItem>
