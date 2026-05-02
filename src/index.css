@@ -648,29 +648,25 @@ button:disabled {
   opacity: 0.5;
 }
 
-/* === Employee Work Page (/dashboard/work) gold theme overrides === */
-.employee-work-theme,
-.employee-work-theme * {
-  color: #ffffff !important;
-}
-.employee-work-theme .text-muted-foreground,
-.employee-work-theme .text-muted-foreground * { color: #a1a1aa !important; }
-.employee-work-theme th,
-.employee-work-theme thead,
-.employee-work-theme thead * { color: #facc15 !important; }
-.employee-work-theme .text-primary,
-.employee-work-theme .text-primary * { color: #facc15 !important; }
-.employee-work-theme .text-success,
-.employee-work-theme .text-success * { color: #34d399 !important; }
-.employee-work-theme .text-warning,
-.employee-work-theme .text-warning * { color: #fbbf24 !important; }
+
+/* === Employee Work Page (/dashboard/work) — minimal gold accents on dark === */
+.employee-work-theme { color-scheme: dark; }
 .employee-work-theme .bg-card {
   background: #18181b !important;
-  border: 1px solid rgba(250,204,21,0.4) !important;
-  box-shadow: 0 0 20px -8px rgba(250,204,21,0.4) !important;
+  border-color: rgba(250,204,21,0.35) !important;
+  color: #ffffff !important;
 }
-.employee-work-theme .bg-background { background: #09090b !important; }
-.employee-work-theme .border-border { border-color: rgba(250,204,21,0.25) !important; }
+.employee-work-theme .bg-card * { color: inherit; }
+.employee-work-theme .text-foreground { color: #ffffff !important; }
+.employee-work-theme .text-muted-foreground { color: #a1a1aa !important; }
+.employee-work-theme .text-primary { color: #facc15 !important; }
+.employee-work-theme .text-success { color: #34d399 !important; }
+.employee-work-theme .text-warning { color: #fbbf24 !important; }
+.employee-work-theme .border-border { border-color: rgba(250,204,21,0.2) !important; }
+.employee-work-theme thead.bg-muted\/40 { background: #27272a !important; }
+.employee-work-theme thead th { color: #facc15 !important; }
+.employee-work-theme tbody td { color: #ffffff !important; }
+.employee-work-theme tr.cursor-pointer:hover { background: rgba(250,204,21,0.08) !important; }
 .employee-work-theme input {
   background: #18181b !important;
   color: #ffffff !important;
@@ -680,33 +676,10 @@ button:disabled {
   border-color: #facc15 !important;
   box-shadow: 0 0 0 2px rgba(250,204,21,0.4) !important;
 }
-.employee-work-theme .bg-primary,
-.employee-work-theme .bg-primary * {
+/* Active tab — gold */
+.employee-work-theme [role=tab][data-state=active] {
   background: #facc15 !important;
   color: #000 !important;
+  box-shadow: 0 0 15px rgba(250,204,21,0.6) !important;
 }
-.employee-work-theme [data-state=active],
-.employee-work-theme [data-state=active] * {
-  background: #facc15 !important;
-  color: #000 !important;
-}
-.employee-work-theme [role=tab] { border: 1px solid rgba(250,204,21,0.3) !important; }
-.employee-work-theme tr.cursor-pointer:hover {
-  background: rgba(250,204,21,0.08) !important;
-}
-.employee-work-theme .text-foreground,
-.employee-work-theme .text-foreground * { color: #ffffff !important; }
-.employee-work-theme [class*="text-"]:not(.text-primary):not(.text-success):not(.text-warning):not(.text-muted-foreground):not(.text-warning):not(.text-yellow-400):not(.text-yellow-300) {
-  color: #ffffff !important;
-}
-.employee-work-theme .text-card-foreground,
-.employee-work-theme .text-card-foreground * { color: #ffffff !important; }
-.employee-work-theme table,
-.employee-work-theme tbody,
-.employee-work-theme tr,
-.employee-work-theme td,
-.employee-work-theme td span,
-.employee-work-theme td p,
-.employee-work-theme td div { color: #ffffff !important; }
-.employee-work-theme thead th,
-.employee-work-theme thead { color: #facc15 !important; background: #27272a !important; }
+.employee-work-theme [role=tab][data-state=active] * { color: #000 !important; }
