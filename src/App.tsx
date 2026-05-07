@@ -45,6 +45,11 @@ const Team = lazy(() => import("./pages/Team"));
 const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const StartFree = lazy(() => import("./pages/StartFree"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const LegalPrivacy = lazy(() => import("./pages/legal/Privacy"));
+const LegalTerms = lazy(() => import("./pages/legal/Terms"));
+const LegalAbout = lazy(() => import("./pages/legal/About"));
+const LegalContact = lazy(() => import("./pages/legal/Contact"));
+const LegalCommunity = lazy(() => import("./pages/legal/Community"));
 const Unauthorized = lazy(() => import("./pages/Unauthorized"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -216,6 +221,11 @@ const App = () => (
             <Route path="/post-login" element={<RoleHomeRedirect />} />
             <Route path="/start" element={<StartFree />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/legal/privacy" element={<LegalPrivacy />} />
+            <Route path="/legal/terms" element={<LegalTerms />} />
+            <Route path="/legal/about" element={<LegalAbout />} />
+            <Route path="/legal/contact" element={<LegalContact />} />
+            <Route path="/legal/community" element={<LegalCommunity />} />
             <Route path="/create-shop" element={<AuthedCreateShop />} />
             <Route path="/invite/:token" element={<AcceptInvite />} />
             <Route path="/join-shop" element={<JoinShop />} />
