@@ -759,16 +759,31 @@ export default function Landing() {
             )}
           </div>
           {[
-            T.footer.product,
-            T.footer.company,
-            T.footer.legal,
+            { title: T.footer.product.title, links: [
+              { label: T.footer.product.links[0], href: "#features" },
+              { label: T.footer.product.links[1], href: "/pricing" },
+              { label: T.footer.product.links[2], href: "#how" },
+              { label: T.footer.product.links[3], href: "/start" },
+            ]},
+            { title: T.footer.company.title, links: [
+              { label: T.footer.company.links[0], href: "/legal/about" },
+              { label: T.footer.company.links[1], href: "/legal/contact" },
+              { label: T.footer.company.links[2], href: "/legal/community" },
+              { label: T.footer.company.links[3], href: "/legal/contact" },
+            ]},
+            { title: T.footer.legal.title, links: [
+              { label: T.footer.legal.links[0], href: "/legal/terms" },
+              { label: T.footer.legal.links[1], href: "/legal/privacy" },
+              { label: T.footer.legal.links[2], href: "/legal/privacy" },
+              { label: T.footer.legal.links[3], href: "/legal/community" },
+            ]},
           ].map((c, i) => (
             <div key={i}>
               <h4 className="font-bold text-sm text-white mb-4">{c.title}</h4>
               <ul className="space-y-2.5">
                 {c.links.map((l, j) => (
                   <li key={j}>
-                    <a href="#" className="text-sm text-white/60 hover:text-cyan-300 transition-colors">{l}</a>
+                    <a href={l.href} className="text-sm text-white/60 hover:text-cyan-300 transition-colors">{l.label}</a>
                   </li>
                 ))}
               </ul>
