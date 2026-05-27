@@ -304,6 +304,22 @@ export default function Login() {
               {t("auth.continueWithGoogle", "المتابعة باستخدام Google")}
             </Button>
 
+            <Button
+              type="button"
+              onClick={() => {
+                const HN = (window as any).HN;
+                if (!HN?.auth?.login) {
+                  toast.error("HN SSO غير متاح حالياً");
+                  return;
+                }
+                HN.auth.login({ returnTo: window.location.href });
+              }}
+              className="w-full h-12 font-bold bg-gradient-to-r from-[#1a1a3a] to-[#2a1a4a] text-white border border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(250,204,21,0.15)] transition-all flex items-center justify-center gap-2"
+            >
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              المتابعة عبر HN (تسجيل موحّد)
+            </Button>
+
             <div className="text-center text-xs text-muted-foreground pt-2">
               {t("auth.noAccount")}{" "}
               <Link to={`/signup${redirectParam ? `?redirect=${redirectParam}` : ""}`} className="text-primary hover:underline font-semibold">
