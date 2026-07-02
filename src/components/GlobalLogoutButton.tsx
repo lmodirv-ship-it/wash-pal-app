@@ -20,21 +20,15 @@ export function GlobalLogoutButton() {
 
   if (!user) return null;
 
-  // Routes that already render their own logout button in the header/topnav.
-  const HIDE_ON_PREFIXES = [
-    "/dashboard",   // admin Layout has logout (covers /dashboard, /dashboard/work, /dashboard/services, /dashboard/join-requests)
-    "/owner",       // OwnerLayout has logout
-    "/orders", "/customers", "/employees", "/services", "/entries",
-    "/invoices", "/reports", "/finance", "/branches", "/shops",
-    "/settings", "/team", "/prospecting", "/templates", "/coupons",
-    "/data-status", "/join-requests",
-    // Public/auth pages
-    "/login", "/signup", "/forgot-password", "/reset-password",
-    "/start", "/pricing", "/", "/landing", "/invite",
+  // Hide only on public/auth pages. Show on every authenticated page,
+  // even if the layout already has its own logout button (per user request).
+  const HIDE_EXACT = new Set<string>(["/", "/landing", "/pricing", "/start"]);
+  const HIDE_PREFIXES = [
+    "/login", "/signup", "/forgot-password", "/reset-password", "/invite", "/legal",
   ];
-  const shouldHide = HIDE_ON_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
+  const shouldHide =
+    HIDE_EXACT.has(pathname) ||
+    HIDE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
   if (shouldHide) return null;
 
   const isRtl = i18n.language === "ar";
