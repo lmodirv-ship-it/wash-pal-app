@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Search, Users, RefreshCw, Shield, KeyRound, AlertTriangle } from "lucide-react";
+import { Search, Users, RefreshCw, Shield, KeyRound, AlertTriangle, UserPlus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { TableSkeleton } from "@/components/PageSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ALL_ROLES, AppRole, useEffectiveRoles } from "@/hooks/useEffectiveRoles";
@@ -57,6 +59,9 @@ export default function AdminUsers() {
   const { roles: myRoles } = useEffectiveRoles();
   const isPlatformOwner = (myRoles ?? []).includes("owner" as AppRole);
   const assignableRoles = ALL_ROLES.filter((r) => isPlatformOwner || r !== "owner");
+  const [addOpen, setAddOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "employee" as string });
 
   const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["owner-users", page],
@@ -114,6 +119,25 @@ export default function AdminUsers() {
     refetch();
   };
 
+  const handleCreateUser = async () => {
+    if (!newUser.email || !newUser.password || newUser.password.length < 6) {
+      toast.error("البريد وكلمة سر (6 أحرف على الأقل) مطلوبان");
+      return;
+    }
+    if (newUser.role === "owner" && !isPlatformOwner) {
+      toast.error("فقط مالك المنصة يمكنه إنشاء owner");
+      return;
+    }
+    setCreating(true);
+    const { error } = await supabase.functions.invoke("admin-create-user", { body: newUser });
+    setCreating(false);
+    if (error) { toast.error("فشل إنشاء المستخدم: " + (error.message || "")); return; }
+    toast.success("تم إنشاء المستخدم");
+    setAddOpen(false);
+    setNewUser({ name: "", email: "", password: "", role: "employee" });
+    refetch();
+  };
+
   return (
     <div className="space-y-5 p-4 md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -126,11 +150,39 @@ export default function AdminUsers() {
             <p className="text-sm text-muted-foreground">{total.toLocaleString("ar-MA")} مستخدم من قاعدة البيانات</p>
           </div>
         </div>
-        <Button onClick={() => refetch()} variant="outline" className="gap-2" disabled={isFetching}>
-          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
-          تحديث
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setAddOpen(true)} className="gap-2">
+            <UserPlus className="w-4 h-4" />
+            إضافة مستخدم
+          </Button>
+          <Button onClick={() => refetch()} variant="outline" className="gap-2" disabled={isFetching}>
+            <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+            تحديث
+          </Button>
+        </div>
       </div>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>إضافة مستخدم جديد</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div><Label>الاسم</Label><Input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} placeholder="الاسم الكامل" /></div>
+            <div><Label>البريد الإلكتروني</Label><Input type="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="user@example.com" /></div>
+            <div><Label>كلمة السر</Label><Input type="password" value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="6 أحرف على الأقل" /></div>
+            <div>
+              <Label>الدور</Label>
+              <Select value={newUser.role} onValueChange={(v) => setNewUser({ ...newUser, role: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{assignableRoles.map((r) => <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)} disabled={creating}>إلغاء</Button>
+            <Button onClick={handleCreateUser} disabled={creating}>{creating ? "جارٍ الإنشاء..." : "إنشاء"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-card/70 border border-border">
         <div className="flex-1 min-w-[220px] relative">
